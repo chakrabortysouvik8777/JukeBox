@@ -5,7 +5,7 @@
 
 ## 📌 About the Project
 
-Welcome to **Earth Information Jukebox**, our collaborative project for the NASA Hackathon.
+Welcome to **Earth Information Jukebox**, our collaborative project for the NASA Space App Challenge.
 
 This repository serves as the central workspace for our team to brainstorm ideas, explore possibilities, share resources, and develop our solution around the theme of Earth Information Jukebox.
 
