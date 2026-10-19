@@ -1,18 +1,23 @@
 Research Paper 1: 
 
+#Citation: 
 Lindborg P, Lenzi S and Chen M (2023) Climate data sonification and visualization: An analysis of topics, aesthetics, and characteristics in 32 recent projects. Front. Psychol. 13:1020102. doi: 10.3389/fpsyg.2022.1020102
-Problems faced :
-1. It has proven a hard challenge to present climate science to convince not only the scientists but also the general public.
+
+#Problems faced :
+1. It has proven a hard challenge to present climate science to understand not only by the scientists but also the general public.
 2. The “information deficit” fallacy, which arises when abundant information is assumed to lead to better understanding simply by existing but fails in its purpose because the meaning is inaccessible and misaligned with the needs of different audiences.
-3. Interdisciplinary projects are often based on the notion that both art and science, but the challenge and the difficulty reside in the reality of bringing together contrasting methodologies that frequently use very different written and visual languages
+3. Many projects are often based on the notion that are based on both art and science, but the challenge and the difficulty reside in the reality of bringing together contrasting methodologies that frequently use very different written and visual languages
 4. Sonification is still an emerging discipline that struggles to define its boundaries, its impacts and more importantly, shared methods, processes, and tools for the mapping of data to sound.
 
-Challenges :
+#Challenges :
 1. To create sonifications that are not only effective at communicating information but which are sufficiently engaging to engender sustained attention.
 
-Solutions :
-1. Sonification, the translation of data into sound, and visualization, the translation of data into light, offer techniques for designing sonic and visual representations of scientific data in ways that can often
-be highly innovative and exciting for viewers.
-
-Keywords: 
+#Keywords: 
 1. Kramers's original concept
+2. Sonic dimensions are frequency, pitch, amplitude, and location in the stereo field.
+3. Parameter passing process - a well defined process but some problems faced by it is - does not speak about qualitative characteristics of either input or output, or of the influence of sometimes nebulous information accompanying the sonification itself.
+4. Aesthetic Perspective Space (APS) - It is a theoretical construct, a two-dimensional circumplex model,aimed at bridging auditory display and electroacoustic music. APS presents itself as a circumplex with two axes, labeled Intentionality and Indexicality. The first dimension describes purpose, and is anchored by the concepts of Ars Informatica (utilitarian) and Ars Musica (artistic). The second dimension describes the nature of sonic materials, whether the sonic material points toward Concrete or Abstract ontologies.
+5. Intentionality - It is a gradient of the designer’s intention in taking deliberate decisions to address specific needs, in a given context and with a purpose, when transforming data into sound.
+6. Indexicality - It indicates the facility of causal inference: how much a "sound" sounds like the thing that made it.
+7. Data Sonification Archive project
+8. PRISMA framework (Preferred Reporting Items for Systematic Reviews and Meta-Analyses) 
