@@ -1,0 +1,18 @@
+Research Paper 1: 
+
+Lindborg P, Lenzi S and Chen M (2023) Climate data sonification and visualization: An analysis of topics, aesthetics, and characteristics in 32 recent projects. Front. Psychol. 13:1020102. doi: 10.3389/fpsyg.2022.1020102
+Problems faced :
+1. It has proven a hard challenge to present climate science to convince not only the scientists but also the general public.
+2. The “information deficit” fallacy, which arises when abundant information is assumed to lead to better understanding simply by existing but fails in its purpose because the meaning is inaccessible and misaligned with the needs of different audiences.
+3. Interdisciplinary projects are often based on the notion that both art and science, but the challenge and the difficulty reside in the reality of bringing together contrasting methodologies that frequently use very different written and visual languages
+4. Sonification is still an emerging discipline that struggles to define its boundaries, its impacts and more importantly, shared methods, processes, and tools for the mapping of data to sound.
+
+Challenges :
+1. To create sonifications that are not only effective at communicating information but which are sufficiently engaging to engender sustained attention.
+
+Solutions :
+1. Sonification, the translation of data into sound, and visualization, the translation of data into light, offer techniques for designing sonic and visual representations of scientific data in ways that can often
+be highly innovative and exciting for viewers.
+
+Keywords: 
+1. Kramers's original concept
