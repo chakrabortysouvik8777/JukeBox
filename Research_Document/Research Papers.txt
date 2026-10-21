@@ -1,11 +1,45 @@
-Paper 6:-
+Paper 7:-
 ----------------------------------------------
-Keywords: 
-1. STRAUSS (Sonification Tools and Resources for Analysis Using Sound Synthesis) -> python sonification package operating in FOSS capacity.
+Need of Sonification: 
+1. For those who are blind or visually impaired (BVI) and can't access the visual data.
+2. Lack of dedicated and accessible tools for sonifying data.
+3. Lack of easy accessed tools for users.
 
-Capabilities: 
-1. scientific data exploration and analysis 
-2. producing sonifications 
+Previous Methodologies: 
+1.  Using ad-hoc tools to parse data and map it to properties of sound as well as generating and outputting sound in different formats.
+    Disadvantages : Tools being repurposed to sonify data are proprietary and platform-dependent, requiring paid-for licenses.
+2.  astronify and SonoUno.
+    Disadvantages : These are typically feature-limited in how sonification is produced, namely continuous pitch-mapped sonification.
+For this disadvantages, we need a python package that - 
+1. Provides a full pipeline from data to sonified audio.
+2. Is modular and enables complex, multi-variate sonification to be produced and fine tuned.
+3. Is fully open-source and platform-independent.
+
+So STRAUSS is invented.
+STRAUSS - 
+    => uses an object-oriented structure to provide a clear conceptual framework.
+    => designed to be used independently or in conjunction with visuals.
+    => designed to be a low-barrier, high-ceiling tool.
+    => minimises dependencies 
+    => implementing built-in signal generation, audio parsing ,encoding based on python libraries like NumPy and SciPy.
+    => means to interface with commonly used audio formats, such as “Soundfont” files (.sf2)
+    => maintained and does not require difficult to install or proprietary software.
+    => For low-barrier aspirations of STRAUSS- 
+        1. tutorial-driven development (TDD) approach is used.
+        2. tutorial examples in Python Notebook (examples/.ipynb) and Python script(examples/*.py) formats, Google Colab platform (examples/colab/*.ipynb)allowing examples to be run fully in-browser without requiring a local install of the code.
+
+----------------------------------------End of Paper----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -31,3 +65,12 @@ Lindborg P, Lenzi S and Chen M (2023) Climate data sonification and visualizatio
 7. Data Sonification Archive project
 8. PRISMA framework (Preferred Reporting Items for Systematic Reviews and Meta-Analyses) 
 */
+
+Paper 6:-
+----------------------------------------------
+Keywords: 
+1. STRAUSS (Sonification Tools and Resources for Analysis Using Sound Synthesis) -> python sonification package operating in FOSS capacity.
+
+Capabilities: 
+1. scientific data exploration and analysis 
+2. producing sonifications 
