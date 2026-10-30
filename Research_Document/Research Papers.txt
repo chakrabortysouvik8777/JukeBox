@@ -1,5 +1,5 @@
 Paper 7:-
-----------------------------------------------
+
 Need of Sonification: 
 1. For those who are blind or visually impaired (BVI) and can't access the visual data.
 2. Lack of dedicated and accessible tools for sonifying data.
@@ -30,17 +30,21 @@ STRAUSS -
 
 ----------------------------------------End of Paper----------------------------------------------------
 
+Paper 8:-
 
+1. Tactile models provide alternative, BVI-accessible representations of astronomical objects through projects.
+2. this Python code allows the user to synthesize sounds or manipulate pre-recorded audio samples with properties (e.g. pitch, volume, timbre) that are mapped from input data. 
+3. STRAUSS was also used to create an effect of stars appearing. 
 
+Three important lessons from the pilot show is - 
+1. it is crucial to provide clear context to the audience before playing the audio sound, and it is difficult for them to quickly interpret the sonifications.
+2. visual representations need not be excluded.
+3. using tactile models as a mandatory part of the show limits reach and dissemination.
 
+Disadvantages:
+1. tactile models are more prohibitive due to the challenges and costs of manufacturing them in large quantities. 
 
-
-
-
-
-
-
-
+----------------------------------------End of Paper----------------------------------------------------
 
 /*
 #Citation: 
