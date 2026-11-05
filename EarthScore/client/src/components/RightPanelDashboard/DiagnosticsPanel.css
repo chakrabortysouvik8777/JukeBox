@@ -1,0 +1,203 @@
+
+/* Main Panel */
+
+.diagnostic-panel {
+  width: 100%;
+  min-width: 0;
+  padding: 16px;
+  background: #191d26;
+  border: 1px solid #292f3b;
+  border-radius: 8px;
+  color: #d7dbe5;
+}
+
+/* Header */
+
+.diagnostic-header {
+  margin-bottom: 20px;
+}
+
+.diagnostic-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #a9c2ff;
+  font-size: 10px;
+  font-weight: bold;
+  font-family: Georgia, serif;
+}
+
+.coordinate-system {
+  background: #292e38;
+  color: #c4c9d5;
+  padding: 4px 7px;
+}
+
+.diagnostic-header h1 {
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.35;
+  margin-top: 12px;
+  color: #e0e3ec;
+}
+
+.diagnostic-description {
+  margin-top: 8px;
+  color: #b8bfce;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.location-coordinates {
+  margin-top: 12px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #a9c2ff;
+}
+
+/* Metric Grid */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.metric-card {
+  min-width: 0;
+  background: #20252f;
+  padding: 11px 9px;
+  border: 1px solid #292f3a;
+  border-radius: 4px;
+  transition: 0.2s;
+}
+
+.metric-card:hover {
+  background: #262d3a;
+  border-color: #465675;
+  transform: translateY(-2px);
+}
+
+.metric-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.metric-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 0;
+}
+
+.metric-change {
+  font-size: 9px;
+  padding: 3px 4px;
+  background: #303440;
+  color: #e1a59a;
+  white-space: nowrap;
+}
+
+.metric-card h2 {
+  font-size: clamp(17px, 1.7vw, 21px);
+  font-family: Georgia, serif;
+  color: #e0e3ec;
+  overflow-wrap: anywhere;
+}
+
+.metric-card p {
+  margin-top: 4px;
+  color: #afb5c3;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* Correlation Chart */
+
+.correlation-section {
+  margin-top: 18px;
+  padding: 12px 8px;
+  background: #11151d;
+  border: 1px solid #222936;
+  border-radius: 5px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chart-header h3 {
+  color: #a9afbd;
+  font-size: 10px;
+  font-family: Georgia, serif;
+}
+
+.chart-header span {
+  color: #a9c2ff;
+  font-size: 10px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-bottom: 10px;
+  font-size: 10px;
+}
+
+.temp-legend {
+  color: #ff9e8f;
+}
+
+.pm-legend {
+  color: #9bbcff;
+}
+
+.co2-legend {
+  color: #d1d5df;
+}
+
+.chart-container {
+  width: 100%;
+  height: 190px;
+}
+
+/* Data disclaimer */
+
+.data-disclaimer {
+  margin-top: 12px;
+  color: #929bad;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .diagnostic-panel {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 500px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .diagnostic-header h1 {
+    font-size: 19px;
+  }
+
+  .metric-card h2 {
+    font-size: 19px;
+  }
+}

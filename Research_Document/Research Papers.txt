@@ -1,0 +1,1558 @@
+Paper 7:-
+
+Need of Sonification: 
+1. For those who are blind or visually impaired (BVI) and can't access the visual data.
+2. Lack of dedicated and accessible tools for sonifying data.
+3. Lack of easy accessed tools for users.
+
+Previous Methodologies: 
+1.  Using ad-hoc tools to parse data and map it to properties of sound as well as generating and outputting sound in different formats.
+    Disadvantages : Tools being repurposed to sonify data are proprietary and platform-dependent, requiring paid-for licenses.
+2.  astronify and SonoUno.
+    Disadvantages : These are typically feature-limited in how sonification is produced, namely continuous pitch-mapped sonification.
+For this disadvantages, we need a python package that - 
+1. Provides a full pipeline from data to sonified audio.
+2. Is modular and enables complex, multi-variate sonification to be produced and fine tuned.
+3. Is fully open-source and platform-independent.
+
+So STRAUSS is invented.
+STRAUSS - 
+    => uses an object-oriented structure to provide a clear conceptual framework.
+    => designed to be used independently or in conjunction with visuals.
+    => designed to be a low-barrier, high-ceiling tool.
+    => minimises dependencies 
+    => implementing built-in signal generation, audio parsing ,encoding based on python libraries like NumPy and SciPy.
+    => means to interface with commonly used audio formats, such as “Soundfont” files (.sf2)
+    => maintained and does not require difficult to install or proprietary software.
+    => For low-barrier aspirations of STRAUSS- 
+        1. tutorial-driven development (TDD) approach is used.
+        2. tutorial examples in Python Notebook (examples/.ipynb) and Python script(examples/*.py) formats, Google Colab platform (examples/colab/*.ipynb)allowing examples to be run fully in-browser without requiring a local install of the code.
+
+----------------------------------------End of Paper----------------------------------------------------
+
+Paper 8:-
+
+1. Tactile models provide alternative, BVI-accessible representations of astronomical objects through projects.
+2. this Python code allows the user to synthesize sounds or manipulate pre-recorded audio samples with properties (e.g. pitch, volume, timbre) that are mapped from input data. 
+3. STRAUSS was also used to create an effect of stars appearing. 
+
+Three important lessons from the pilot show is - 
+1. it is crucial to provide clear context to the audience before playing the audio sound, and it is difficult for them to quickly interpret the sonifications.
+2. visual representations need not be excluded.
+3. using tactile models as a mandatory part of the show limits reach and dissemination.
+
+Disadvantages:
+1. tactile models are more prohibitive due to the challenges and costs of manufacturing them in large quantities. 
+
+----------------------------------------End of Paper----------------------------------------------------
+
+/*
+#Citation: 
+Lindborg P, Lenzi S and Chen M (2023) Climate data sonification and visualization: An analysis of topics, aesthetics, and characteristics in 32 recent projects. Front. Psychol. 13:1020102. doi: 10.3389/fpsyg.2022.1020102
+
+#Problems faced :
+1. It has proven a hard challenge to present climate science to understand not only by the scientists but also the general public.
+2. The “information deficit” fallacy, which arises when abundant information is assumed to lead to better understanding simply by existing but fails in its purpose because the meaning is inaccessible and misaligned with the needs of different audiences.
+3. Many projects are often based on the notion that are based on both art and science, but the challenge and the difficulty reside in the reality of bringing together contrasting methodologies that frequently use very different written and visual languages
+4. Sonification is still an emerging discipline that struggles to define its boundaries, its impacts and more importantly, shared methods, processes, and tools for the mapping of data to sound.
+
+#Challenges :
+1. To create sonifications that are not only effective at communicating information but which are sufficiently engaging to engender sustained attention.
+
+#Keywords: 
+1. Kramers's original concept
+2. Sonic dimensions are frequency, pitch, amplitude, and location in the stereo field.
+3. Parameter passing process - a well defined process but some problems faced by it is - does not speak about qualitative characteristics of either input or output, or of the influence of sometimes nebulous information accompanying the sonification itself.
+4. Aesthetic Perspective Space (APS) - It is a theoretical construct, a two-dimensional circumplex model,aimed at bridging auditory display and electroacoustic music. APS presents itself as a circumplex with two axes, labeled Intentionality and Indexicality. The first dimension describes purpose, and is anchored by the concepts of Ars Informatica (utilitarian) and Ars Musica (artistic). The second dimension describes the nature of sonic materials, whether the sonic material points toward Concrete or Abstract ontologies.
+5. Intentionality - It is a gradient of the designer’s intention in taking deliberate decisions to address specific needs, in a given context and with a purpose, when transforming data into sound.
+6. Indexicality - It indicates the facility of causal inference: how much a "sound" sounds like the thing that made it.
+7. Data Sonification Archive project
+8. PRISMA framework (Preferred Reporting Items for Systematic Reviews and Meta-Analyses) 
+*/
+
+Paper 6:-
+----------------------------------------------
+Keywords: 
+1. STRAUSS (Sonification Tools and Resources for Analysis Using Sound Synthesis) -> python sonification package operating in FOSS capacity.
+
+Capabilities: 
+1. scientific data exploration and analysis 
+2. producing sonifications 
+
+
+
+earth-information-jukebox/
+│
+├── public/
+│   ├── assets/
+│   │   ├── images/
+│   │   │   ├── earth/
+│   │   │   │   ├── earth-day.jpg
+│   │   │   │   ├── earth-night.jpg
+│   │   │   │   ├── earth-clouds.png
+│   │   │   │   └── earth-normal.jpg
+│   │   │   │
+│   │   │   ├── backgrounds/
+│   │   │   │   ├── space-bg.jpg
+│   │   │   │   └── stars-bg.png
+│   │   │   │
+│   │   │   └── logo/
+│   │   │       └── logo.svg
+│   │   │
+│   │   ├── icons/
+│   │   │   ├── temperature.svg
+│   │   │   ├── pollution.svg
+│   │   │   ├── greenhouse-gas.svg
+│   │   │   ├── water.svg
+│   │   │   ├── vegetation.svg
+│   │   │   └── population.svg
+│   │   │
+│   │   └── geojson/
+│   │       ├── countries.geojson
+│   │       └── regions.geojson
+│   │
+│   ├── favicon.svg
+│   └── robots.txt
+│
+├── src/
+│   │
+│   ├── assets/
+│   │   ├── images/
+│   │   ├── fonts/
+│   │   └── sounds/
+│   │
+│   ├── components/
+│   │   │
+│   │   ├── common/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Loader.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Tooltip.tsx
+│   │   │   ├── SearchBar.tsx
+│   │   │   └── EmptyState.tsx
+│   │   │
+│   │   ├── layout/
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   └── MainLayout.tsx
+│   │   │
+│   │   ├── globe/
+│   │   │   ├── EarthScene.tsx
+│   │   │   ├── EarthGlobe.tsx
+│   │   │   ├── EarthAtmosphere.tsx
+│   │   │   ├── EarthClouds.tsx
+│   │   │   ├── StarBackground.tsx
+│   │   │   ├── RegionSelector.tsx
+│   │   │   ├── LocationMarker.tsx
+│   │   │   ├── GlobeControls.tsx
+│   │   │   └── SelectedRegionPanel.tsx
+│   │   │
+│   │   ├── dashboard/
+│   │   │   ├── RegionOverview.tsx
+│   │   │   ├── MetricCard.tsx
+│   │   │   ├── EnvironmentalMetrics.tsx
+│   │   │   ├── ParameterSelector.tsx
+│   │   │   ├── HistoricalTimeline.tsx
+│   │   │   ├── ComparisonPanel.tsx
+│   │   │   └── DataAvailability.tsx
+│   │   │
+│   │   ├── charts/
+│   │   │   ├── TemperatureChart.tsx
+│   │   │   ├── AirQualityChart.tsx
+│   │   │   ├── GreenhouseGasChart.tsx
+│   │   │   ├── WaterChart.tsx
+│   │   │   ├── VegetationChart.tsx
+│   │   │   ├── PopulationChart.tsx
+│   │   │   └── ChartControls.tsx
+│   │   │
+│   │   ├── sonification/
+│   │   │   ├── SonificationStudio.tsx
+│   │   │   ├── AudioPlayer.tsx
+│   │   │   ├── AudioVisualizer.tsx
+│   │   │   ├── Waveform.tsx
+│   │   │   ├── SoundLayerControls.tsx
+│   │   │   ├── EarthSymphony.tsx
+│   │   │   ├── SoundStyleSelector.tsx
+│   │   │   └── AudioDownload.tsx
+│   │   │
+│   │   ├── comparison/
+│   │   │   ├── RegionComparison.tsx
+│   │   │   └── YearComparison.tsx
+│   │   │
+│   │   ├── stories/
+│   │   │   ├── DataStories.tsx
+│   │   │   └── StoryCard.tsx
+│   │   │
+│   │   └── methodology/
+│   │       ├── DataSources.tsx
+│   │       └── MethodologyDrawer.tsx
+│   │
+│   ├── pages/
+│   │   ├── Home.tsx
+│   │   ├── Explore.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── DataStoriesPage.tsx
+│   │   └── About.tsx
+│   │
+│   ├── services/
+│   │   │
+│   │   ├── api/
+│   │   │   ├── apiClient.ts
+│   │   │   └── endpoints.ts
+│   │   │
+│   │   ├── data/
+│   │   │   ├── temperatureService.ts
+│   │   │   ├── airQualityService.ts
+│   │   │   ├── greenhouseGasService.ts
+│   │   │   ├── waterService.ts
+│   │   │   ├── vegetationService.ts
+│   │   │   ├── populationService.ts
+│   │   │   └── geographicService.ts
+│   │   │
+│   │   └── audio/
+│   │       ├── sonificationEngine.ts
+│   │       ├── audioGenerator.ts
+│   │       ├── audioPlayback.ts
+│   │       ├── audioExporter.ts
+│   │       └── soundMappings.ts
+│   │
+│   ├── hooks/
+│   │   ├── useEarthGlobe.ts
+│   │   ├── useRegionSelection.ts
+│   │   ├── useEnvironmentalData.ts
+│   │   ├── useHistoricalTimeline.ts
+│   │   ├── useSonification.ts
+│   │   └── useAudioPlayer.ts
+│   │
+│   ├── context/
+│   │   ├── GlobeContext.tsx
+│   │   ├── DataContext.tsx
+│   │   └── AudioContext.tsx
+│   │
+│   ├── store/
+│   │   └── useAppStore.ts
+│   │
+│   ├── data/
+│   │   ├── demo/
+│   │   │   ├── temperature.json
+│   │   │   ├── airQuality.json
+│   │   │   ├── greenhouseGases.json
+│   │   │   ├── water.json
+│   │   │   ├── vegetation.json
+│   │   │   └── population.json
+│   │   │
+│   │   └── parameters.ts
+│   │
+│   ├── types/
+│   │   ├── environmentalData.ts
+│   │   ├── geographic.ts
+│   │   ├── sonification.ts
+│   │   ├── audio.ts
+│   │   └── index.ts
+│   │
+│   ├── utils/
+│   │   ├── dataNormalization.ts
+│   │   ├── dataAggregation.ts
+│   │   ├── geographicUtils.ts
+│   │   ├── dateUtils.ts
+│   │   └── formatters.ts
+│   │
+│   ├── styles/
+│   │   ├── index.css
+│   │   ├── globals.css
+│   │   └── animations.css
+│   │
+│   ├── App.tsx
+│   └── main.tsx
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tsconfig.app.json
+├── tsconfig.node.json
+├── vite.config.ts
+└── README.md
+
+
+/*
+:root {
+    --bg: #eef2f9;
+    --pn: #fff;
+    --cd: #f1f4fb;
+    --bd: #d3daea;
+    --tx: #12203b;
+    --mu: #56627f;
+    --ac: #2f5fd8;
+    --acl: #2f5fd8;
+    --hot: #d9480f;
+    --red: #d4321a;
+    --ok: #1f8f55;
+    --mid: #b7791f;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px)
+}
+
+@media(prefers-color-scheme:dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #050a14;
+        --pn: #0c1322;
+        --cd: #141c2e;
+        --bd: #1f2a44;
+        --tx: #e6ebf7;
+        --mu: #8c98b6;
+        --ac: #3b72f0;
+        --acl: #a9b9ff;
+        --hot: #ff9d8e;
+        --red: #e8321e;
+        --ok: #4cd08a;
+        --mid: #f0b64a
+    }
+}
+
+:root[data-theme="dark"] {
+    --bg: #050a14;
+    --pn: #0c1322;
+    --cd: #141c2e;
+    --bd: #1f2a44;
+    --tx: #e6ebf7;
+    --mu: #8c98b6;
+    --ac: #3b72f0;
+    --acl: #a9b9ff;
+    --hot: #ff9d8e;
+    --red: #e8321e;
+    --ok: #4cd08a;
+    --mid: #f0b64a
+}
+
+* {
+    box-sizing: border-box
+}
+
+html,
+body {
+    margin: 0
+}
+
+body {
+    background: var(--bg);
+    color: var(--tx);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif
+}
+
+button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer
+}
+
+.mu,
+.kick,
+.lab {
+    color: var(--mu)
+}
+
+.mono,
+.kick,
+.status,
+.tools,
+.ovh,
+.mh,
+.lab,
+.tag,
+.chip,
+.pill {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: .04em
+}
+
+.top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 22px;
+    justify-content: space-between
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap
+}
+
+.logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--ac);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 20px
+}
+
+.kick {
+    font-size: 11px
+}
+
+.tag {
+    background: var(--cd);
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 6px
+}
+
+h1 {
+    font-size: 20px;
+    margin: 0;
+    letter-spacing: .01em
+}
+
+.pill {
+    font-size: 11px;
+    color: var(--acl);
+    background: var(--cd);
+    padding: 6px 10px;
+    border-radius: 4px
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: var(--pn);
+    padding: 4px;
+    border-radius: 6px
+}
+
+nav button {
+    background: none;
+    border: 0;
+    padding: 10px 14px;
+    border-radius: 4px;
+    color: var(--mu);
+    font-weight: 500
+}
+
+nav button.on {
+    background: var(--ac);
+    color: #fff
+}
+
+.tr {
+    display: flex;
+    gap: 8px;
+    align-items: center
+}
+
+.search {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: var(--pn);
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: var(--mu)
+}
+
+.search input {
+    background: none;
+    border: 0;
+    outline: 0;
+    color: var(--tx);
+    font: inherit;
+    width: 190px
+}
+
+.ib {
+    background: var(--pn);
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 8px 10px
+}
+
+.status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    align-items: center;
+    font-size: 12px;
+    padding: 10px 22px 14px;
+    border-bottom: 1px solid var(--bd)
+}
+
+.status>span:first-child {
+    color: var(--acl)
+}
+
+.sp {
+    flex: 1
+}
+
+.chip {
+    background: var(--ac);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px
+}
+
+.chip.dim {
+    background: var(--cd);
+    color: var(--tx)
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: 20px;
+    padding: 20px 22px;
+    align-items: start
+}
+
+@media(max-width:1000px) {
+    .grid {
+        grid-template-columns: 1fr
+    }
+}
+
+.card {
+    background: var(--pn);
+    border: 1px solid var(--bd);
+    border-radius: 14px;
+    padding: 18px
+}
+
+.col {
+    display: grid;
+    gap: 20px
+}
+
+.tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap
+}
+
+.seg {
+    display: flex;
+    flex-wrap: wrap;
+    background: var(--cd);
+    border-radius: 4px;
+    padding: 3px;
+    gap: 2px
+}
+
+.seg button {
+    background: none;
+    border: 0;
+    padding: 5px 10px;
+    border-radius: 3px;
+    color: var(--mu);
+    font-size: 13px
+}
+
+.seg button.on {
+    background: var(--ac);
+    color: #fff
+}
+
+.gwrap {
+    position: relative;
+    background: #04070f;
+    border-radius: 14px;
+    padding: 18px;
+    margin: 10px 0
+}
+
+#g {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    aspect-ratio: 1/1;
+    margin: 0 auto;
+    border-radius: 12px;
+    background: #04070f
+}
+
+.hud {
+    position: absolute;
+    left: 8%;
+    top: 8%;
+    width: min(290px, 70%);
+    background: rgba(28, 34, 50, .94);
+    border: 1px solid #2b3552;
+    border-radius: 8px;
+    padding: 10px;
+    color: #e6ebf7
+}
+
+.hud .k {
+    font: 700 11px ui-monospace, monospace;
+    color: #a9b9ff;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px
+}
+
+.hud .k i {
+    background: #e8321e;
+    color: #fff;
+    font-style: normal;
+    padding: 1px 6px;
+    border-radius: 2px
+}
+
+.hud h3 {
+    margin: 4px 0 0;
+    font-size: 21px
+}
+
+.hud p {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #aab4cf
+}
+
+.hud .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px
+}
+
+.hud .two div {
+    background: #10172a;
+    padding: 5px 8px;
+    font: 11px ui-monospace, monospace;
+    color: #8c98b6
+}
+
+.hud .two b {
+    display: block;
+    font: 700 17px Georgia, serif;
+    color: #ff9d8e
+}
+
+.hud .two div+div b {
+    color: #7fa2ff
+}
+
+.ov {
+    background: var(--cd);
+    border-radius: 8px;
+    padding: 10px
+}
+
+.ovh {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 4px
+}
+
+.ovg {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 6px
+}
+
+.ovg button {
+    text-align: left;
+    background: var(--pn);
+    border: 0;
+    border-radius: 3px;
+    padding: 8px;
+    color: var(--mu);
+    font: 700 12px ui-monospace, monospace
+}
+
+.ovg button small {
+    display: block;
+    font-weight: 700
+}
+
+.ovg button.on {
+    background: var(--ac);
+    color: #fff
+}
+
+.scr h2,
+.reg h2 {
+    margin: 2px 0 12px;
+    font-size: 25px;
+    line-height: 1.15
+}
+
+.scr h2 {
+    font-size: 23px
+}
+
+.ctl {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center
+}
+
+.cbtn {
+    background: var(--ac);
+    color: #fff;
+    border: 0;
+    border-radius: 3px;
+    padding: 9px 14px;
+    font-size: 14px
+}
+
+.play {
+    background: #a9b9ff;
+    color: #0c1322;
+    border: 0;
+    border-radius: 6px;
+    width: 44px;
+    height: 40px;
+    font-size: 16px
+}
+
+.tl {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 18px 0 8px;
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 6px
+}
+
+.cur {
+    background: var(--cd);
+    color: var(--tx);
+    padding: 3px 10px;
+    font-weight: 700
+}
+
+input[type=range] {
+    width: 100%;
+    accent-color: var(--acl)
+}
+
+.yrs {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--mu);
+    padding: 0 6px;
+    font-family: Georgia, serif
+}
+
+.reg .rk {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px
+}
+
+.rk span:last-child {
+    background: var(--cd);
+    padding: 3px 10px;
+    border-radius: 3px;
+    color: var(--tx)
+}
+
+.reg>p {
+    color: var(--mu);
+    margin: 0 0 14px;
+    font-size: 17px
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px
+}
+
+.mc {
+    background: var(--cd);
+    border-radius: 8px;
+    padding: 12px
+}
+
+.mh {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    gap: 6px
+}
+
+.mh em {
+    font-style: normal;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--pn);
+    white-space: nowrap
+}
+
+.b-hot {
+    background: #5a1f1f !important;
+    color: #ff9d8e
+}
+
+.b-bad {
+    background: var(--red) !important;
+    color: #fff
+}
+
+.b-ok {
+    color: var(--ok)
+}
+
+.b-mid {
+    color: var(--mid)
+}
+
+.mv {
+    font: 700 26px Georgia, serif;
+    margin: 8px 0 2px
+}
+
+.ms {
+    font-size: 12px;
+    color: var(--mu);
+    font-family: Georgia, serif
+}
+
+.mc svg {
+    width: 100%;
+    height: 40px;
+    display: block;
+    margin-top: 8px
+}
+
+.corr {
+    background: var(--cd);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px
+}
+
+.corr .ch {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px
+}
+
+#cc {
+    display: block;
+    width: 100%;
+    height: 190px;
+    background: #05090f;
+    border-radius: 4px;
+    cursor: pointer
+}
+
+.player {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px 28px;
+    padding: 18px 22px;
+    background: var(--pn);
+    border-top: 1px solid var(--bd)
+}
+
+.pi {
+    flex: 1 1 320px
+}
+
+.pi .dw {
+    font: 700 11px ui-monospace, monospace;
+    background: var(--cd);
+    padding: 2px 6px
+}
+
+.pi h3 {
+    margin: 4px 0;
+    font-size: 21px
+}
+
+.pi p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--mu)
+}
+
+.pc {
+    flex: 1 1 360px
+}
+
+.pt {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: center
+}
+
+.pt button.s {
+    background: none;
+    border: 0;
+    font-size: 20px;
+    color: var(--acl)
+}
+
+.pb {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font: 12px ui-monospace, monospace
+}
+
+.pm {
+    display: flex;
+    justify-content: space-around;
+    font: 10px ui-monospace, monospace;
+    color: var(--mu);
+    margin-top: 4px;
+    flex-wrap: wrap;
+    gap: 4px
+}
+
+.pv {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 0 1 150px
+}
+
+.exp {
+    background: var(--ac);
+    color: #fff;
+    border: 0;
+    border-radius: 3px;
+    padding: 12px 18px;
+    font-size: 14px
+}
+
+.foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 40px;
+    justify-content: space-between;
+    padding: 16px 22px;
+    font: 12px ui-monospace, monospace;
+    color: var(--mu);
+    border-top: 1px solid var(--bd)
+}
+
+#toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    background: var(--tx);
+    color: var(--bg);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    opacity: 0;
+    transition: .3s;
+    pointer-events: none
+}
+
+#toast.on {
+    opacity: 1
+}
+
+*/
+
+/*
+const $ = s => document.querySelector(s);
+D = Math.PI / 180;
+MN = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'], K = ['t', 'p', 'c', 'r', 'n', 'u'];
+const h = (a, b) => { 
+    const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x) 
+};
+const REG = {
+    Kolkata: { 
+        full: 'Kolkata Metro Area', 
+        title: 'Kolkata, India', 
+        lat: 22.5726, lon: 88.3639, 
+        area: 1886, 
+        t: [.55, 1.55], 
+        p: [70, 86], 
+        c: [397, 424], 
+        r: [1650, 1400], 
+        n: [.41, .37], 
+        u: [13.9, 15.3] 
+    },
+    Svalbard: { 
+        full: 'Svalbard Archipelago', 
+        title: 'Svalbard, Norway', 
+        lat: 78.22, 
+        lon: 15.65, 
+        area: 61022, 
+        t: [1.9, 3.1], 
+        p: [4, 5], 
+        c: [401, 426], 
+        r: [420, 520], 
+        n: [.08, .1], 
+        u: [.0021, .0026] 
+    },
+    Amazon: { 
+        full: 'Central Amazon Basin', 
+        title: 'Manaus, Brazil', 
+        lat: -3.12, 
+        lon: -60.02, 
+        area: 11401, 
+        t: [.7, 1.3], 
+        p: [14, 26], 
+        c: [396, 422], 
+        r: [2300, 2050],
+        n: [.78, .72], 
+        u: [2.1, 2.3] 
+    },
+    Tokyo: { 
+        full: 'Tokyo Metropolis', 
+        title: 'Tokyo, Japan', 
+        lat: 35.68, 
+        lon: 139.65, 
+        area: 2194, 
+        t: [.6, 1.4], 
+        p: [11, 9], 
+        c: [400, 425], 
+        r: [1530, 1600], 
+        n: [.34, .33], 
+        u: [37.4, 37] 
+    },
+    Sahara: { 
+        full: 'Tamanrasset Plateau', 
+        title: 'Sahara, Algeria', 
+        lat: 22.79, 
+        lon: 5.52, 
+        area: 30000, 
+        t: [.8, 1.7], 
+        p: [48, 52], 
+        c: [398, 423], 
+        r: [30, 24], 
+        n: [.03, .03], 
+        u: [.08, .09] 
+    }
+};
+const sgn = (v, d) => (v >= 0 ? '+' : '') + v.toFixed(d);
+const M = {
+    t: { 
+        l: 'TEMP & CLIMATE', i: '🌡', col: '#ff9d8e', v: v => sgn(v, 2) + '°C DEV', s: () => 'NASA GISTEMP v4 vs 1951-80', b: v => [sgn(v, 2) + '°C', 'hot'] 
+    },
+    p: { 
+        l: 'AIR QUALITY / PM2.5', i: '💨', col: '#9db4ff', v: v => v.toFixed(1) + ' µg/m³', s: () => 'CPCB In-Situ • MODIS AOD', b: v => v < 15 ? ['GOOD', 'ok'] : v < 35 ? ['MODERATE', 'mid'] : v < 60 ? ['UNHEALTHY', 'mid'] : ['HAZARDOUS', 'bad'] 
+    },
+    c: { 
+        l: 'CO₂ COLUMN (OCO-2)', i: '☁', col: '#e6ebf7', v: v => v.toFixed(1) + ' ppm', s: (v, a) => 'Decadal Shift: ' + sgn((v / a - 1) * 100, 1) + '%', b: (v, a) => [sgn(v - a, 1) + ' ppm', 'n'] 
+    },
+    r: { 
+        l: 'RAINFALL & HYDRO', i: '🌧', col: '#9db4ff', v: v => Math.round(v).toLocaleString('en-US') + ' mm/yr', s: () => 'GPM IMERG Ensemble', b: (v, a) => [sgn((v / a - 1) * 100, 0) + '% Dev', 'n'] 
+    },
+    n: { 
+        l: 'CANOPY & NDVI', i: '🌿', col: '#ff9d8e', v: v => v.toFixed(2) + ' Index', s: () => 'MODIS 250m Bio-Canopy', b: (v, a) => [sgn((v / a - 1) * 100, 1) + '% Green', 'n'] 
+    },
+    u: { 
+        l: 'URBAN POPULATION', i: '👥', col: '#aab4cf', v: v => v >= 1 ? v.toFixed(1) + ' Million' : Math.round(v * 1000) + ' Thousand', s: () => 'WorldPop Urban Boundary', b: (v, a, R) => [sgn((Math.pow(R.u[1] / R.u[0], 1 / 9.9) - 1) * 100, 1) + '% / yr', 'n'] 
+    }
+};
+const LAY = [
+    ['t', 'Sfc Temp', 'GISTEMP v4'], 
+    ['p', 'Aerosol / PM', 'MODIS AOD'], 
+    ['c', 'OCO-2 CO₂', 'Column Avg'], 
+    ['r', 'Precipitation', 'GPM IMERG'], 
+    ['n', 'NDVI Veg', 'MOD13Q1'], 
+    ['u', 'WorldPop', 'Density Grid']
+];
+let RG, S, m = 105, playing = false, timer = null, spd = 1, act = { t: 1, p: 1, c: 1, n: 1 }, muted = false, A = null;
+const toast = t => { 
+    const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.k); toast.k = setTimeout(() => e.classList.remove('on'), 1800) 
+};
+const date = i => MN[i % 12] + ' ' + (2016 + Math.floor(i / 12)), fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+const vals = () => { 
+    const o = {}; K.forEach(k => o[k] = S[k][m]); return o 
+};
+const norm = k => { 
+    const a = S[k], lo = Math.min(...a), hi = Math.max(...a); return a.map(v => (v - lo) / ((hi - lo) || 1)) 
+};
+function setRegion(r) {
+    RG = r; S = {}; 
+    K.forEach((k, j) => { 
+        const [a, b] = r[k], amp = Math.max(Math.abs(b - a), Math.abs(a) * .08) * .18; S[k] = Array.from({ length: 120 }, (_, i) => a + (b - a) * i / 119 + amp * Math.sin(i * Math.PI / 6 + j) + amp * .6 * (h(j + r.lat, i) - .5)) 
+    });
+    $('#tgt').textContent = `TARGET: ${Math.abs(r.lat).toFixed(4)}° ${r.lat < 0 ? 'S' : 'N'}, ${Math.abs(r.lon).toFixed(4)}° ${r.lon < 0 ? 'W' : 'E'}`;
+    $('#rt').textContent = r.title + ' — 10-Year Decadal Assessment';
+    $('#cards').innerHTML = K.map(k => { 
+        const d = M[k]; return `<div class="mc"><div class="mh"><span style="color:${d.col}">${d.i} ${d.l}</span><em id="b${k}"></em></div><div class="mv" id="v${k}"></div><div class="ms" id="s${k}"></div><svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true"><polyline id="sp${k}" fill="none" stroke="${d.col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div>` 
+    }).join('');
+    K.forEach(k => { 
+        const n = norm(k); $('#sp' + k).setAttribute('points', n.map((v, i) => (i / 119 * 100).toFixed(1) + ',' + (34 - v * 30).toFixed(1)).join(' ')) 
+    });
+    document.querySelectorAll('#pre button').forEach(b => b.classList.toggle('on', REG[b.textContent] === r)); render()
+}
+function pearson(n) { 
+    const x = S.t.slice(0, n), y = S.p.slice(0, n), mx = x.reduce((a, b) => a + b) / n, my = y.reduce((a, b) => a + b) / n; let sxy = 0, sx = 0, sy = 0; x.forEach((v, i) => { sxy += (v - mx) * (y[i] - my); sx += (v - mx) ** 2; sy += (y[i] - my) ** 2 }); return sxy / Math.sqrt(sx * sy || 1) 
+}
+function render() {
+    const v = vals();
+    K.forEach(k => {
+        const d = M[k], a = S[k][0], bd = d.b(v[k], a, RG); $('#v' + k).textContent = d.v(v[k]); $('#s' + k).textContent = d.s(v[k], a); const e = $('#b' + k); e.textContent = bd[0]; e.className = 'b-' + bd[1] 
+    });
+    $('#cur').textContent = `CURRENT: MONTH ${m + 1} / 120 (${date(m)})`; $('#sl').value = m; $('#pbar').value = m;
+    const st = .5 / spd; $('#el').textContent = fmt(m * st); $('#tot').textContent = fmt(120 * st); $('#sp2').textContent = spd.toFixed(1) + 'x';
+    $('#pt').textContent = RG.title.split(',')[0] + ' — A Decade of Environmental Change (2016–2025)';
+    $('#pp').textContent = 'Parameters: Temp (+120Hz/°C) • Pulse Density (PM2.5) • Harmonic Drone (CO₂)';
+    $('#m1').textContent = 'SUB-BASS: 54Hz (CO₂)'; $('#m2').textContent = 'FM MODULATOR: ' + Math.round(Math.max(0, v.t) * 123) + 'Hz (TEMP)'; $('#m3').textContent = 'CLICK DENSITY: ' + (v.p / 6).toFixed(1) + '/sec (PM2.5)';
+    $('#hud').innerHTML = `<div class="k"><span>HUD RETICLE LOCK</span><i>${v.p > 35 ? 'ANOMALY HIGH' : 'NOMINAL'}</i></div><h3>${RG.full}</h3><p>${Math.abs(RG.lat).toFixed(2)}°${RG.lat < 0 ? 'S' : 'N'}, ${Math.abs(RG.lon).toFixed(2)}°${RG.lon < 0 ? 'W' : 'E'} • ${RG.area.toLocaleString('en-US')} km²</p><div class="two"><div>TEMP DEV<b>${sgn(v.t, 2)}°C</b></div><div>PM2.5 AOD<b>${v.p.toFixed(1)} µg</b></div></div>`;
+    $('#act').textContent = `ACTIVE: ${Object.values(act).filter(Boolean).length} / 6 FEEDS`
+}
+*/
+/* audio */
+/*
+function initA() {
+    if (A) return; 
+    const x = new (window.AudioContext || window.webkitAudioContext)(), mg = x.createGain(); mg.connect(x.destination);
+    const mk = (t, f) => { 
+        const o = x.createOscillator(), g = x.createGain(); o.type = t; o.frequency.value = f; g.gain.value = 0; o.connect(g).connect(mg); o.start(); return { o, g } 
+    };
+    const lead = mk('sine', 300), fo = x.createOscillator(), fg = x.createGain(); fo.frequency.value = 180; fg.gain.value = 0; fo.connect(fg).connect(lead.o.frequency); fo.start();
+    A = { 
+        x, mg, lead, fo, fg, dr: mk('sine', 54), d2: mk('sawtooth', 54), sh: mk('triangle', 600) 
+    }; 
+    setVol();
+}
+function setVol() { 
+    if (A) A.mg.gain.value = muted ? 0 : $('#vol').value / 100 * .5 
+}
+function tune(on) {
+    if (!A) return; 
+    const t = A.x.currentTime, v = vals(), g = (n, val) => n.g.gain.setTargetAtTime(on ? val : 0, t, .05), f = (n, val) => n.o.frequency.setTargetAtTime(val, t, .05);
+    const lf = 200 + 120 * Math.max(0, v.t); f(A.lead, lf); g(A.lead, act.t ? .18 : 0); A.fo.frequency.setTargetAtTime(Math.max(0, v.t) * 123, t, .05); A.fg.gain.setTargetAtTime(on && act.t ? v.t * 60 : 0, t, .05);
+    g(A.dr, act.c ? .32 : 0); f(A.d2, 54 * (1 + (act.u ? v.u / 300 : .002))); g(A.d2, act.c ? Math.max(0, (v.c - 385) / 40) * .04 : 0); f(A.sh, lf * 2); g(A.sh, act.n ? v.n * .2 : 0)
+}
+function ticks() {
+    if (!A || !act.p) return; 
+    const v = vals(), n = Math.max(1, Math.round(v.p / 6 * .5 / spd)), t0 = A.x.currentTime, fr = act.r ? 700 + v.r / 3 : 1200;
+    for (let i = 0; i < n; i++) { 
+        const o = A.x.createOscillator(), g = A.x.createGain(), t = t0 + i * (.5 / spd / n); o.type = 'square'; o.frequency.value = fr; g.gain.setValueAtTime(.12, t); g.gain.exponentialRampToValueAtTime(.001, t + .02); o.connect(g).connect(A.mg); o.start(t); o.stop(t + .03) 
+    }
+}
+function setM(i, sound) { 
+    m = Math.max(0, Math.min(119, i)); 
+    render(); 
+    if (sound && !playing) { 
+        initA(); 
+        if (A.x.state === 'suspended') A.x.resume(); tune(true); ticks(); clearTimeout(setM.k); setM.k = setTimeout(() => { if (!playing) tune(false) }, 450) 
+    } 
+}
+function step() { 
+    if (m >= 119) { stop(); return } m++; render(); tune(true); ticks() 
+}
+function start() { 
+    initA(); if (A.x.state === 'suspended') A.x.resume(); if (m >= 119) m = 0; playing = true;['#play', '#play2'].forEach(s => $(s).textContent = '❚❚'); clearInterval(timer); timer = setInterval(step, 500 / spd); render(); tune(true); ticks() 
+}
+function stop() { 
+    playing = false; clearInterval(timer);['#play', '#play2'].forEach(s => $(s).textContent = '▶'); tune(false) 
+}
+const tog = () => playing ? stop() : start();
+
+$('#play').onclick = $('#play2').onclick = tog;
+$('#stp').onclick = () => { stop(); setM(0) }; $('#bk').onclick = () => setM(m - 12, 1); $('#fw').onclick = () => setM(m + 12, 1);
+$('#sl').oninput = e => setM(+e.target.value, 1); $('#pbar').oninput = e => setM(+e.target.value, 1);
+$('#vol').oninput = setVol;
+$('#mute').onclick = () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; setVol() };
+$('#shift').onclick = () => setM(m > 59 ? 0 : 119, 1);
+
+document.querySelectorAll('#spd button').forEach(b => b.onclick = () => { 
+    spd = +b.dataset.s; document.querySelectorAll('#spd button').forEach(x => x.classList.toggle('on', x === b)); if (playing) start(); else render() 
+});
+document.querySelectorAll('#nav button').forEach((b, i) => b.onclick = () => { 
+    if (i) toast(b.textContent + ' is not part of this prototype') 
+});
+document.querySelectorAll('#tool button').forEach((b, i) => b.onclick = () => { 
+    if (i == 1) toast('Polygon selection is not part of this prototype'); else document.querySelectorAll('#tool button').forEach(x => x.classList.toggle('on', x === b)) 
+});
+$('#pre').innerHTML = Object.keys(REG).map(k => `<button>${k}</button>`).join('');
+
+document.querySelectorAll('#pre button').forEach(b => b.onclick = () => setRegion(REG[b.textContent]));
+$('#ovg').innerHTML = LAY.map(([k, a, b]) => `<button data-k="${k}" class="${act[k] ? 'on' : ''}" aria-pressed="${!!act[k]}">${a}<small>${b}</small></button>`).join('');
+document.querySelectorAll('#ovg button').forEach(b => b.onclick = () => { const k = b.dataset.k; act[k] = act[k] ? 0 : 1; b.classList.toggle('on', !!act[k]); b.setAttribute('aria-pressed', !!act[k]); render(); tune(playing) });
+$('#yrs').innerHTML = Array.from({ length: 10 }, (_, i) => `<span>${2016 + i}</span>`).join('');
+$('#q').onkeydown = e => {
+  if (e.key !== 'Enter') return;
+
+  const q = e.target.value.trim().toLowerCase();
+  const k = Object.keys(REG).find(n =>
+    q && n.toLowerCase().includes(q) ||
+    q && REG[n].title.toLowerCase().includes(q)
+  );
+
+  // 1) Preset name match, e.g. "tokyo"
+  if (k) return setRegion(REG[k]);
+
+  // 2) Coordinates, e.g. "22.57, 88.36" or "-3.12 -60.02"
+  const c = q.match(/(-?\d+(?:\.\d+)?)[\s,]+(-?\d+(?:\.\d+)?)/);
+  if (c) {
+    const lat = Math.max(-90, Math.min(90, +c[1]));
+    const lon = Math.max(-180, Math.min(180, +c[2]));
+    const f = Math.abs(lat) / 90;
+
+    setRegion({
+      full: 'Custom Site',
+      title: `Custom site (${lat.toFixed(2)}, ${lon.toFixed(2)})`,
+      lat, lon,
+      area: 1000,
+      t: [.5 + f * 1.2, 1.2 + f * 1.5],
+      p: [20 + h(lat, 1) * 30, 24 + h(lon, 2) * 30],
+      c: [397, 423],
+      r: [200 + 800 * (1 - f), 180 + 780 * (1 - f)],
+      n: [.1 + .5 * (1 - f), .08 + .45 * (1 - f)],
+      u: [.5, .6]
+    });
+  } else {
+    toast('Try a preset name or "lat, lon"');
+  }
+};
+*/
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Earth Information Jukebox</title>
+    <link rel="stylesheet" href="/earthscore/client/src/css/style.css">
+</head>
+
+<body>
+    <header class="top">
+        <div class="brand">
+            <div class="logo">
+                ◉
+            </div>
+            <div>
+                <div class="kick">
+                    NASA SPACE APPS 2026
+                    <span class="tag">EJ-ORBITAL</span>
+                </div>
+                <h1>
+                    EARTH INFORMATION JUKEBOX
+                </h1>
+            </div>
+            <span class="pill">
+                ● ORBITAL TELEMETRY ONLINE
+            </span>
+            <nav id="nav">
+                <button class="on">Planetary Explorer</button>
+                <button>Earth Symphony Studio</button>
+                <button>Regional Compare</button>
+                <button>Data Sources &amp; Methodology</button>
+            </nav>
+            <div class="tr">
+                <label class="search">
+                    ⌕
+                    <input id="q" placeholder="Coordinate / Region Search…" aria-label="Coordinate or region search">
+                </label>
+                <button class="ib" id="mute" aria-label="Mute audio">🔊</button>
+            </div>
+    </header>
+
+    <div class="status">
+        <span>● ORBITAL SENSOR ARRAY LIVE</span>
+        <span id="tgt">TARGET: 22.5726° N, 88.3639° E</span>
+        <span class="mu">MODIS/TERRA • OCO-2 • GPM-IMERG</span>
+        <span class="sp"></span>
+        <span class="mu">MISSION MODE:</span>
+        <span class="chip">DECISION TELEMETRY</span>
+        <span class="chip dim">LATENCY 18ms</span>
+    </div>
+
+    <main class="grid">
+        <div class="col">
+            <section class="card">
+                <div class="tools">
+                    <span class="mu">TOOL:</span>
+                    <div class="seg" id="tool">
+                        <button class="on">◎ Point</button>
+                        <button>⬡ Polygon</button>
+                        <button class="">⌖ Presets</button>
+                    </div>
+                </div>
+                <div class="tools">
+                    <span class="mu">PRESETS:</span>
+                    <div class="seg" id="pre">
+                        <button class="on">Kolkata</button>
+                        <button>Svalbard</button>
+                        <button>Amazon</button>
+                        <button>Tokyo</button>
+                        <button>Sahara</button>
+                        <button>Tuvalu</button>
+                    </div>
+                </div>
+                <div class="gwrap">
+                    <canvas id="g" aria-label="Orthographic globe centered on the selected region" width="561" height="561">
+
+                    </canvas>
+                    <div class="hud" id="hud">
+                        <div class="k">
+                            <span>HUD RETICLE LOCK</span>
+                            <i>ANOMALY HIGH</i>
+                        </div>
+                        <h3>Kolkata Metro Area</h3>
+                        <p>22.57°N, 88.36°E • 1,886 km²</p>
+                        <div class="two">
+                            <div>TEMP DEV<b>+1.20°C</b></div>
+                            <div>PM2.5 AOD<b>82.8 µg</b></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ov">
+                    <div class="ovh">
+                        <b>ATMOSPHERIC &amp; BIOSPHERIC SENSOR OVERLAYS</b>
+                        <span id="act">ACTIVE: 4 / 6 FEEDS</span>
+                    </div>
+                    <div class="ovg" id="ovg">
+                        <button data-k="t" class="on" aria-pressed="true">
+                            Sfc Temp
+                            <small>
+                                GISTEMP v4
+                            </small>
+                        </button>
+                        <button data-k="p" class="on" aria-pressed="true">
+                            Aerosol / PM
+                            <small>
+                                MODIS AOD
+                            </small>
+                        </button>
+                        <button data-k="c" class="on" aria-pressed="true">OCO-2 CO₂
+                            <small>
+                                Column Avg
+                            </small>
+                        </button>
+                        <button data-k="r" class="" aria-pressed="false">
+                            Precipitation
+                            <small>
+                                GPM IMERG
+                            </small>
+                        </button>
+                        <button data-k="n" class="on" aria-pressed="true">
+                            NDVI Veg
+                            <small>
+                                MOD13Q1
+                            </small>
+                        </button>
+                        <button data-k="u" class="" aria-pressed="false">
+                            WorldPop
+                            <small>
+                                Density Grid
+                            </small>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <section class="card scr">
+                <div class="lab" style="font-size:11px">
+                    ⏱ CHRONOLOGICAL SONIC SCRUBBER
+                </div>
+                <h2>
+                    Decadal Temporal Corridor (2016 – 2025)
+                </h2>
+                <div class="ctl">
+                    <button class="cbtn" id="shift">
+                        ⇄ 2016 vs 2025 Decadal Shift
+                    </button>
+                    <div class="seg" id="spd">
+                        <button data-s=".5">0.5x</button>
+                        <button data-s="1" class="on">1x</button>
+                        <button data-s="2">2x</button>
+                    </div>
+                    <button class="play" id="play" aria-label="Play">▶</button>
+                </div>
+                <div class="tl mono">
+                    <b style="color:var(--acl)">M001 // JAN 2016</b>
+                    <span class="cur" id="cur">CURRENT: MONTH 106 / 120 (OCT 2024)</span>
+                    <span class="mu">M120 // DEC 2025</span>
+                </div>
+                <input type="range" id="sl" min="0" max="119" value="105" aria-label="Month timeline">
+                <div class="yrs" id="yrs">
+                    <span>2016</span>
+                    <span>2017</span>
+                    <span>2018</span>
+                    <span>2019</span>
+                    <span>2020</span>
+                    <span>2021</span>
+                    <span>2022</span>
+                    <span>2023</span>
+                    <span>2024</span>
+                    <span>2025</span>
+                </div>
+            </section>
+        </div>
+        <section class="card reg">
+            <div class="rk mono">
+                <span style="color:var(--acl)">REGIONAL DIAGNOSTIC PORTAL</span>
+                <span>WGS84 EPSG:4326</span>
+            </div>
+            <h2 id="rt">Kolkata, India — 10-Year Decadal Assessment</h2>
+            <p>
+                Ground telemetry cross-referenced against NASA low-Earth orbit spectral radiometric data arrays.
+            </p>
+            <div class="cards" id="cards">
+                <div class="mc">
+                    <div class="mh">
+                        <span style="color:#ff9d8e">🌡 TEMP &amp; CLIMATE</span>
+                        <em id="bt" class="b-hot">+1.20°C</em>
+                    </div>
+                    <div class="mv" id="vt">
+                        +1.20°C DEV
+                    </div>
+                    <div class="ms" id="st">
+                        NASA GISTEMP v4 vs 1951-80
+                    </div>
+                    <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+                        <polyline id="spt" fill="none" stroke="#ff9d8e" stroke-width="2" vector-effect="non-scaling-stroke" points="0.0,31.1 0.8,29.7 1.7,27.4 2.5,25.0 3.4,26.8 4.2,28.9 5.0,28.9 5.9,32.5 6.7,33.0 7.6,32.9 8.4,34.0 9.2,31.5 10.1,29.2 10.9,25.1 11.8,24.5 12.6,24.0 13.4,22.9 14.3,26.1 15.1,27.3 16.0,30.4 16.8,31.9 17.6,31.6 18.5,31.5 19.3,29.4 20.2,26.4 21.0,22.4 21.8,20.3 22.7,19.8 23.5,22.3 24.4,21.8 25.2,26.0 26.1,28.0 26.9,28.1 27.7,28.7 28.6,27.6 29.4,25.4 30.3,24.3 31.1,21.6 31.9,17.8 32.8,17.8 33.6,18.8 34.5,20.6 35.3,23.2 36.1,25.3 37.0,26.2 37.8,26.5 38.7,24.9 39.5,23.0 40.3,20.4 41.2,18.3 42.0,17.9 42.9,15.5 43.7,15.5 44.5,17.7 45.4,20.3 46.2,21.6 47.1,23.3 47.9,24.3 48.7,21.8 49.6,20.2 50.4,18.4 51.3,15.2 52.1,15.2 52.9,13.9 53.8,12.9 54.6,16.1 55.5,18.2 56.3,19.3 57.1,20.0 58.0,20.2 58.8,21.4 59.7,18.0 60.5,16.1 61.3,12.8 62.2,11.6 63.0,10.5 63.9,10.8 64.7,13.7 65.5,13.5 66.4,15.4 67.2,18.8 68.1,17.5 68.9,18.0 69.7,16.7 70.6,12.9 71.4,12.3 72.3,8.5 73.1,7.6 73.9,9.6 74.8,11.2 75.6,11.5 76.5,14.7 77.3,15.4 78.2,15.8 79.0,14.5 79.8,13.5 80.7,11.5 81.5,7.8 82.4,7.0 83.2,5.3 84.0,6.2 84.9,6.7 85.7,11.0 86.6,11.4 87.4,12.0 88.2,14.8 89.1,12.9 89.9,10.4 90.8,9.1 91.6,4.8 92.4,5.3 93.3,4.0 94.1,4.9 95.0,6.4 95.8,7.8 96.6,8.3 97.5,11.3 98.3,12.0 99.2,10.1 100.0,7.9">
+                        </polyline>
+                    </svg>
+                </div>
+                <div class="mc">
+                    <div class="mh">
+                        <span style="color:#9db4ff">💨 AIR QUALITY / PM2.5</span>
+                        <em id="bp" class="b-bad">HAZARDOUS</em>
+                    </div>
+                    <div class="mv" id="vp">82.8 µg/m³</div>
+                    <div class="ms" id="sp">CPCB In-Situ • MODIS AOD</div>
+                    <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+                        <polyline id="spp" fill="none" stroke="#9db4ff" stroke-width="2" vector-effect="non-scaling-stroke" points="0.0,26.4 0.8,26.4 1.7,26.8 2.5,29.2 3.4,30.8 4.2,32.7 5.0,32.7 5.9,33.0 6.7,34.0 7.6,31.9 8.4,29.9 9.2,25.6 10.1,24.7 10.9,22.8 11.8,25.3 12.6,25.7 13.4,26.9 14.3,30.1 15.1,32.2 16.0,32.3 16.8,31.2 17.6,28.6 18.5,27.7 19.3,24.5 20.2,21.7 21.0,22.1 21.8,20.5 22.7,23.9 23.5,25.3 24.4,27.2 25.2,27.8 26.1,29.3 26.9,28.2 27.7,25.9 28.6,24.8 29.4,21.2 30.3,20.1 31.1,18.0 31.9,20.0 32.8,21.8 33.6,23.2 34.5,25.4 35.3,26.2 36.1,27.2 37.0,26.1 37.8,25.4 38.7,21.1 39.5,20.7 40.3,18.8 41.2,15.9 42.0,17.8 42.9,17.6 43.7,20.1 44.5,22.3 45.4,24.1 46.2,24.3 47.1,23.5 47.9,21.7 48.7,18.5 49.6,18.1 50.4,14.7 51.3,13.0 52.1,14.3 52.9,14.6 53.8,18.7 54.6,19.8 55.5,20.9 56.3,22.1 57.1,19.9 58.0,18.1 58.8,17.9 59.7,13.9 60.5,13.2 61.3,12.8 62.2,12.4 63.0,12.3 63.9,14.2 64.7,18.4 65.5,17.7 66.4,19.2 67.2,18.6 68.1,15.7 68.9,13.7 69.7,12.8 70.6,9.9 71.4,10.3 72.3,10.0 73.1,9.8 73.9,14.0 74.8,14.9 75.6,16.6 76.5,16.0 77.3,14.9 78.2,15.6 79.0,11.8 79.8,9.7 80.7,6.5 81.5,7.1 82.4,7.4 83.2,8.9 84.0,10.4 84.9,11.3 85.7,12.6 86.6,15.5 87.4,14.7 88.2,11.5 89.1,9.4 89.9,7.5 90.8,4.9 91.6,4.6 92.4,4.6 93.3,6.9 94.1,9.1 95.0,10.2 95.8,10.9 96.6,10.6 97.5,11.0 98.3,8.9 99.2,7.7 100.0,4.0">
+                        </polyline>
+                    </svg>
+                </div>
+                <div class="mc">
+                    <div class="mh">
+                        <span style="color:#e6ebf7">☁ CO₂ COLUMN (OCO-2)</span>
+                        <em id="bc" class="b-n">+18.4 ppm</em>
+                    </div>
+                    <div class="mv" id="vc">422.3 ppm</div>
+                    <div class="ms" id="sc">Decadal Shift: +4.6%</div>
+                    <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+                        <polyline id="spc" fill="none" stroke="#e6ebf7" stroke-width="2" vector-effect="non-scaling-stroke" points="0.0,24.1 0.8,27.5 1.7,27.7 2.5,31.5 3.4,31.4 4.2,34.0 5.0,32.4 5.9,32.1 6.7,29.4 7.6,27.0 8.4,24.1 9.2,24.2 10.1,24.1 10.9,24.4 11.8,25.9 12.6,28.6 13.4,30.3 14.3,30.7 15.1,31.5 16.0,30.2 16.8,26.9 17.6,23.1 18.5,20.7 19.3,22.1 20.2,21.4 21.0,22.8 21.8,25.3 22.7,26.5 23.5,27.0 24.4,28.4 25.2,27.1 26.1,25.9 26.9,24.6 27.7,20.4 28.6,20.1 29.4,17.7 30.3,20.3 31.1,19.9 31.9,21.5 32.8,24.0 33.6,26.1 34.5,25.7 35.3,25.8 36.1,25.2 37.0,22.4 37.8,18.8 38.7,17.8 39.5,16.0 40.3,15.7 41.2,17.4 42.0,21.0 42.9,21.3 43.7,23.3 44.5,23.9 45.4,22.8 46.2,23.5 47.1,21.3 47.9,16.7 48.7,14.3 49.6,13.9 50.4,15.2 51.3,16.2 52.1,18.4 52.9,19.7 53.8,22.1 54.6,21.3 55.5,23.0 56.3,20.4 57.1,18.7 58.0,16.1 58.8,14.3 59.7,12.2 60.5,13.4 61.3,13.0 62.2,16.9 63.0,17.5 63.9,19.9 64.7,19.4 65.5,20.6 66.4,17.7 67.2,16.2 68.1,14.0 68.9,10.5 69.7,10.0 70.6,10.4 71.4,11.1 72.3,12.4 73.1,15.0 73.9,16.8 74.8,17.2 75.6,16.2 76.5,14.8 77.3,13.4 78.2,10.9 79.0,9.8 79.8,8.1 80.7,8.9 81.5,8.9 82.4,11.5 83.2,12.6 84.0,15.3 84.9,16.0 85.7,14.2 86.6,12.6 87.4,10.9 88.2,9.5 89.1,7.3 89.9,7.1 90.8,5.4 91.6,7.8 92.4,10.0 93.3,12.7 94.1,13.1 95.0,14.7 95.8,12.1 96.6,11.7 97.5,8.1 98.3,5.6 99.2,4.0 100.0,4.1">
+                        </polyline>
+                    </svg>
+                </div>
+                <div class="mc">
+                    <div class="mh">
+                        <span style="color:#9db4ff">🌧 RAINFALL &amp; HYDRO</span>
+                        <em id="br" class="b-n">-12% Dev</em>
+                    </div>
+                    <div class="mv" id="vr">1,474 mm/yr</div>
+                    <div class="ms" id="sr">GPM IMERG Ensemble</div>
+                    <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+                        <polyline id="spr" fill="none" stroke="#9db4ff" stroke-width="2" vector-effect="non-scaling-stroke" points="0.0,5.7 0.8,10.5 1.7,12.5 2.5,13.1 3.4,11.8 4.2,10.8 5.0,9.0 5.9,8.5 6.7,5.1 7.6,4.0 8.4,4.4 9.2,6.8 10.1,9.3 10.9,12.4 11.8,13.8 12.6,15.9 13.4,15.0 14.3,14.1 15.1,12.1 16.0,10.8 16.8,7.1 17.6,7.9 18.5,8.9 19.3,10.3 20.2,12.5 21.0,14.6 21.8,16.9 22.7,18.3 23.5,16.9 24.4,16.8 25.2,12.9 26.1,12.5 26.9,11.2 27.7,10.6 28.6,9.3 29.4,12.7 30.3,13.6 31.1,16.2 31.9,17.7 32.8,20.5 33.6,19.3 34.5,18.4 35.3,15.9 36.1,15.3 37.0,13.4 37.8,12.3 38.7,12.4 39.5,14.1 40.3,16.9 41.2,17.9 42.0,20.9 42.9,21.2 43.7,21.4 44.5,22.0 45.4,19.9 46.2,16.6 47.1,15.9 47.9,14.0 48.7,16.1 49.6,17.0 50.4,19.8 51.3,21.7 52.1,24.5 52.9,25.7 53.8,24.3 54.6,23.2 55.5,20.9 56.3,20.4 57.1,18.5 58.0,17.6 58.8,18.4 59.7,17.9 60.5,21.6 61.3,22.6 62.2,26.5 63.0,27.3 63.9,27.9 64.7,26.5 65.5,25.0 66.4,22.8 67.2,20.5 68.1,20.1 68.9,20.5 69.7,22.6 70.6,23.4 71.4,26.9 72.3,28.5 73.1,29.4 73.9,29.5 74.8,28.9 75.6,25.3 76.5,24.8 77.3,23.4 78.2,22.7 79.0,23.6 79.8,23.1 80.7,26.3 81.5,28.0 82.4,31.4 83.2,32.9 84.0,31.6 84.9,30.5 85.7,28.4 86.6,25.9 87.4,25.0 88.2,24.4 89.1,24.9 89.9,26.3 90.8,27.9 91.6,30.5 92.4,33.6 93.3,34.0 94.1,33.9 95.0,32.6 95.8,30.9 96.6,29.8 97.5,26.9 98.3,26.9 99.2,27.9 100.0,27.7">
+                        </polyline>
+                    </svg>
+                </div>
+                <div class="mc">
+                    <div class="mh">
+                        <span style="color:#ff9d8e">🌿 CANOPY &amp; NDVI</span>
+                        <em id="bn" class="b-n">-5.8% Green</em>
+                    </div>
+                    <div class="mv" id="vn">0.38 Index</div>
+                    <div class="ms" id="sn">MODIS 250m Bio-Canopy</div>
+                    <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+                        <polyline id="spn" fill="none" stroke="#ff9d8e" stroke-width="2" vector-effect="non-scaling-stroke" points="0.0,11.2 0.8,10.2 1.7,10.6 2.5,11.3 3.4,9.1 4.2,6.0 5.0,4.6 5.9,4.6 6.7,4.0 7.6,6.1 8.4,9.2 9.2,10.2 10.1,12.3 10.9,13.2 11.8,14.2 12.6,11.6 13.4,9.9 14.3,9.3 15.1,8.0 16.0,6.3 16.8,6.1 17.6,8.3 18.5,10.5 19.3,12.0 20.2,14.8 21.0,17.1 21.8,16.1 22.7,14.0 23.5,13.6 24.4,12.5 25.2,10.3 26.1,9.6 26.9,8.4 27.7,12.1 28.6,13.7 29.4,16.1 30.3,17.6 31.1,19.0 31.9,17.4 32.8,18.0 33.6,16.4 34.5,12.7 35.3,13.1 36.1,12.6 37.0,12.9 37.8,13.7 38.7,16.4 39.5,17.9 40.3,19.6 41.2,20.9 42.0,19.8 42.9,19.2 43.7,18.5 44.5,17.2 45.4,15.5 46.2,14.4 47.1,13.7 47.9,14.7 48.7,16.9 49.6,20.1 50.4,21.4 51.3,23.5 52.1,23.1 52.9,21.7 53.8,20.9 54.6,17.7 55.5,16.1 56.3,14.9 57.1,15.7 58.0,18.0 58.8,19.8 59.7,23.6 60.5,25.8 61.3,25.9 62.2,25.0 63.0,24.5 63.9,22.0 64.7,21.8 65.5,19.0 66.4,19.7 67.2,18.8 68.1,20.1 68.9,21.4 69.7,23.9 70.6,27.4 71.4,27.4 72.3,26.9 73.1,27.2 73.9,24.2 74.8,24.2 75.6,22.2 76.5,21.8 77.3,20.0 78.2,23.3 79.0,24.4 79.8,26.0 80.7,29.3 81.5,31.1 82.4,29.9 83.2,29.3 84.0,28.1 84.9,26.4 85.7,25.3 86.6,23.6 87.4,23.5 88.2,25.0 89.1,26.6 89.9,29.7 90.8,30.9 91.6,34.0 92.4,34.0 93.3,31.9 94.1,28.8 95.0,27.0 95.8,26.5 96.6,25.7 97.5,26.2 98.3,27.8 99.2,30.0 100.0,32.5">
+                        </polyline>
+                    </svg>
+                </div>
+                <div class="mc">
+                    <div class="mh">
+                        <span style="color:#aab4cf">👥 URBAN POPULATION</span>
+                        <em id="bu" class="b-n">+1.0% / yr</em>
+                    </div>
+                    <div class="mv" id="vu">15.1 Million</div>
+                    <div class="ms" id="su">WorldPop Urban Boundary</div>
+                    <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+                        <polyline id="spu" fill="none" stroke="#aab4cf" stroke-width="2" vector-effect="non-scaling-stroke" points="0.0,34.0 0.8,31.2 1.7,29.1 2.5,28.6 3.4,25.1 4.2,24.6 5.0,25.4 5.9,26.1 6.7,27.4 7.6,29.3 8.4,29.6 9.2,32.2 10.1,31.3 10.9,29.9 11.8,26.7 12.6,24.4 13.4,22.3 14.3,23.3 15.1,22.6 16.0,22.7 16.8,24.4 17.6,27.3 18.5,27.6 19.3,29.5 20.2,28.4 21.0,27.0 21.8,25.3 22.7,23.4 23.5,20.9 24.4,20.5 25.2,18.7 26.1,19.8 26.9,22.1 27.7,24.7 28.6,25.2 29.4,26.3 30.3,27.0 31.1,25.9 31.9,23.9 32.8,20.4 33.6,18.1 34.5,18.4 35.3,18.6 36.1,18.2 37.0,20.6 37.8,23.3 38.7,23.6 39.5,24.5 40.3,24.8 41.2,23.5 42.0,20.6 42.9,18.5 43.7,17.0 44.5,14.2 45.4,14.7 46.2,15.4 47.1,17.6 47.9,19.7 48.7,20.5 49.6,21.1 50.4,22.0 51.3,20.3 52.1,17.7 52.9,17.0 53.8,13.3 54.6,14.0 55.5,12.4 56.3,14.4 57.1,16.6 58.0,16.7 58.8,19.7 59.7,19.5 60.5,20.4 61.3,18.4 62.2,17.1 63.0,15.0 63.9,12.3 64.7,10.2 65.5,11.9 66.4,11.3 67.2,14.3 68.1,16.4 68.9,17.2 69.7,17.1 70.6,17.7 71.4,16.5 72.3,14.2 73.1,12.1 73.9,8.9 74.8,9.4 75.6,9.6 76.5,10.1 77.3,11.6 78.2,12.0 79.0,15.7 79.8,16.1 80.7,16.2 81.5,13.3 82.4,11.8 83.2,9.8 84.0,6.4 84.9,7.0 85.7,6.0 86.6,7.1 87.4,9.2 88.2,10.7 89.1,11.3 89.9,13.2 90.8,11.6 91.6,11.3 92.4,9.4 93.3,8.3 94.1,4.1 95.0,4.3 95.8,4.1 96.6,4.0 97.5,7.0 98.3,8.3 99.2,10.9 100.0,11.1">
+                        </polyline>
+                    </svg>
+                </div>
+            </div>
+            <div class="corr">
+                <div class="ch mono">
+                    <span class="mu">MULTI-SPECTRAL CORRELATION INDEX</span>
+                    <span>
+                        <b style="color:#ff9d8e">— Temp</b> &nbsp;<b style="color:#7fa2ff">
+                            — PM2.5
+                        </b> &nbsp;
+                        <b>
+                            - - CO₂
+                        </b>
+                    </span>
+                </div>
+                <canvas id="cc" aria-label="Correlation chart" width="425" height="238">
+
+                </canvas>
+            </div>
+        </section>
+    </main>
+    <div class="player">
+        <div class="pi">
+            <span class="dw">DAW ENGINE LIVE</span>
+            <span class="mu mono" style="font-size:12px">Web Audio • real-time synthesis</span>
+            <h3 id="pt">Kolkata — A Decade of Environmental Change (2016–2025)</h3>
+            <p id="pp">Parameters: Temp (+120Hz/°C) • Pulse Density (PM2.5) • Harmonic Drone (CO₂)</p>
+        </div>
+        <div class="pc">
+            <div class="pt">
+                <button class="s" id="bk" aria-label="Back one year">↺</button>
+                <button class="s" id="stp" aria-label="Stop">■</button>
+                <button class="play" id="play2" aria-label="Play">▶</button>
+                <button class="s" id="fw" aria-label="Forward one year">↻</button>
+                <span class="chip dim" id="sp2">1.0x</span>
+            </div>
+            <div class="pb">
+                <span id="el">00:52</span>
+                <input type="range" id="pbar" min="0" max="119" value="105" aria-label="Playback position">
+                <span id="tot">01:00</span>
+            </div>
+            <div class="pm">
+                <span id="m1">SUB-BASS: 54Hz (CO₂)</span>
+                <span id="m2">FM MODULATOR: 148Hz (TEMP)</span>
+                <span id="m3">CLICK DENSITY: 13.8/sec (PM2.5)</span>
+            </div>
+        </div>
+
+        <button class="exp" id="exp">⤓ Copy Sonification Data (CSV)</button>
+    </div>
+    <div class="foot">
+        <span>NASA SPACE APPS CHALLENGE 2026 // EARTH DATA SONIFICATION</span>
+        <span>Acoustic Mapping v2.4-STABLE</span>
+        <span>LAT/LON GRID: 0.25° EQUIDISTANT</span>
+        <span>Simulated demo data · not an official NASA product</span>
+    </div>
+    <div id="toast" role="status" class="">Polygon selection is not part of this prototype</div>
+    <div class="pv">
+        <span>🔈</span>
+        <input type="range" id="vol" min="0" max="100" value="55" aria-label="Volume">
+    </div>
+    <script type="module" src="/earthscore/client/src/js/main.js"></script>
+</body>
+
+</html>
+
+-->

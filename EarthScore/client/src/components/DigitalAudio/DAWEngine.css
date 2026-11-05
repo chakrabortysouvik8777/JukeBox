@@ -1,0 +1,296 @@
+
+.daw-engine {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 24px;
+  margin-top: 24px;
+  color: #e8f1ff;
+  background: linear-gradient(145deg, #101c2c, #091421);
+  border: 1px solid rgba(91, 153, 204, 0.25);
+  border-radius: 16px;
+  font-family: inherit;
+}
+
+.daw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.daw-eyebrow {
+  margin: 0 0 8px;
+  color: #42d9e8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.daw-header h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.daw-subtitle {
+  margin: 8px 0 0;
+  color: #8fa5bd;
+  font-size: 13px;
+}
+
+.daw-live-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #8fa5bd;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.daw-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #42d9e8;
+}
+
+.daw-live-status:has(+ *) .daw-status-dot {
+  box-shadow: 0 0 10px #42d9e8;
+}
+
+.daw-track {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 27px;
+  padding: 14px;
+  background: rgba(28, 48, 69, 0.6);
+  border: 1px solid rgba(143, 165, 189, 0.12);
+  border-radius: 10px;
+}
+
+.track-art {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  color: #42d9e8;
+  font-size: 25px;
+  background: linear-gradient(135deg, #17485b, #172b46);
+}
+
+.track-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.track-info strong {
+  font-size: 13px;
+}
+
+.track-info span,
+.track-duration {
+  color: #8298af;
+  font-size: 11px;
+}
+
+.track-duration {
+  margin-left: auto;
+}
+
+.daw-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 100px;
+  margin-top: 24px;
+  overflow: hidden;
+}
+
+.wave-bar {
+  flex: 1;
+  min-width: 2px;
+  max-width: 7px;
+  border-radius: 5px;
+  background: linear-gradient(to top, #187e9b, #42d9e8);
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+
+.daw-waveform.playing .wave-bar {
+  opacity: 1;
+}
+
+.daw-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  color: #8fa5bd;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.daw-progress {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    #42d9e8 0%,
+    #42d9e8 var(--audio-progress),
+    #293c51 var(--audio-progress),
+    #293c51 100%
+  );
+}
+
+.daw-progress::-webkit-slider-thumb,
+.daw-volume input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #42d9e8;
+  border: 2px solid #e8faff;
+}
+
+.daw-progress::-moz-range-thumb,
+.daw-volume input::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #42d9e8;
+  border: 2px solid #e8faff;
+}
+
+.daw-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 24px;
+}
+
+.daw-controls button {
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.daw-play {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  color: #071622;
+  background: #42d9e8;
+  font-size: 20px;
+}
+
+.daw-play:hover:not(:disabled) {
+  transform: scale(1.07);
+  box-shadow: 0 0 20px rgba(66, 217, 232, 0.4);
+}
+
+.daw-skip {
+  border: none;
+  color: #b8c9da;
+  background: transparent;
+  font-size: 12px;
+}
+
+.daw-skip:hover:not(:disabled) {
+  color: #42d9e8;
+}
+
+.daw-controls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.daw-bottom-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 17px;
+  border-top: 1px solid rgba(143, 165, 189, 0.15);
+}
+
+.daw-volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #8fa5bd;
+}
+
+.daw-volume input {
+  width: 90px;
+  height: 4px;
+  accent-color: #42d9e8;
+  cursor: pointer;
+}
+
+.daw-download {
+  padding: 10px 13px;
+  border: 1px solid rgba(66, 217, 232, 0.5);
+  border-radius: 7px;
+  color: #42d9e8;
+  background: rgba(66, 217, 232, 0.07);
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.daw-download:hover:not(:disabled) {
+  background: rgba(66, 217, 232, 0.16);
+}
+
+.daw-download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.daw-placeholder {
+  margin: 16px 0 0;
+  color: #71869e;
+  text-align: center;
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  .daw-engine {
+    padding: 17px;
+  }
+
+  .daw-header h2 {
+    font-size: 18px;
+  }
+
+  .daw-subtitle {
+    font-size: 11px;
+  }
+
+  .daw-waveform {
+    height: 75px;
+    gap: 2px;
+  }
+
+  .daw-bottom-controls {
+    flex-wrap: wrap;
+  }
+}
