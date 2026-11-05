@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container":"#1c2027","on-background":"#e0e2ed","primary-fixed":"#d9e2ff","tertiary":"#ffb4a6","on-secondary":"#002c71","on-secondary-fixed":"#001947","surface-bright":"#363942","inverse-primary":"#1c59c1","error-container":"#93000a","surface-container-lowest":"#0a0e16","surface-container-highest":"#31353d","on-surface-variant":"#c3c6d5","surface-container-low":"#181c23","outline-variant":"#434653","on-tertiary-container":"#fff9f8","on-tertiary":"#660700","error":"#ffb4ab","secondary-fixed-dim":"#b1c5ff","primary":"#b0c6ff","tertiary-fixed-dim":"#ffb4a6","surface-dim":"#10131b","on-secondary-fixed-variant":"#144296","on-tertiary-fixed":"#3f0300","tertiary-container":"#df270c","on-surface":"#e0e2ed","surface-variant":"#31353d","primary-fixed-dim":"#b0c6ff","on-primary-fixed-variant":"#00419c","on-secondary-container":"#97b3ff","background":"#10131b","surface-container-high":"#262a32","primary-container":"#3a6fd8","secondary-container":"#144296","on-error-container":"#ffdad6","on-primary-container":"#fcfaff","outline":"#8d909e","surface-tint":"#b0c6ff","on-error":"#690005","secondary-fixed":"#dae2ff","surface":"#10131b","on-primary-fixed":"#001945","secondary":"#b1c5ff","inverse-surface":"#e0e2ed","inverse-on-surface":"#2d3039","on-tertiary-fixed-variant":"#900f00","on-primary":"#002d6f","tertiary-fixed":"#ffdad4"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-xl":"2.5rem","space-lg":"1.5rem","space-xs":"0.25rem","margin":"1rem","margin-tablet":"2rem","space-md":"1rem","space-sm":"0.5rem","gutter-desktop":"1.5rem","gutter":"1.25rem","margin-desktop":"3rem"},fontFamily:{"body-lg":["Inter"],"telemetry-md":["JetBrains Mono"],"label-caps":["JetBrains Mono"],"headline-lg-mobile":["Inter"],"headline-md":["Inter"],"headline-sm":["Inter"],"headline-xl-mobile":["Inter"],"telemetry-sm":["JetBrains Mono"],"body-sm":["Inter"],"body-md":["Inter"],"headline-xl":["Inter"],"headline-lg":["Inter"],"telemetry-lg":["JetBrains Mono"]},fontSize:{"body-lg":["1.125rem",{"lineHeight":"1.6","letterSpacing":"0em","fontWeight":"400"}],"telemetry-md":["0.875rem",{"lineHeight":"1.4","letterSpacing":"0.04em","fontWeight":"500"}],"label-caps":["0.625rem",{"lineHeight":"1","letterSpacing":"0.12em","fontWeight":"700"}],"headline-lg-mobile":["1.75rem",{"lineHeight":"1.25","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-md":["1.5rem",{"lineHeight":"1.3","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["1.125rem",{"lineHeight":"1.4","letterSpacing":"0em","fontWeight":"600"}],"headline-xl-mobile":["2.25rem",{"lineHeight":"1.15","letterSpacing":"-0.02em","fontWeight":"700"}],"telemetry-sm":["0.6875rem",{"lineHeight":"1.3","letterSpacing":"0.08em","fontWeight":"500"}],"body-sm":["0.75rem",{"lineHeight":"1.4","letterSpacing":"0.01em","fontWeight":"400"}],"body-md":["0.875rem",{"lineHeight":"1.5","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["3.5rem",{"lineHeight":"1.1","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-lg":["2.25rem",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"600"}],"telemetry-lg":["1.25rem",{"lineHeight":"1.2","letterSpacing":"0.05em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.4)]"><div class="h-20 w-full px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><div class="flex items-center gap-space-sm"><div class="relative flex items-center justify-center w-8 h-8 rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined text-[20px]">satellite_alt</span><span class="absolute -top-0.5 -right-0.5 flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span></span></div><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-label-caps text-label-caps text-secondary tracking-widest uppercase">NASA SPACE APPS 2026</span><span class="px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-telemetry-sm text-telemetry-sm">EJ-ORBITAL</span></div><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold uppercase">Earth Information Jukebox</span></div></div><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-low"><span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span><span class="font-telemetry-sm text-telemetry-sm text-secondary uppercase">Orbital Telemetry Online</span></div></div><nav class="hidden lg:flex items-center gap-space-xs p-1 rounded bg-surface-container-low" data-active-classes="bg-primary-container text-on-primary-container rounded font-semibold"><a class="px-space-md py-1.5 text-on-surface-variant hover:text-on-surface font-body-md text-body-md transition-colors" data-path="planetary-explorer" href="#">Planetary Explorer</a><a aria-current="page" class="px-space-md py-1.5 transition-colors bg-primary-container text-on-primary-container rounded font-semibold" data-path="earth-symphony-studio" href="#">Earth Symphony Studio</a><a class="px-space-md py-1.5 text-on-surface-variant hover:text-on-surface font-body-md text-body-md transition-colors" data-path="regional-compare" href="#">Regional Compare</a><a class="px-space-md py-1.5 text-on-surface-variant hover:text-on-surface font-body-md text-body-md transition-colors" data-path="data-sources-and-methodology" href="#">Data Sources & Methodology</a></nav><div class="flex items-center gap-space-md shrink-0"><div class="hidden md:flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-low"><span class="material-symbols-outlined text-[18px] text-outline">search</span><input class="bg-transparent border-0 font-telemetry-sm text-telemetry-sm text-on-surface placeholder:text-outline focus:outline-none w-44" placeholder="Coordinate / Region Search..." type="text"/></div><div class="hidden 2xl:flex items-center gap-space-xs"><span class="font-label-caps text-label-caps text-outline uppercase">Presets:</span><div class="flex items-center gap-1"><button class="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-telemetry-sm text-telemetry-sm transition-colors" type="button">Kolkata</button><button class="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-telemetry-sm text-telemetry-sm transition-colors" type="button">Svalbard</button><button class="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-telemetry-sm text-telemetry-sm transition-colors" type="button">Amazon</button><button class="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-telemetry-sm text-telemetry-sm transition-colors" type="button">Tokyo</button><button class="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-telemetry-sm text-telemetry-sm transition-colors" type="button">Sahara</button></div></div><div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-low"><span class="material-symbols-outlined text-[18px] text-secondary">volume_up</span><div class="w-16 h-1 rounded bg-surface-container-highest overflow-hidden"><div class="w-3/4 h-full bg-secondary"></div></div><span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">-6dB</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="w-full px-margin md:px-margin-tablet xl:px-margin-desktop py-space-lg flex flex-col gap-space-lg">
+<!-- Top Status Banner & Session Metadata -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md bg-surface-container-low p-space-md rounded-xl shadow-md">
+<div class="flex flex-wrap items-center gap-space-sm">
+<span class="px-space-sm py-1 bg-surface-container text-secondary font-label-caps text-label-caps rounded flex items-center gap-1.5 uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+          DAW Core Active
+        </span>
+<div class="flex items-center gap-2 px-space-md py-1 bg-surface-container-high rounded text-on-surface">
+<span class="material-symbols-outlined text-[18px] text-tertiary">location_on</span>
+<span class="font-telemetry-sm text-telemetry-sm font-semibold tracking-wide">Kolkata (22.57°N, 88.36°E)</span>
+<span class="text-outline text-body-sm font-body-sm">/</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">2016–2025 (120 Months Decadal Run)</span>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-outline hidden xl:inline">LATENCY: 12ms (ASIO-STREAM)</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded text-on-surface">
+<span class="font-label-caps text-label-caps text-outline uppercase">Master Clock:</span>
+<span class="font-telemetry-md text-telemetry-md text-secondary tracking-widest" id="transport-clock">01:42.85 / 02:45.00</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-high p-1 rounded">
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface transition-colors" id="btn-rewind" type="button">
+<span class="material-symbols-outlined text-[18px]">fast_rewind</span>
+</button>
+<button class="px-3 h-8 rounded bg-primary-container hover:bg-primary-container/80 text-on-primary-container flex items-center gap-1 font-telemetry-sm text-telemetry-sm font-semibold transition-all" id="btn-play-master" type="button">
+<span class="material-symbols-outlined text-[18px]" id="play-icon">play_arrow</span>
+<span id="play-label">START ENGINE</span>
+</button>
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-bright flex items-center justify-center text-secondary transition-colors" id="btn-loop" type="button">
+<span class="material-symbols-outlined text-[18px]">loop</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Editorial Intro & Studio Concept Card -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+<div class="lg:col-span-8 flex flex-col justify-between bg-surface-container-low p-space-lg rounded-xl shadow-md relative overflow-hidden">
+<div class="flex flex-col gap-2 max-w-2xl relative z-10">
+<span class="font-label-caps text-label-caps text-secondary tracking-widest uppercase">ACOUSTIC MAPPING INTERFACE // EJ-ORBITAL-V2</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Earth Symphony Studio</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+            Transform real NASA Earth observations into an immersive, scientific sound experience. This tactile digital audio workstation maps multidecadal satellite observations into tonal, granular, and spectral audio dimensions.
+          </p>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 items-center pt-4 relative z-10">
+<div class="flex items-center gap-2 text-on-surface-variant font-telemetry-sm text-telemetry-sm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>MODIS Terra/Aqua</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-telemetry-sm text-telemetry-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>OCO-2 Spectrometer</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-telemetry-sm text-telemetry-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>GPM IMERG Precipitation</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-telemetry-sm text-telemetry-sm">
+<span class="w-2 h-2 rounded-full bg-primary-fixed"></span>
+<span>SEDAC Global Population</span>
+</div>
+</div>
+</div>
+<!-- Quick Audio Profile Box -->
+<div class="lg:col-span-4 bg-surface-container p-space-lg rounded-xl flex flex-col justify-between shadow-md">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">HARMONIC REFERENCE MATRIX</span>
+<span class="font-telemetry-sm text-telemetry-sm text-secondary bg-surface-container-high px-2 py-0.5 rounded">A4 = 432 Hz</span>
+</div>
+<div class="my-4 flex flex-col gap-2">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Tuning Standard:</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Verdi Natural Harmonic</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Scale Space:</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Pentatonic Planetary</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Dynamic Compression:</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">-1.8 dB RMS Level</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Decadal Step:</span>
+<span class="font-telemetry-sm text-telemetry-sm text-secondary font-semibold">1 Month = 1.375s Audio</span>
+</div>
+</div>
+<div class="p-2.5 rounded bg-surface-container-low flex items-center justify-between">
+<span class="font-telemetry-sm text-telemetry-sm text-outline">LAME Engine 3.100</span>
+<span class="font-label-caps text-label-caps text-primary uppercase font-bold">READY TO SYNTHESIZE</span>
+</div>
+</div>
+</div>
+<!-- SOUND DESIGN CONTROL CONSOLE -->
+<div class="bg-surface-container-low p-space-lg rounded-xl shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">tune</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase">Sound Design Control Console</h2>
+</div>
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">STAGE 01 // DSP HARMONICS</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Master Volume Knob/Fader Simulator -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col justify-between gap-3 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline uppercase">Master Volume</span>
+<span class="font-telemetry-sm text-telemetry-sm text-primary font-bold" id="master-vol-readout">-2.4 dB</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-outline">volume_mute</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" id="master-vol-slider" max="100" min="0" type="range" value="82"/>
+<span class="material-symbols-outlined text-[16px] text-outline">volume_up</span>
+</div>
+<div class="flex justify-between text-telemetry-sm font-telemetry-sm text-outline">
+<span>-∞</span>
+<span>-12dB</span>
+<span>0dB</span>
+<span>+3dB</span>
+</div>
+</div>
+<!-- Master Reverb Wet/Dry -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col justify-between gap-3 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline uppercase">Master Reverb Wet/Dry</span>
+<span class="font-telemetry-sm text-telemetry-sm text-secondary font-bold" id="reverb-readout">42%</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label-caps text-label-caps text-outline">DRY</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-secondary" id="reverb-slider" max="100" min="0" type="range" value="42"/>
+<span class="font-label-caps text-label-caps text-outline">WET</span>
+</div>
+<div class="flex justify-between text-telemetry-sm font-telemetry-sm text-outline">
+<span>0%</span>
+<span>Space: 140m²</span>
+<span>100%</span>
+</div>
+</div>
+<!-- Scale Selection & Root Note -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col justify-between gap-3 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline uppercase">Scale & Root Tuning</span>
+<span class="font-telemetry-sm text-telemetry-sm text-tertiary">432 Hz Std</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<select class="bg-surface-container-high text-on-surface font-telemetry-sm text-telemetry-sm rounded px-2 py-1.5 focus:outline-none">
+<option selected="">Pentatonic</option>
+<option>Major Solar</option>
+<option>Minor Ocean</option>
+<option>Dorian Wind</option>
+<option>Whole-Tone</option>
+</select>
+<select class="bg-surface-container-high text-on-surface font-telemetry-sm text-telemetry-sm rounded px-2 py-1.5 focus:outline-none">
+<option selected="">A4 (432 Hz)</option>
+<option>C4 (256 Hz)</option>
+<option>D4 (288 Hz)</option>
+<option>G4 (384 Hz)</option>
+</select>
+</div>
+<span class="text-body-sm font-body-sm text-outline truncate">Pythagorean ratio optimization</span>
+</div>
+<!-- Sound Style Preset -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col justify-between gap-3 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline uppercase">Sound Style Preset</span>
+<span class="font-telemetry-sm text-telemetry-sm text-primary">PRESET #03</span>
+</div>
+<div class="flex items-center">
+<select class="w-full bg-surface-container-high text-on-surface font-telemetry-sm text-telemetry-sm rounded px-2.5 py-1.5 focus:outline-none" id="preset-select">
+<option selected="">Cinematic Ambient (NASA Deep Space)</option>
+<option>NASA Mission Synth (Modular Telemetry)</option>
+<option>Acoustic Chamber (Orchestral Organic)</option>
+<option>Organic Modular (Bio-Resonant Pulses)</option>
+</select>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-secondary">graphic_eq</span>
+<span class="truncate">Convolution Reverb + Analog Filter</span>
+</div>
+</div>
+</div>
+</div>
+<!-- MASTER OSCILLOSCOPE & SPECTRUM ANALYZER SECTION -->
+<div class="bg-surface-container-low p-space-lg rounded-xl shadow-md flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[24px]">query_stats</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-tight">Master Sonification Oscilloscope & Spectrum Analyzer</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Stereo Composite Waveform & Real-Time FFT Spectral Energy Distribution (20 Hz - 22 kHz)</span>
+</div>
+</div>
+<div class="flex items-center gap-2 self-start md:self-auto">
+<span class="px-2 py-1 rounded bg-surface-container font-telemetry-sm text-telemetry-sm text-secondary">STEREO L+R INTERLEAVED</span>
+<span class="px-2 py-1 rounded bg-surface-container font-telemetry-sm text-telemetry-sm text-outline">FFT SIZE: 2048</span>
+</div>
+</div>
+<!-- Oscilloscope Display Surface -->
+<div class="relative w-full h-56 bg-surface-container-lowest rounded-lg overflow-hidden flex flex-col justify-between p-3 shadow-inner">
+<!-- Grid Reticle Overlay -->
+<div class="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:32px_24px]"></div>
+<!-- Oscilloscope Waveform Path SVG -->
+<div class="absolute inset-0 flex items-center justify-center p-2">
+<svg class="w-full h-full text-secondary opacity-90 overflow-visible" preserveaspectratio="none" viewbox="0 0 1000 200">
+<!-- Background Spectrum Fill -->
+<path d="M0,100 Q40,40 80,100 T160,100 T240,60 T320,130 T400,90 T480,140 T560,40 T640,110 T720,80 T800,130 T880,70 T960,105 T1000,100 L1000,200 L0,200 Z" fill="currentColor" fill-opacity="0.08"></path>
+<!-- Primary Sound Waveform Line -->
+<path d="M0,100 Q40,30 80,100 T160,100 T240,40 T320,140 T400,80 T480,160 T560,30 T640,120 T720,70 T800,150 T880,50 T960,110 T1000,100" fill="none" id="master-wave-line" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Ambient Thermal Secondary Trace -->
+<path d="M0,100 Q50,70 100,100 T200,80 T300,115 T400,75 T500,125 T600,65 T700,115 T800,85 T900,120 T1000,100" fill="none" opacity="0.6" stroke="#FF985C" stroke-dasharray="4 3" stroke-width="1.2"></path>
+</svg>
+</div>
+<!-- Upper Status Indicators inside Scope -->
+<div class="relative z-10 flex justify-between items-center text-telemetry-sm font-telemetry-sm text-outline">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1 text-secondary font-semibold">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span> LIVE SONIFYING
+            </span>
+<span>GAIN: +1.2dB</span>
+<span>PEAK: -0.4dBFS</span>
+</div>
+<div class="flex items-center gap-4">
+<span>20Hz</span>
+<span>250Hz</span>
+<span>1kHz</span>
+<span>4kHz</span>
+<span>16kHz</span>
+</div>
+</div>
+<!-- Timeline Playhead & Decadal Marker Ruler -->
+<div class="relative z-10 w-full flex flex-col gap-1">
+<div class="relative w-full h-8 flex items-center cursor-pointer group" id="timeline-container">
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden relative">
+<div class="h-full bg-gradient-to-r from-secondary-container via-primary-container to-secondary w-[62%] transition-all duration-100" id="timeline-progress-bar"></div>
+</div>
+<!-- Playhead Thumb -->
+<div class="absolute left-[62%] -ml-2 w-4 h-6 rounded bg-on-secondary flex flex-col items-center justify-center shadow-lg transition-all duration-100 group-hover:scale-110" id="playhead-reticle">
+<div class="w-1 h-3 bg-secondary rounded-full"></div>
+</div>
+</div>
+<!-- Decadal 120-Month Timeline Ticks -->
+<div class="w-full flex justify-between font-label-caps text-label-caps text-outline pt-1">
+<span class="text-secondary font-semibold">JAN 2016 (M01)</span>
+<span>2018 (M24)</span>
+<span>2020 (M48)</span>
+<span class="text-tertiary font-bold">2022 (M72 - PEAK HEAT)</span>
+<span>2024 (M96)</span>
+<span class="text-on-surface">DEC 2025 (M120)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 6-TRACK "EARTH SYMPHONY" MULTI-PARAMETER AUDIO MIXER (DAW LAYOUT) -->
+<div class="bg-surface-container-low p-space-lg rounded-xl shadow-md flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">format_list_numbered</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase">The 6-Track Earth Symphony Mixer Rack</h2>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 bg-surface-container hover:bg-surface-bright rounded font-telemetry-sm text-telemetry-sm text-on-surface-variant transition-colors" id="btn-unmute-all" type="button">RESET MUTES</button>
+<button class="px-2.5 py-1 bg-surface-container hover:bg-surface-bright rounded font-telemetry-sm text-telemetry-sm text-on-surface-variant transition-colors" id="btn-solo-all" type="button">CLEAR SOLOS</button>
+</div>
+</div>
+<!-- Audio Rack Container -->
+<div class="flex flex-col gap-space-sm" id="mixer-rack-deck">
+<!-- TRACK 1: SURFACE TEMPERATURE -->
+<div class="track-row p-space-md rounded-lg bg-surface-container flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md shadow-sm transition-all hover:bg-surface-container-high">
+<!-- Left: Track ID & Info -->
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-1.5 h-12 rounded-full bg-[#FF985C] shadow-sm"></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-[#FF985C] font-bold">TRK 01</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Surface Temp</span>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant truncate">MODIS Land Surface Thermal (LST)</span>
+</div>
+</div>
+<!-- Middle: Sound Mapping & Realtime Data -->
+<div class="flex flex-col md:flex-row items-start md:items-center gap-space-md flex-1 min-w-0">
+<div class="flex flex-col justify-center min-w-44">
+<span class="font-label-caps text-label-caps text-outline uppercase">SOUND MAPPING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Pitch Trajectory (F#3 → A5)</span>
+<span class="text-body-sm font-body-sm text-outline">Thermal overtone resonance cutoff</span>
+</div>
+<!-- Visualizer Graphic -->
+<div class="w-full md:w-56 h-10 bg-surface-container-lowest rounded px-2 flex items-center justify-center relative overflow-hidden">
+<svg class="w-full h-8 text-[#FF985C]" preserveaspectratio="none" viewbox="0 0 160 30">
+<path d="M0,22 Q20,5 40,18 T80,8 T120,20 T160,5" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle class="animate-ping" cx="120" cy="20" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+<!-- Current Planetary Observation Metric -->
+<div class="flex flex-col justify-center min-w-28">
+<span class="font-label-caps text-label-caps text-outline uppercase">REAL-TIME VAL</span>
+<span class="font-telemetry-lg text-telemetry-lg text-[#FF985C] font-bold">+1.48°C</span>
+<span class="text-body-sm font-body-sm text-[#FF985C]/80">Anomaly Spike</span>
+</div>
+</div>
+<!-- Right: Fader & Solo/Mute Buttons -->
+<div class="flex items-center gap-3 shrink-0 pt-2 lg:pt-0">
+<div class="flex items-center gap-1">
+<button class="btn-mute px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors" type="button">MUTE</button>
+<button class="btn-solo px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-secondary-container hover:text-on-secondary-container transition-colors" type="button">SOLO</button>
+</div>
+<div class="flex items-center gap-2 w-32">
+<span class="material-symbols-outlined text-[14px] text-outline">volume_down</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded appearance-none cursor-pointer accent-[#FF985C]" max="100" min="0" type="range" value="78"/>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant w-14 text-right">-3.2 dB</span>
+</div>
+</div>
+<!-- TRACK 2: AIR QUALITY PM2.5 / AOD -->
+<div class="track-row p-space-md rounded-lg bg-surface-container flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md shadow-sm transition-all hover:bg-surface-container-high">
+<!-- Left: Track ID & Info -->
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-1.5 h-12 rounded-full bg-[#55C7E8] shadow-sm"></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-[#55C7E8] font-bold">TRK 02</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Air Quality (PM2.5)</span>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant truncate">Aerosol Optical Depth (AOD)</span>
+</div>
+</div>
+<!-- Middle: Sound Mapping & Realtime Data -->
+<div class="flex flex-col md:flex-row items-start md:items-center gap-space-md flex-1 min-w-0">
+<div class="flex flex-col justify-center min-w-44">
+<span class="font-label-caps text-label-caps text-outline uppercase">SOUND MAPPING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Granular Pulse Density</span>
+<span class="text-body-sm font-body-sm text-outline">Resonant bandpass filter scrub</span>
+</div>
+<!-- Visualizer Graphic -->
+<div class="w-full md:w-56 h-10 bg-surface-container-lowest rounded px-2 flex items-center justify-between relative overflow-hidden">
+<div class="flex items-center gap-1 w-full justify-around">
+<span class="w-1 h-3 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-7 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-4 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-8 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-5 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-6 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-2 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-7 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-4 bg-[#55C7E8] rounded-full"></span>
+<span class="w-1 h-6 bg-[#55C7E8] rounded-full"></span>
+</div>
+</div>
+<!-- Current Planetary Observation Metric -->
+<div class="flex flex-col justify-center min-w-28">
+<span class="font-label-caps text-label-caps text-outline uppercase">REAL-TIME VAL</span>
+<span class="font-telemetry-lg text-telemetry-lg text-[#55C7E8] font-bold">84.2 µg/m³</span>
+<span class="text-body-sm font-body-sm text-tertiary">Severe AQI Level</span>
+</div>
+</div>
+<!-- Right: Fader & Solo/Mute Buttons -->
+<div class="flex items-center gap-3 shrink-0 pt-2 lg:pt-0">
+<div class="flex items-center gap-1">
+<button class="btn-mute px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors" type="button">MUTE</button>
+<button class="btn-solo px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-secondary-container hover:text-on-secondary-container transition-colors" type="button">SOLO</button>
+</div>
+<div class="flex items-center gap-2 w-32">
+<span class="material-symbols-outlined text-[14px] text-outline">volume_down</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded appearance-none cursor-pointer accent-[#55C7E8]" max="100" min="0" type="range" value="65"/>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant w-14 text-right">-6.0 dB</span>
+</div>
+</div>
+<!-- TRACK 3: ATMOSPHERIC CO2 -->
+<div class="track-row p-space-md rounded-lg bg-surface-container flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md shadow-sm transition-all hover:bg-surface-container-high">
+<!-- Left: Track ID & Info -->
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-1.5 h-12 rounded-full bg-[#B18AFF] shadow-sm"></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-[#B18AFF] font-bold">TRK 03</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Atmospheric CO₂</span>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant truncate">Orbiting Carbon Observatory-2</span>
+</div>
+</div>
+<!-- Middle: Sound Mapping & Realtime Data -->
+<div class="flex flex-col md:flex-row items-start md:items-center gap-space-md flex-1 min-w-0">
+<div class="flex flex-col justify-center min-w-44">
+<span class="font-label-caps text-label-caps text-outline uppercase">SOUND MAPPING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Atmospheric Drone Pad</span>
+<span class="text-body-sm font-body-sm text-outline">Harmonic chord cluster depth</span>
+</div>
+<!-- Visualizer Graphic -->
+<div class="w-full md:w-56 h-10 bg-surface-container-lowest rounded px-2 flex items-center justify-center relative overflow-hidden">
+<svg class="w-full h-8 text-[#B18AFF]" preserveaspectratio="none" viewbox="0 0 160 30">
+<path d="M0,15 C30,5 50,25 80,15 C110,5 130,25 160,15" fill="none" stroke="currentColor" stroke-width="2.5"></path>
+<path d="M0,15 C30,22 50,8 80,15 C110,22 130,8 160,15" fill="none" opacity="0.6" stroke="currentColor" stroke-dasharray="3 2" stroke-width="1"></path>
+</svg>
+</div>
+<!-- Current Planetary Observation Metric -->
+<div class="flex flex-col justify-center min-w-28">
+<span class="font-label-caps text-label-caps text-outline uppercase">REAL-TIME VAL</span>
+<span class="font-telemetry-lg text-telemetry-lg text-[#B18AFF] font-bold">421.8 ppm</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Rising Trend</span>
+</div>
+</div>
+<!-- Right: Fader & Solo/Mute Buttons -->
+<div class="flex items-center gap-3 shrink-0 pt-2 lg:pt-0">
+<div class="flex items-center gap-1">
+<button class="btn-mute px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors" type="button">MUTE</button>
+<button class="btn-solo px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-secondary-container hover:text-on-secondary-container transition-colors" type="button">SOLO</button>
+</div>
+<div class="flex items-center gap-2 w-32">
+<span class="material-symbols-outlined text-[14px] text-outline">volume_down</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded appearance-none cursor-pointer accent-[#B18AFF]" max="100" min="0" type="range" value="72"/>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant w-14 text-right">-4.5 dB</span>
+</div>
+</div>
+<!-- TRACK 4: HYDROLOGY & PRECIPITATION -->
+<div class="track-row p-space-md rounded-lg bg-surface-container flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md shadow-sm transition-all hover:bg-surface-container-high">
+<!-- Left: Track ID & Info -->
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-1.5 h-12 rounded-full bg-[#4E9CFF] shadow-sm"></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-[#4E9CFF] font-bold">TRK 04</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Hydrology & Rain</span>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant truncate">GPM IMERG Multi-satellite Rain</span>
+</div>
+</div>
+<!-- Middle: Sound Mapping & Realtime Data -->
+<div class="flex flex-col md:flex-row items-start md:items-center gap-space-md flex-1 min-w-0">
+<div class="flex flex-col justify-center min-w-44">
+<span class="font-label-caps text-label-caps text-outline uppercase">SOUND MAPPING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Fluid Flow Texture</span>
+<span class="text-body-sm font-body-sm text-outline">Rhythmic precipitation drops</span>
+</div>
+<!-- Visualizer Graphic -->
+<div class="w-full md:w-56 h-10 bg-surface-container-lowest rounded px-2 flex items-center justify-center relative overflow-hidden">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-[#4E9CFF]/40 animate-ping"></div>
+<div class="w-2 h-2 rounded-full bg-[#4E9CFF]"></div>
+<div class="w-4 h-4 rounded-full bg-[#4E9CFF]/30 animate-pulse"></div>
+<div class="w-2 h-2 rounded-full bg-[#4E9CFF]"></div>
+<div class="w-3 h-3 rounded-full bg-[#4E9CFF]/60"></div>
+</div>
+</div>
+<!-- Current Planetary Observation Metric -->
+<div class="flex flex-col justify-center min-w-28">
+<span class="font-label-caps text-label-caps text-outline uppercase">REAL-TIME VAL</span>
+<span class="font-telemetry-lg text-telemetry-lg text-[#4E9CFF] font-bold">142 mm/mo</span>
+<span class="text-body-sm font-body-sm text-secondary">Monsoon Surge</span>
+</div>
+</div>
+<!-- Right: Fader & Solo/Mute Buttons -->
+<div class="flex items-center gap-3 shrink-0 pt-2 lg:pt-0">
+<div class="flex items-center gap-1">
+<button class="btn-mute px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors" type="button">MUTE</button>
+<button class="btn-solo px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-secondary-container hover:text-on-secondary-container transition-colors" type="button">SOLO</button>
+</div>
+<div class="flex items-center gap-2 w-32">
+<span class="material-symbols-outlined text-[14px] text-outline">volume_down</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded appearance-none cursor-pointer accent-[#4E9CFF]" max="100" min="0" type="range" value="54"/>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant w-14 text-right">-8.1 dB</span>
+</div>
+</div>
+<!-- TRACK 5: VEGETATION NDVI -->
+<div class="track-row p-space-md rounded-lg bg-surface-container flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md shadow-sm transition-all hover:bg-surface-container-high">
+<!-- Left: Track ID & Info -->
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-1.5 h-12 rounded-full bg-[#55D69A] shadow-sm"></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-[#55D69A] font-bold">TRK 05</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Vegetation (NDVI)</span>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant truncate">Normalized Canopy Index</span>
+</div>
+</div>
+<!-- Middle: Sound Mapping & Realtime Data -->
+<div class="flex flex-col md:flex-row items-start md:items-center gap-space-md flex-1 min-w-0">
+<div class="flex flex-col justify-center min-w-44">
+<span class="font-label-caps text-label-caps text-outline uppercase">SOUND MAPPING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Organic Marimba / Reeds</span>
+<span class="text-body-sm font-body-sm text-outline">Evolving woodwind harmonic timbre</span>
+</div>
+<!-- Visualizer Graphic -->
+<div class="w-full md:w-56 h-10 bg-surface-container-lowest rounded px-2 flex items-center justify-center relative overflow-hidden">
+<svg class="w-full h-8 text-[#55D69A]" preserveaspectratio="none" viewbox="0 0 160 30">
+<path d="M0,20 Q40,5 80,18 T160,10" fill="none" stroke="currentColor" stroke-width="2"></path>
+<path d="M0,25 Q35,12 80,22 T160,16" fill="none" opacity="0.5" stroke="currentColor" stroke-width="1"></path>
+</svg>
+</div>
+<!-- Current Planetary Observation Metric -->
+<div class="flex flex-col justify-center min-w-28">
+<span class="font-label-caps text-label-caps text-outline uppercase">REAL-TIME VAL</span>
+<span class="font-telemetry-lg text-telemetry-lg text-[#55D69A] font-bold">0.38 NDVI</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Urbanized Fringe</span>
+</div>
+</div>
+<!-- Right: Fader & Solo/Mute Buttons -->
+<div class="flex items-center gap-3 shrink-0 pt-2 lg:pt-0">
+<div class="flex items-center gap-1">
+<button class="btn-mute px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors" type="button">MUTE</button>
+<button class="btn-solo px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-secondary-container hover:text-on-secondary-container transition-colors" type="button">SOLO</button>
+</div>
+<div class="flex items-center gap-2 w-32">
+<span class="material-symbols-outlined text-[14px] text-outline">volume_down</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded appearance-none cursor-pointer accent-[#55D69A]" max="100" min="0" type="range" value="70"/>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant w-14 text-right">-5.0 dB</span>
+</div>
+</div>
+<!-- TRACK 6: POPULATION DENSITY -->
+<div class="track-row p-space-md rounded-lg bg-surface-container flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md shadow-sm transition-all hover:bg-surface-container-high">
+<!-- Left: Track ID & Info -->
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-1.5 h-12 rounded-full bg-[#F4C66A] shadow-sm"></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-[#F4C66A] font-bold">TRK 06</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Population Density</span>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant truncate">SEDAC Gridded Population Matrix</span>
+</div>
+</div>
+<!-- Middle: Sound Mapping & Realtime Data -->
+<div class="flex flex-col md:flex-row items-start md:items-center gap-space-md flex-1 min-w-0">
+<div class="flex flex-col justify-center min-w-44">
+<span class="font-label-caps text-label-caps text-outline uppercase">SOUND MAPPING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">Heartbeat Bass Pulse</span>
+<span class="text-body-sm font-body-sm text-outline">Sub-frequency rhythmic meter</span>
+</div>
+<!-- Visualizer Graphic -->
+<div class="w-full md:w-56 h-10 bg-surface-container-lowest rounded px-2 flex items-center justify-center relative overflow-hidden">
+<div class="flex items-center gap-3">
+<span class="font-telemetry-sm text-telemetry-sm text-[#F4C66A]">74 BPM</span>
+<span class="w-3 h-3 rounded-full bg-[#F4C66A] animate-ping"></span>
+<div class="w-20 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="w-3/4 h-full bg-[#F4C66A]"></div>
+</div>
+</div>
+</div>
+<!-- Current Planetary Observation Metric -->
+<div class="flex flex-col justify-center min-w-28">
+<span class="font-label-caps text-label-caps text-outline uppercase">REAL-TIME VAL</span>
+<span class="font-telemetry-lg text-telemetry-lg text-[#F4C66A] font-bold">15.3M</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Metro Footprint</span>
+</div>
+</div>
+<!-- Right: Fader & Solo/Mute Buttons -->
+<div class="flex items-center gap-3 shrink-0 pt-2 lg:pt-0">
+<div class="flex items-center gap-1">
+<button class="btn-mute px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors" type="button">MUTE</button>
+<button class="btn-solo px-2 py-1 bg-surface-container-high rounded font-label-caps text-label-caps text-on-surface hover:bg-secondary-container hover:text-on-secondary-container transition-colors" type="button">SOLO</button>
+</div>
+<div class="flex items-center gap-2 w-32">
+<span class="material-symbols-outlined text-[14px] text-outline">volume_down</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded appearance-none cursor-pointer accent-[#F4C66A]" max="100" min="0" type="range" value="45"/>
+</div>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant w-14 text-right">-10.2 dB</span>
+</div>
+</div>
+</div>
+</div>
+<!-- LOWER SECTION: AUDIO EXPORT & SCIENTIFIC BREAKDOWN -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- AUDIO EXPORT & MP3 PACKAGE CENTER -->
+<div class="lg:col-span-6 bg-surface-container-low p-space-lg rounded-xl shadow-md flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">download_for_offline</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase">Audio Export & MP3 Package Center</h3>
+</div>
+<span class="font-label-caps text-label-caps text-primary uppercase">ENCODER V2.4</span>
+</div>
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col gap-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<span class="font-label-caps text-label-caps text-outline uppercase">TARGET FILE MANIFEST:</span>
+<span class="font-telemetry-sm text-telemetry-sm text-secondary bg-surface-container-high px-2 py-0.5 rounded font-bold truncate">
+              Kolkata_Earth_Symphony_2016_2025.mp3
+            </span>
+</div>
+<div class="grid grid-cols-3 gap-2 py-2 text-center">
+<div class="bg-surface-container-low p-2 rounded">
+<span class="font-label-caps text-label-caps text-outline block">SAMPLE RATE</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold">48.0 kHz</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded">
+<span class="font-label-caps text-label-caps text-outline block">BIT DEPTH</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold">24-Bit Dyn</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded">
+<span class="font-label-caps text-label-caps text-outline block">ENCODING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-secondary font-semibold">320 kbps CBR</span>
+</div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span>Duration: 02:45 (120 Decadal Measures)</span>
+<span>Approx. Size: 6.4 MB</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-3 pt-2">
+<button class="flex-1 py-3 px-space-md rounded-lg bg-primary-container hover:bg-primary-container/80 text-on-primary-container font-telemetry-sm text-telemetry-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-md" id="btn-generate-master" type="button">
+<span class="material-symbols-outlined text-[20px]">equalizer</span>
+<span>GENERATE MASTER SONIFICATION</span>
+</button>
+<button class="py-3 px-space-md rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-telemetry-sm text-telemetry-sm font-semibold flex items-center justify-center gap-2 transition-all" id="btn-download-mp3" type="button">
+<span class="material-symbols-outlined text-[20px] text-secondary">download</span>
+<span>DOWNLOAD MP3</span>
+</button>
+</div>
+<button class="w-full py-2 px-space-md rounded bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface font-telemetry-sm text-telemetry-sm flex items-center justify-center gap-2 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">library_music</span>
+<span>Save to Historical Planetary Sound Library</span>
+</button>
+</div>
+<!-- "EXPLAIN THIS CHANGE" SCIENTIFIC AUDIO BREAKDOWN -->
+<div class="lg:col-span-6 bg-surface-container-low p-space-lg rounded-xl shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[22px]">psychology_alt</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase">Explain This Change: Scientific Audio Breakdown</h3>
+</div>
+<span class="font-label-caps text-label-caps text-tertiary uppercase">ACOUSTIC RATIONALE</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 1: Thermal Pitch Shift -->
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col gap-1.5 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-[#FF985C] uppercase font-bold">1. THERMAL ASCENT (+1.48°C RISE)</span>
+<span class="font-telemetry-sm text-telemetry-sm text-outline">MODIS Terra LST</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-normal">
+              As Kolkata’s ten-year land surface temperature warms +1.48°C, the acoustic mapping algorithm shifts Track 01 from a relaxed <span class="font-telemetry-sm text-telemetry-sm text-[#FF985C]">F#3 (185 Hz)</span> up to an urgent <span class="font-telemetry-sm text-telemetry-sm text-[#FF985C]">A5 (880 Hz)</span>. Higher thermal anomalies widen overtone dispersion, opening the filter cutoff to introduce searing harmonic tension.
+            </p>
+</div>
+<!-- Item 2: Particulate Stutter Pulses -->
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col gap-1.5 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-[#55C7E8] uppercase font-bold">2. PARTICULATE CLUSTER SPIKES (84.2 µg/m³)</span>
+<span class="font-telemetry-sm text-telemetry-sm text-outline">AOD Aerosols</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-normal">
+              When winter haze drives particulate density past the 60 µg/m³ threshold, Track 02 converts from smooth granular murmurs into aggressive, 32nd-note stutter pulses. The resonant bandpass filter locks onto 2.4 kHz to emulate physiological choking sensations in sound.
+            </p>
+</div>
+<!-- Item 3: Carbon Drone & Monsoon Counterpoint -->
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col gap-1.5 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-[#B18AFF] uppercase font-bold">3. CO₂ CONTINUUM & MONSOON CYCLING</span>
+<span class="font-telemetry-sm text-telemetry-sm text-outline">OCO-2 & GPM IMERG</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-normal">
+              The continuous linear buildup of CO₂ (401 ppm to 421.8 ppm) provides a slow-thickening harmonic sub-drone, while seasonal monsoon downpours introduce rhythmic hydro-texture sweeps that intermittently cool the master spectrum.
+            </p>
+</div>
+</div>
+<div class="p-3 bg-surface-container-high rounded flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Sonification Model: Non-Dispersive Infrared + Physical Modeling Synth</span>
+<span class="font-telemetry-sm text-telemetry-sm text-secondary font-bold">ACCURACY 99.4%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function initStudioEngine() {
+    let isPlaying = false;
+    let playInterval = null;
+    let currentSeconds = 102.85;
+    const totalSeconds = 165.00;
+
+    const playBtn = document.getElementById('btn-play-master');
+    const playIcon = document.getElementById('play-icon');
+    const playLabel = document.getElementById('play-label');
+    const clockEl = document.getElementById('transport-clock');
+    const progressBar = document.getElementById('timeline-progress-bar');
+    const playheadReticle = document.getElementById('playhead-reticle');
+    const masterWaveLine = document.getElementById('master-wave-line');
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      const ms = Math.floor((sec % 1) * 100);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
+    }
+
+    function updateTransport() {
+      if (clockEl) {
+        clockEl.textContent = `${formatTime(currentSeconds)} / ${formatTime(totalSeconds)}`;
+      }
+      const pct = (currentSeconds / totalSeconds) * 100;
+      if (progressBar) progressBar.style.width = `${pct}%`;
+      if (playheadReticle) playheadReticle.style.left = `${pct}%`;
+
+      // Subtle dynamic variation on the oscilloscope line
+      if (masterWaveLine && isPlaying) {
+        const jitter = Math.sin(Date.now() / 80) * 15;
+        masterWaveLine.setAttribute('d', `M0,100 Q40,${30 + jitter} 80,100 T160,100 T240,${40 - jitter} T320,140 T400,${80 + jitter} T480,160 T560,30 T640,${120 - jitter} T720,70 T800,150 T880,50 T960,110 T1000,100`);
+      }
+    }
+
+    if (playBtn) {
+      playBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+          playIcon.textContent = 'pause';
+          playLabel.textContent = 'PAUSE ENGINE';
+          playBtn.classList.remove('bg-primary-container');
+          playBtn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
+          playInterval = setInterval(() => {
+            currentSeconds += 0.05;
+            if (currentSeconds >= totalSeconds) currentSeconds = 0;
+            updateTransport();
+          }, 50);
+        } else {
+          playIcon.textContent = 'play_arrow';
+          playLabel.textContent = 'RESUME ENGINE';
+          playBtn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
+          playBtn.classList.add('bg-primary-container', 'text-on-primary-container');
+          clearInterval(playInterval);
+        }
+      });
+    }
+
+    const rewindBtn = document.getElementById('btn-rewind');
+    if (rewindBtn) {
+      rewindBtn.addEventListener('click', () => {
+        currentSeconds = 0;
+        updateTransport();
+      });
+    }
+
+    // Interactive Timeline Scrubbing
+    const timelineContainer = document.getElementById('timeline-container');
+    if (timelineContainer) {
+      timelineContainer.addEventListener('click', (e) => {
+        const rect = timelineContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+        currentSeconds = ratio * totalSeconds;
+        updateTransport();
+      });
+    }
+
+    // Fader & Readout Micro-interactions
+    const masterVolSlider = document.getElementById('master-vol-slider');
+    const masterVolReadout = document.getElementById('master-vol-readout');
+    if (masterVolSlider && masterVolReadout) {
+      masterVolSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        const db = ((val - 100) * 0.3).toFixed(1);
+        masterVolReadout.textContent = `${db > 0 ? '+' : ''}${db} dB`;
+      });
+    }
+
+    const reverbSlider = document.getElementById('reverb-slider');
+    const reverbReadout = document.getElementById('reverb-readout');
+    if (reverbSlider && reverbReadout) {
+      reverbSlider.addEventListener('input', (e) => {
+        reverbReadout.textContent = `${e.target.value}%`;
+      });
+    }
+
+    // Track Mute/Solo button toggle behaviors
+    document.querySelectorAll('.btn-mute').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('bg-error-container');
+        btn.classList.toggle('text-on-error-container');
+        btn.classList.toggle('font-bold');
+        const track = btn.closest('.track-row');
+        if (track) {
+          track.classList.toggle('opacity-40');
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-solo').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('bg-secondary-container');
+        btn.classList.toggle('text-on-secondary-container');
+        btn.classList.toggle('font-bold');
+      });
+    });
+
+    // Reset controls
+    const resetMutesBtn = document.getElementById('btn-unmute-all');
+    if (resetMutesBtn) {
+      resetMutesBtn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-mute').forEach((btn) => {
+          btn.classList.remove('bg-error-container', 'text-on-error-container', 'font-bold');
+        });
+        document.querySelectorAll('.track-row').forEach((tr) => tr.classList.remove('opacity-40'));
+      });
+    }
+
+    const clearSolosBtn = document.getElementById('btn-solo-all');
+    if (clearSolosBtn) {
+      clearSolosBtn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-solo').forEach((btn) => {
+          btn.classList.remove('bg-secondary-container', 'text-on-secondary-container', 'font-bold');
+        });
+      });
+    }
+
+    // Master Export Simulation Action
+    const genMasterBtn = document.getElementById('btn-generate-master');
+    if (genMasterBtn) {
+      genMasterBtn.addEventListener('click', () => {
+        const originalText = genMasterBtn.innerHTML;
+        genMasterBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[20px] animate-spin">refresh</span>
+          <span>COMPILING 120 MONTHS...</span>
+        `;
+        setTimeout(() => {
+          genMasterBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+            <span>MASTER READY (320kbps MP3)</span>
+          `;
+          setTimeout(() => {
+            genMasterBtn.innerHTML = originalText;
+          }, 3000);
+        }, 1200);
+      });
+    }
+
+    const downloadBtn = document.getElementById('btn-download-mp3');
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', () => {
+        downloadBtn.classList.add('bg-secondary-container', 'text-on-secondary-container');
+        setTimeout(() => {
+          downloadBtn.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+        }, 1500);
+      });
+    }
+
+    // Initialize position
+    updateTransport();
+  })();
+</script></main><footer class="w-full bg-surface-container-lowest text-on-surface-variant"><div class="w-full px-gutter-desktop py-space-md flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">NASA Space Apps Challenge 2026 // Earth Data Sonification Architecture</span><span class="hidden lg:inline text-outline">|</span><span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Acoustic Mapping v2.4-STABLE</span></div><div class="flex items-center gap-space-lg"><span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">LAT/LON GRID: 0.25° EQUIDISTANT</span><span class="font-telemetry-sm text-telemetry-sm text-secondary">STREAM LATENCY: 22ms</span><span class="font-telemetry-sm text-telemetry-sm text-outline">© 2026 Planetary Observation Jukebox</span></div></div></footer></body></html>
