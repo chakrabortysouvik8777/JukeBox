@@ -1,0 +1,302 @@
+
+/* Main Globe Panel */
+
+.globe-panel {
+  width: 100%;
+  min-width: 0;
+  padding: 16px;
+  background: #171b24;
+  border: 1px solid #252b38;
+  border-radius: 8px;
+  color: #d5d9e6;
+}
+
+/* Toolbar */
+
+.globe-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.tool-group,
+.preset-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.toolbar-label {
+  color: #a8adbc;
+  font-family: Georgia, serif;
+  font-size: 10px;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.tool-btn,
+.preset-btn {
+  background: #202530;
+  border: 1px solid transparent;
+  color: #c4c9d6;
+  padding: 7px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.tool-btn:hover,
+.preset-btn:hover {
+  background: #303b50;
+  color: white;
+}
+
+.tool-btn.selected,
+.active-preset {
+  background: #376bd5;
+  color: white;
+  border-color: #5788ed;
+}
+
+/* Globe Area */
+
+.globe-container {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+  padding: 12px 0;
+  background:
+    radial-gradient(
+      circle,
+      rgba(41, 69, 120, 0.17),
+      transparent 70%
+    );
+}
+
+.globe-frame {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid #303b52;
+  border-radius: 15px;
+  background: radial-gradient(
+    circle,
+    #111a2b 0%,
+    #080c14 72%
+  );
+  box-shadow:
+    0 0 25px rgba(57, 104, 190, 0.12),
+    inset 0 0 35px rgba(38, 76, 140, 0.08);
+}
+
+/* Location HUD */
+
+.location-hud {
+  position: absolute;
+  top: 25px;
+  right: 15px;
+  z-index: 3;
+  width: 235px;
+  padding: 12px;
+  background: rgba(31, 36, 47, 0.95);
+  border: 1px solid #343c4b;
+  border-radius: 5px;
+  pointer-events: none;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
+}
+
+.hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: bold;
+  color: #a9c2ff;
+}
+
+.anomaly-badge {
+  padding: 3px 5px;
+  background: #d93622;
+  color: white;
+  font-size: 9px;
+}
+
+.location-hud h3 {
+  margin-top: 9px;
+  font-size: 16px;
+  color: #e2e5ed;
+}
+
+.hud-coordinates {
+  margin-top: 5px;
+  font-size: 10px;
+  color: #b3b9c8;
+}
+
+.hud-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-top: 12px;
+}
+
+.hud-stats div {
+  background: #151a23;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hud-stats span {
+  font-size: 9px;
+  color: #a0a7b7;
+}
+
+.hud-stats strong {
+  color: #a9c2ff;
+  font-size: 11px;
+}
+
+/* Coordinates */
+
+.coordinate-display {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  margin-top: 5px;
+  background: #10151e;
+  font-size: 10px;
+  color: #aeb7c9;
+}
+
+.coordinate-display strong {
+  color: #a9c2ff;
+  margin-left: auto;
+  font-family: monospace;
+}
+
+.coordinate-indicator {
+  height: 7px;
+  width: 7px;
+  border-radius: 50%;
+  background: #ff7777;
+  box-shadow: 0 0 8px #ff7777;
+}
+
+/* Sensor Section */
+
+.sensor-section {
+  margin-top: 17px;
+}
+
+.sensor-heading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: Georgia, serif;
+  font-size: 10px;
+  font-weight: bold;
+  color: #b4bbcd;
+  margin-bottom: 9px;
+}
+
+.sensor-heading span:last-child {
+  color: #a9c2ff;
+}
+
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.sensor-card {
+  min-width: 0;
+  min-height: 67px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #252a35;
+  border: 1px solid #303744;
+  color: #b7bdcc;
+  transition: 0.2s;
+}
+
+.sensor-card.active {
+  background: #376bd5;
+  border-color: #5485e6;
+  color: white;
+}
+
+.sensor-card span {
+  font-size: 15px;
+}
+
+.sensor-card strong {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.sensor-card small {
+  font-size: 9px;
+  color: #c5ccda;
+}
+
+.sensor-card:hover {
+  transform: translateY(-2px);
+  border-color: #8baeff;
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .sensor-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .globe-panel {
+    padding: 10px;
+  }
+
+  .globe-frame {
+    height: 350px;
+  }
+
+  .location-hud {
+    top: 10px;
+    right: 8px;
+    width: 190px;
+    padding: 8px;
+  }
+
+  .location-hud h3 {
+    font-size: 13px;
+  }
+
+  .sensor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sensor-heading {
+    font-size: 9px;
+  }
+}
