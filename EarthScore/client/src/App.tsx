@@ -6,6 +6,7 @@ import DiagnosticPanel from "./components/RightPanelDashboard/DiagnosticsPanel";
 import type { Location } from "./types/location";
 import TimelineScrubber from "./components/SonicScrubber/TimelineScrubber";
 import DAWEngine from "./components/DigitalAudio/DAWEngine";
+import TemperaturePanel from "./components/TemparatureAPI/TemparaturePanel";
 
 function App() {
   const [selectedLocation, setSelectedLocation] =
@@ -39,6 +40,12 @@ function App() {
           <DiagnosticPanel
             selectedLocation={selectedLocation}
           />
+
+          <TemperaturePanel
+            latitude={22.5726}
+            longitude={88.3639}
+          />
+          
         </div>
 
       </main>
