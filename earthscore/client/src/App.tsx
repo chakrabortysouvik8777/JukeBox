@@ -1,65 +1,67 @@
-
-import Header from "./components/layout/Header";
-import DiagnosticsPanel from "./components/dashboard/DiagnosticsPanel";
-import Timeline from "./components/dashboard/TimeLine";
-import EarthGlobe from "./components/globe/EarthGlobe";
+import { useState } from "react";
+import "./App.css";
+import Navbar from "./components/Navigation/Navbar";
+import GlobePanel from "./components/Globe/GlobePanel";
+import DiagnosticPanel from "./components/RightPanelDashboard/DiagnosticsPanel";
+import type { Location } from "./types/location";
+import TimelineScrubber from "./components/SonicScrubber/TimelineScrubber";
+import DAWEngine from "./components/DigitalAudio/DAWEngine";
+import TemperaturePanel from "./components/TemparatureAPI/TemparaturePanel";
 
 function App() {
+  const [selectedLocation, setSelectedLocation] =
+    useState<Location>({
+      name: "Kolkata",
+      country: "India",
+      lat: 22.5726,
+      lng: 88.3639,
+    });
+
+  const [selectedYear, setSelectedYear] = useState(2016);
+
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
   return (
-    <div className="min-h-screen bg-[#0d111a] text-white">
+    <>
+      <Navbar />
 
-      <Header />
+      <main className="dashboard-layout">
 
-      <main className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-6 p-6">
+        {/* LEFT PANEL */}
+        <div className="left-panel">
+          <GlobePanel
+            selectedLocation={selectedLocation}
+            onLocationSelect={setSelectedLocation}
+          />
+        </div>
 
-        {/* Left section */}
-        <section className="space-y-5">
+        {/* RIGHT PANEL */}
+        <div className="right-panel">
+          <DiagnosticPanel
+            selectedLocation={selectedLocation}
+          />
 
-          <div className="min-h-137.5 rounded-xl border border-white/10 bg-[#171c25] p-5">
-            <div className="rounded-xl border border-white/10 bg-[#171c25] p-4">
-
-              <div className="mb-3 flex items-center justify-between"></div>
-              <h2 className="text-lg font-semibold">
-                Planetary Explorer
-              </h2>
-              <span className="text-xs text-blue-300">
-                EARTH ORBITAL VIEW
-              </span>
-            </div>
-
-            <EarthGlobe />
-
-          </div>
-
-          <div className="rounded-xl border border-white/10 bg-[#171c25] p-5">
-            <h2 className="text-lg font-semibold">
-              Chronological Sonic Scrubber
-            </h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Historical environmental timeline.
-            </p>
-          </div>
-          {/* Timeline */}
-          <Timeline />
-        </section>
-
-        {/* Right section */}
-        <section>
-          <div className="min-h-137.5 rounded-xl border border-white/10 bg-[#171c25] p-5">
-            <h2 className="text-lg font-semibold">
-              Regional Diagnostic Portal
-            </h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Environmental data for your selected region.
-            </p>
-          </div>
-          {/* Environmental metric cards */}
-          <DiagnosticsPanel />
-        </section>
+          <TemperaturePanel
+            latitude={22.5726}
+            longitude={88.3639}
+          />
+          
+        </div>
 
       </main>
 
-    </div>
+      {/*Chronological Sonic Order*/}
+      <TimelineScrubber
+        selectedYear={selectedYear}
+        onYearChange={setSelectedYear}
+      />
+
+      {/*Digital Audio Workstation*/}
+      <DAWEngine
+        audioUrl={audioUrl}
+        selectedYear={selectedYear}
+      />
+    </>
   );
 }
 
