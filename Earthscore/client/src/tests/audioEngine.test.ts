@@ -289,4 +289,133 @@ describe("AudioEngine", () => {
       "This AudioEngine has already been disposed.",
     );
   });
+
+  describe("scheduled playback", () => {
+    it("reports the audio clock", () => {
+      expect(engine.getAudioTime()).toBe(10);
+    });
+
+    it("rejects scheduling before audio has been started", () => {
+      expect(() => engine.scheduleFrequency(440, 12, 0.5)).toThrow(
+        "Call and await audioEngine.start() before playing.",
+      );
+    });
+
+    it("schedules pitch and envelope at the requested audio time", async () => {
+      await engine.start();
+
+      engine.scheduleFrequency(440, 12, 0.5);
+
+      const oscillator = audioMocks.FakeOscillator.instances[0];
+      const envelope = audioMocks.FakeGain.instances[1];
+
+      expect(oscillator.frequency.setValueAtTime).toHaveBeenCalledWith(440, 12);
+
+      const gainSets = envelope.gain.setValueAtTime.mock.calls;
+      const gainRamps = envelope.gain.linearRampToValueAtTime.mock.calls;
+
+      // Silent at the start, fade in, hold, fade out to zero at the end.
+      expect(gainSets[0]).toEqual([0, 12]);
+      expect(gainRamps[0][0]).toBe(0.2);
+      expect(gainRamps[0][1]).toBeCloseTo(12.02);
+      expect(gainSets[1][0]).toBe(0.2);
+      expect(gainSets[1][1]).toBeCloseTo(12.48);
+      expect(gainRamps[1]).toEqual([0, 12.5]);
+
+      // Scheduling must not cancel anything.
+      expect(envelope.gain.cancelAndHoldAtTime).not.toHaveBeenCalled();
+    });
+
+    it("maps and schedules a temperature with an explicit mapping", async () => {
+      await engine.start();
+
+      const sound = engine.scheduleTemperature(2.5, 12, 0.5, {
+        id: "t2m-pitch-v1",
+        minTemperatureC: -40,
+        maxTemperatureC: 45,
+        minFrequencyHz: 220,
+        octaves: 2,
+      });
+
+      const oscillator = audioMocks.FakeOscillator.instances[0];
+      const [frequency, time] =
+        oscillator.frequency.setValueAtTime.mock.lastCall!;
+
+      expect(sound.frequencyHz).toBeCloseTo(440);
+      expect(frequency).toBeCloseTo(440);
+      expect(time).toBe(12);
+    });
+
+    it("schedules nothing for a missing observation", async () => {
+      await engine.start();
+
+      const sound = engine.scheduleTemperature(null, 12, 0.5);
+
+      const oscillator = audioMocks.FakeOscillator.instances[0];
+      const envelope = audioMocks.FakeGain.instances[1];
+
+      expect(sound.frequencyHz).toBeNull();
+      expect(oscillator.frequency.setValueAtTime).not.toHaveBeenCalled();
+      expect(envelope.gain.setValueAtTime).not.toHaveBeenCalled();
+    });
+
+    it("allows back-to-back notes in sequence", async () => {
+      await engine.start();
+
+      engine.scheduleFrequency(220, 12, 0.5);
+      engine.scheduleFrequency(440, 12.5, 0.5);
+      engine.scheduleFrequency(880, 13, 0.5);
+
+      const oscillator = audioMocks.FakeOscillator.instances[0];
+
+      expect(oscillator.frequency.setValueAtTime.mock.calls).toEqual([
+        [220, 12],
+        [440, 12.5],
+        [880, 13],
+      ]);
+    });
+
+    it("rejects overlapping notes", async () => {
+      await engine.start();
+
+      engine.scheduleFrequency(220, 12, 0.5);
+
+      expect(() => engine.scheduleFrequency(440, 12.2, 0.5)).toThrow(
+        "Scheduled notes must not overlap",
+      );
+    });
+
+    it("rejects start times in the past and invalid times", async () => {
+      await engine.start();
+
+      expect(() => engine.scheduleFrequency(440, 5, 0.5)).toThrow(
+        "Start time is in the past",
+      );
+
+      for (const time of [NaN, Infinity]) {
+        expect(() => engine.scheduleFrequency(440, time, 0.5)).toThrow();
+      }
+
+      expect(() => engine.scheduleFrequency(440, 12, 0.01)).toThrow();
+    });
+
+    it("stop() cancels future notes and allows a new schedule", async () => {
+      await engine.start();
+
+      engine.scheduleFrequency(220, 12, 0.5);
+      engine.scheduleFrequency(440, 12.5, 0.5);
+
+      engine.stop();
+
+      const oscillator = audioMocks.FakeOscillator.instances[0];
+      const envelope = audioMocks.FakeGain.instances[1];
+
+      // Cancelling from the current time removes every later event.
+      expect(oscillator.frequency.cancelAndHoldAtTime).toHaveBeenCalledWith(9.9);
+      expect(envelope.gain.cancelAndHoldAtTime).toHaveBeenCalledWith(9.9);
+
+      // After a seek, the controller can schedule from an earlier time again.
+      expect(() => engine.scheduleFrequency(330, 10.5, 0.5)).not.toThrow();
+    });
+  });
 });

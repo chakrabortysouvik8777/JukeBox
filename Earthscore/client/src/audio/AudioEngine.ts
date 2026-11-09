@@ -4,6 +4,7 @@ import { temperatureToSound } from "./temperatureMapping";
 import { DEFAULT_TEMPERATURE_MAPPING } from "../config/audioMapping";
 
 import type {
+  ScheduledAudioEngine,
   TemperatureMappingConfig,
   TemperatureSound,
 } from "../types/audio";
@@ -12,7 +13,10 @@ const DEFAULT_VOLUME = 0.3;
 const MAX_SIGNAL_GAIN = 0.2;
 const FADE_SECONDS = 0.02;
 
-export class AudioEngine {
+// Small tolerance for floating-point time comparisons.
+const TIME_EPSILON = 1e-6;
+
+export class AudioEngine implements ScheduledAudioEngine {
   private oscillator: Tone.Oscillator | null = null;
   private envelope: Tone.Gain | null = null;
   private output: Tone.Gain | null = null;
@@ -20,6 +24,10 @@ export class AudioEngine {
   private volume = DEFAULT_VOLUME;
   private disposed = false;
   private startPromise: Promise<void> | null = null;
+
+  // End time of the last note given to the oscillator.
+  // Used to reject overlapping scheduled notes (one voice only).
+  private lastNoteEnd = 0;
 
   /**
    * Call directly from a user action, such as a Play button click.
@@ -73,7 +81,16 @@ export class AudioEngine {
   }
 
   /**
-   * Map a temperature to sound and play it.
+   * Current audio-clock time in seconds.
+   * Use it as the base for scheduleTemperature / scheduleFrequency,
+   * for example: const t0 = engine.getAudioTime() + 0.1;
+   */
+  public getAudioTime(): number {
+    return Tone.now();
+  }
+
+  /**
+   * Map a temperature to sound and play it now.
    * Returns the same mapping information the UI can display.
    *
    * durationSeconds includes the short attack and fade-out.
@@ -96,7 +113,7 @@ export class AudioEngine {
    * Play a frequency now, replacing the previous note.
    * null means silence.
    *
-   * This method does not queue future timeline events.
+   * This also cancels any notes scheduled for the future.
    */
   public playFrequency(
     frequencyHz: number | null,
@@ -109,32 +126,10 @@ export class AudioEngine {
       return;
     }
 
-    if (
-      !Number.isFinite(frequencyHz) ||
-      frequencyHz < 20 ||
-      frequencyHz > 20000
-    ) {
-      throw new Error("Frequency must be between 20 and 20000 Hz.");
-    }
+    this.validateFrequency(frequencyHz);
+    this.validateDuration(durationSeconds);
 
-    if (
-      !Number.isFinite(durationSeconds) ||
-      durationSeconds < 0.05 ||
-      durationSeconds > 10
-    ) {
-      throw new Error("Note duration must be between 0.05 and 10 seconds.");
-    }
-
-    const oscillator = this.oscillator;
-    const envelope = this.envelope;
-
-    if (
-      !oscillator ||
-      !envelope ||
-      Tone.getContext().state !== "running"
-    ) {
-      throw new Error("Call and await audioEngine.start() before playing.");
-    }
+    const { oscillator, envelope } = this.requireRunningNodes();
 
     const now = Tone.now();
     const end = now + durationSeconds;
@@ -162,6 +157,89 @@ export class AudioEngine {
     );
 
     envelope.gain.linearRampToValueAtTime(0, end);
+
+    this.lastNoteEnd = end;
+  }
+
+  /**
+   * Schedule one observation at an absolute audio-clock time.
+   * null schedules no tone (silence) but still returns the mapping result,
+   * so the controller keeps its timeline position.
+   */
+  public scheduleTemperature(
+    temperatureC: number | null,
+    startTime: number,
+    durationSeconds: number,
+    mapping: TemperatureMappingConfig = DEFAULT_TEMPERATURE_MAPPING,
+  ): TemperatureSound {
+    this.assertNotDisposed();
+
+    const sound = temperatureToSound(temperatureC, mapping);
+
+    this.scheduleFrequency(sound.frequencyHz, startTime, durationSeconds);
+
+    return sound;
+  }
+
+  /**
+   * Schedule one note at an absolute audio-clock time.
+   *
+   * - startTime must not be in the past.
+   * - Notes must not overlap: startTime >= end of the previous note.
+   *   Back-to-back notes (startTime == previous end) are allowed.
+   * - null schedules nothing (a silent gap).
+   *
+   * stop() cancels every note scheduled with this method.
+   */
+  public scheduleFrequency(
+    frequencyHz: number | null,
+    startTime: number,
+    durationSeconds: number,
+  ): void {
+    this.assertNotDisposed();
+
+    this.validateDuration(durationSeconds);
+
+    if (!Number.isFinite(startTime)) {
+      throw new Error("Start time must be a finite number of seconds.");
+    }
+
+    const { oscillator, envelope } = this.requireRunningNodes();
+
+    if (startTime < Tone.immediate() - TIME_EPSILON) {
+      throw new Error(
+        "Start time is in the past. Read getAudioTime() and schedule after it.",
+      );
+    }
+
+    if (startTime < this.lastNoteEnd - TIME_EPSILON) {
+      throw new Error(
+        "Scheduled notes must not overlap. Call stop() before rescheduling.",
+      );
+    }
+
+    // A missing observation is a silent gap, not a note.
+    if (frequencyHz === null) {
+      return;
+    }
+
+    this.validateFrequency(frequencyHz);
+
+    const end = startTime + durationSeconds;
+
+    // The previous note has faded to zero by startTime,
+    // so the pitch can change instantly without an audible jump.
+    oscillator.frequency.setValueAtTime(frequencyHz, startTime);
+
+    envelope.gain.setValueAtTime(0, startTime);
+    envelope.gain.linearRampToValueAtTime(
+      MAX_SIGNAL_GAIN,
+      startTime + FADE_SECONDS,
+    );
+    envelope.gain.setValueAtTime(MAX_SIGNAL_GAIN, end - FADE_SECONDS);
+    envelope.gain.linearRampToValueAtTime(0, end);
+
+    this.lastNoteEnd = end;
   }
 
   /**
@@ -193,7 +271,7 @@ export class AudioEngine {
   }
 
   /**
-   * Cancel the current note and fade to silence.
+   * Fade the current note to silence AND cancel all future scheduled notes.
    * Does not close the shared Tone.js audio context.
    */
   public stop(): void {
@@ -205,6 +283,8 @@ export class AudioEngine {
     // so Stop responds promptly.
     const now = Tone.immediate();
 
+    // cancelAndHoldAtTime removes every automation event after `now`,
+    // which includes all future scheduled notes.
     this.oscillator?.frequency.cancelAndHoldAtTime(now);
 
     this.envelope.gain.cancelAndHoldAtTime(now);
@@ -212,6 +292,9 @@ export class AudioEngine {
       0,
       now + FADE_SECONDS,
     );
+
+    // New notes may be scheduled once the fade-out has finished.
+    this.lastNoteEnd = now + FADE_SECONDS;
   }
 
   /**
@@ -232,6 +315,44 @@ export class AudioEngine {
     this.oscillator = null;
     this.envelope = null;
     this.output = null;
+  }
+
+  private requireRunningNodes(): {
+    oscillator: Tone.Oscillator;
+    envelope: Tone.Gain;
+  } {
+    const oscillator = this.oscillator;
+    const envelope = this.envelope;
+
+    if (
+      !oscillator ||
+      !envelope ||
+      Tone.getContext().state !== "running"
+    ) {
+      throw new Error("Call and await audioEngine.start() before playing.");
+    }
+
+    return { oscillator, envelope };
+  }
+
+  private validateFrequency(frequencyHz: number): void {
+    if (
+      !Number.isFinite(frequencyHz) ||
+      frequencyHz < 20 ||
+      frequencyHz > 20000
+    ) {
+      throw new Error("Frequency must be between 20 and 20000 Hz.");
+    }
+  }
+
+  private validateDuration(durationSeconds: number): void {
+    if (
+      !Number.isFinite(durationSeconds) ||
+      durationSeconds < 0.05 ||
+      durationSeconds > 10
+    ) {
+      throw new Error("Note duration must be between 0.05 and 10 seconds.");
+    }
   }
 
   private assertNotDisposed(): void {

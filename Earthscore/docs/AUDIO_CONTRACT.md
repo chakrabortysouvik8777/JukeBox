@@ -3,7 +3,7 @@
 ## 1. Current status
 
 - Temperature mapping: tests passing (sst-pitch-v1 and t2m-pitch-v1).
-- AudioEngine.ts: 10 mocked lifecycle tests passing.
+- AudioEngine.ts: 19 mocked tests passing (lifecycle + scheduled playback).
 - TypeScript check and production build: passing.
 - SoundLegend.tsx: not yet placed in the UI.
 - Real-browser listening checks (section 9): pending.
@@ -97,13 +97,45 @@ Default duration: 0.5 seconds.
 
 ### playFrequency(frequencyHz, durationSeconds?)
 
-Plays one frequency, replacing the current note.
+Plays one frequency now, replacing the current note.
+Also cancels any future scheduled notes.
 
 - Supported frequency: 20–20000 Hz.
 - Supported duration: 0.05–10 seconds.
 - null stops the current sound.
 
 Duration includes the attack and fade-out.
+
+### getAudioTime(): number
+
+Current audio-clock time in seconds (Tone.now()).
+Use it as the base for all scheduled times.
+
+### scheduleTemperature(temperatureC, startTime, durationSeconds, mapping?)
+
+Maps one observation and schedules it at an absolute audio-clock time.
+Returns the same mapping result as playTemperature().
+
+null schedules no tone (a silent gap) but still returns a result,
+so the controller keeps its timeline position.
+
+### scheduleFrequency(frequencyHz, startTime, durationSeconds)
+
+Schedules one note at an absolute audio-clock time.
+
+- startTime is absolute audio-clock seconds, not a delay.
+- startTime must not be in the past.
+- Notes must not overlap. Back-to-back notes are allowed:
+  next startTime = previous startTime + previous duration.
+- One voice only: the engine plays one note at a time.
+- null schedules nothing.
+
+Example for the controller:
+
+    const t0 = engine.getAudioTime() + 0.1;
+    observations.forEach((obs, i) => {
+      engine.scheduleTemperature(obs.temperatureC, t0 + i * 0.5, 0.5, mapping);
+    });
 
 ### setVolume(volume)
 
@@ -118,6 +150,11 @@ Volume is independent of temperature.
 ### stop()
 
 Cancels the current note's automation and fades to silence.
+Also cancels every future note scheduled with scheduleTemperature()
+or scheduleFrequency().
+
+After stop(), the controller may schedule again from a new time
+(for example after a seek or region change).
 
 Does not reset the dataset position.
 Does not close the shared Tone.js audio context.
@@ -164,25 +201,28 @@ For preview:
 
 The frontend owner controls placement and styling.
 
-## 8. Timing limitations
+## 8. Timing
 
-The current engine plays immediate notes using Tone.js look-ahead timing.
-It does not accept an absolute scheduled start time.
+Sound timing is controlled by the audio clock, not by setInterval.
 
-Do not claim sample-accurate synchronization between sound and visuals.
-Do not build a precise timeline by relying only on setInterval.
+The controller should:
 
-Before implementing precise timeline playback, agree on a scheduled-time
-API and cancellation behavior with the audio engine owner.
+1. Read t0 = engine.getAudioTime() + a small lead time (about 0.1 s).
+2. Schedule a batch of upcoming observations with absolute times.
+3. Update visuals for observation i when the audio clock reaches
+   t0 + i * stepSeconds (for example with requestAnimationFrame that
+   compares against engine.getAudioTime()).
+4. On pause, seek, speed change or region change: call stop(),
+   then schedule again from the new position.
 
-The 20 ms pitch transition smooths note changes; the target pitch is
-reached after that transition.
+Visual updates follow screen refresh, so they can lag the sound by
+one frame (about 16 ms). Do not claim sample-accurate synchronization.
+
+The 20 ms fade-in and fade-out avoid clicks; the scheduled note
+reaches full volume 20 ms after its start time.
 
 ## 9. Verification still required
 
-- Run audio-engine tests.
-- Run TypeScript checking.
-- Complete a successful production build.
 - Confirm sound starts after clicking Play.
 - Confirm missing observations stop the sound.
 - Confirm volume and mute work.
