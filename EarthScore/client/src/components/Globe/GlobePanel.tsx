@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
 import "./GlobePanel.css";
 import type { Location } from "../../types/location";
+import { getPlaceName } from "../../utils/reverseGeoCode";
 
 interface GlobePanelProps {
     selectedLocation: Location;
@@ -66,18 +67,43 @@ const GlobePanel = ({
     };
 
     // Select location by clicking globe
-    const handleGlobeClick = (
-        coords: { lat: number; lng: number }
-    ) => {
-        if (activeTool !== "point") return;
+    
+const handleGlobeClick = async (
+    coords: { lat: number; lng: number }
+) => {
+    if (activeTool !== "point") return;
 
+    const lat = Number(coords.lat.toFixed(4));
+    const lng = Number(coords.lng.toFixed(4));
+
+    // Show coordinates immediately
+    onLocationSelect({
+        name: "Finding location...",
+        country: "Loading...",
+        lat,
+        lng,
+    });
+
+    // Fetch actual place name
+    const result = await getPlaceName(lat, lng);
+
+    if (result) {
         onLocationSelect({
-            name: "Selected Location",
-            country: "Custom Region",
-            lat: Number(coords.lat.toFixed(4)),
-            lng: Number(coords.lng.toFixed(4)),
+            name: result.city || result.name,
+            country: result.country || result.state || "Unknown",
+            lat,
+            lng,
         });
-    };
+    } else {
+        onLocationSelect({
+            name: "Unknown Location",
+            country: "Unknown Region",
+            lat,
+            lng,
+        });
+    }
+};
+
 
     // Select preset location
     const handlePresetClick = (location: Location) => {
