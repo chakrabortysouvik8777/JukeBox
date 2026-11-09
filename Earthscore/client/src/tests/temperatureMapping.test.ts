@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { temperatureToSound } from "../audio/temperatureMapping";
-import { DEFAULT_TEMPERATURE_MAPPING } from "../config/audioMapping";
+import {
+  DEFAULT_TEMPERATURE_MAPPING,
+  T2M_TEMPERATURE_MAPPING,
+} from "../config/audioMapping";
 
 describe("temperatureToSound", () => {
   it.each([
@@ -111,5 +114,34 @@ describe("temperatureToSound", () => {
     expect(result.normalizedValue).toBeCloseTo(0.5);
     expect(result.frequencyHz).toBeCloseTo(200);
     expect(result.clipped).toBe(false);
+  });
+
+  describe("t2m-pitch-v1 (NASA POWER air temperature)", () => {
+    it.each([
+      [-40, 0, 220],
+      [2.5, 0.5, 440],
+      [45, 1, 880],
+    ])("maps %s°C to normalized %s and %s Hz", (t, normalized, frequency) => {
+      const result = temperatureToSound(t, T2M_TEMPERATURE_MAPPING);
+
+      expect(result.normalizedValue).toBeCloseTo(normalized);
+      expect(result.frequencyHz).toBeCloseTo(frequency);
+      expect(result.clipped).toBe(false);
+    });
+
+    it("does not clip typical cold and hot locations", () => {
+      // e.g. Svalbard winter month, Sahara summer month
+      for (const t of [-16, 38]) {
+        expect(temperatureToSound(t, T2M_TEMPERATURE_MAPPING).clipped).toBe(false);
+      }
+    });
+
+    it("clips only extreme values and keeps the original", () => {
+      const result = temperatureToSound(-55, T2M_TEMPERATURE_MAPPING);
+
+      expect(result.clipped).toBe(true);
+      expect(result.originalTemperatureC).toBe(-55);
+      expect(result.frequencyHz).toBeCloseTo(220);
+    });
   });
 });

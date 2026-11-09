@@ -2,13 +2,13 @@
 
 ## 1. Current status
 
-- Temperature mapping: 17 tests passed.
-- AudioEngine.ts: implementation added; verification pending.
-- audioEngine.test.ts: tests added; execution pending.
-- SoundLegend.tsx: component added; integration and verification pending.
-- Production build: dependency repair in progress.
+- Temperature mapping: tests passing (sst-pitch-v1 and t2m-pitch-v1).
+- AudioEngine.ts: 10 mocked lifecycle tests passing.
+- TypeScript check and production build: passing.
+- SoundLegend.tsx: not yet placed in the UI.
+- Real-browser listening checks (section 9): pending.
 
-Do not describe the audio engine as fully tested yet.
+Mocked tests do not prove real browser sound; see section 9.
 
 ## 2. Responsibilities
 
@@ -68,6 +68,11 @@ Do not independently rescale each region.
 
 Out-of-range temperatures are clipped for pitch only.
 Preserve and display the original temperature and clipped flag.
+
+### t2m-pitch-v1 (used for NASA POWER T2M)
+
+- -40 °C → 220 Hz, 45 °C → 880 Hz (two octaves).
+- Use this mapping for the app's T2M data; sst-pitch-v1 is kept for sea-surface data.
 
 ## 5. Public engine methods
 
