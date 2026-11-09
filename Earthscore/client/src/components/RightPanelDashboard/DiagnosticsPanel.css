@@ -1,4 +1,3 @@
-
 /* Main Panel */
 
 .diagnostic-panel {
@@ -199,5 +198,125 @@
 
   .metric-card h2 {
     font-size: 19px;
+  }
+}
+
+
+/* Earth Data Explorer */
+
+.data-explorer {
+  background: #101c2b;
+  border: 1px solid #26394e;
+  border-radius: 16px;
+  padding: 22px;
+  margin-top: 24px;
+}
+
+.data-explorer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.data-explorer-header h2 {
+  color: #eaf2ff;
+  font-size: 19px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.data-explorer-header p {
+  color: #8da3ba;
+  font-size: 12px;
+  margin-top: 7px;
+}
+
+.data-count {
+  font-size: 10px;
+  color: #65b9d8;
+  border: 1px solid #36566b;
+  padding: 7px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.data-category-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.data-category-btn {
+  background: #192b3d;
+  border: 1px solid #30445a;
+  border-radius: 11px;
+  padding: 15px 10px;
+  color: #a8b9cc;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.data-category-btn:hover {
+  background: #23384c;
+  border-color: #65b9d8;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.data-category-btn.active {
+  background: #203b50;
+  border: 1px solid #65b9d8;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(101, 185, 216, 0.12);
+}
+
+.category-icon {
+  font-size: 23px;
+}
+
+.selected-data-content {
+  margin-top: 20px;
+  animation: dataFadeIn 0.3s ease;
+}
+
+.coming-soon {
+  padding: 35px 22px;
+  text-align: center;
+  color: #eaf2ff;
+}
+
+.coming-soon p {
+  color: #8da3ba;
+  font-size: 13px;
+}
+
+@keyframes dataFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 650px) {
+  .data-category-selector {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .data-explorer-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

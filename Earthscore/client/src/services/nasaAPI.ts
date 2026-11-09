@@ -9,7 +9,8 @@ export interface TemperatureData {
 
 export async function fetchTemperature(
   latitude: number,
-  longitude: number
+  longitude: number,
+  signal?: AbortSignal
 ): Promise<TemperatureData[]> {
 
   const params = new URLSearchParams({
@@ -26,7 +27,7 @@ export async function fetchTemperature(
 
   console.log("NASA API Request:", url);
 
-  const response = await fetch(url);
+  const response = await fetch(url, { signal });
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -37,6 +38,12 @@ export async function fetchTemperature(
   }
 
   const data = await response.json();
+
+  console.log("NASA POWER properties:", data?.properties);
+
+  if (data?.header?.fill_value !== undefined) {
+    console.log("NASA fill value:", data.header.fill_value);
+  }
 
   console.log("NASA API Response:", data);
 

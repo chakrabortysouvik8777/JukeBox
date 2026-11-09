@@ -40,11 +40,6 @@ function App() {
           <DiagnosticPanel
             selectedLocation={selectedLocation}
           />
-
-          <TemperaturePanel
-            latitude={22.5726}
-            longitude={88.3639}
-          />
           
         </div>
 
