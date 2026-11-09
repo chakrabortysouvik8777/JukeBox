@@ -40,4 +40,4 @@ Re-run the script if the presets change. Do not edit the file by hand.
 
 - Live APIs can be slow or unavailable. For temperature, the preset locations fall back to the saved snapshot; other locations and other panels show an error message instead of fake values.
 - `client/src/data/demoData.ts` contains illustrative values. They must not be presented as measurements.
-- The "Surface Temp" sensor card label says GISTEMP v4, but the app uses NASA POWER T2M. The label should be corrected (M1).
+- The globe HUD badge shows how much warmer or cooler the selected year was than the average of all complete years 2016–2025 at that point (NASA POWER T2M). It is a simple comparison within this period, not an official climate anomaly (those use a 30-year baseline). Years with a missing month show "NO FULL YEAR".

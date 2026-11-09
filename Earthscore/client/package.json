@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test:mapping": "vitest run src/tests/temperatureMapping.test.ts",
     "test:audio": "vitest run src/tests/temperatureMapping.test.ts src/tests/audioEngine.test.ts",
-    "test:data": "vitest run src/tests/datasetValidation.test.ts",
+    "test:data": "vitest run src/tests/datasetValidation.test.ts src/tests/selectors.test.ts",
     "snapshot": "node scripts/makeSnapshot.mjs"
   },
   "keywords": [],

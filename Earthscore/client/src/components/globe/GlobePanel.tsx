@@ -1,14 +1,25 @@
-
 import { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
 import "./GlobePanel.css";
 import type { Location } from "../../types/location";
+import type { TemperatureSeries } from "../../types/dataset";
 import { getPlaceName } from "../../utils/reverseGeoCode";
+import { fetchTemperatureSeries } from "../../services/nasaAPI";
+import { yearDifferenceFromAverage } from "../../data/selectors";
 
 interface GlobePanelProps {
     selectedLocation: Location;
     onLocationSelect: (location: Location) => void;
+    // Year chosen on the timeline; used for the temperature badge.
+    selectedYear: number;
 }
+
+// Badge colours: warmer = orange, cooler = blue, unknown = grey.
+const BADGE_STYLES = {
+    warmer: { background: "#c2571a", color: "#ffffff" },
+    cooler: { background: "#2f6fd0", color: "#ffffff" },
+    neutral: { background: "#3a4252", color: "#d5dae5" },
+};
 
 type ToolType = "point" | "polygon";
 
@@ -24,6 +35,7 @@ const presetLocations: Location[] = [
 const GlobePanel = ({
     selectedLocation,
     onLocationSelect,
+    selectedYear,
 }: GlobePanelProps) => {
     const globeRef = useRef<any>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -32,6 +44,45 @@ const GlobePanel = ({
 
     const [activeTool, setActiveTool] =
         useState<ToolType>("point");
+
+    // NASA POWER series for the badge (shared cache with the sound panel).
+    const [series, setSeries] = useState<TemperatureSeries | null>(null);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        setSeries(null);
+
+        fetchTemperatureSeries(
+            selectedLocation.lat,
+            selectedLocation.lng,
+            controller.signal
+        )
+            .then(setSeries)
+            .catch(() => {
+                // The sound panel shows the error message; badge stays neutral.
+            });
+
+        return () => controller.abort();
+    }, [selectedLocation.lat, selectedLocation.lng]);
+
+    const yearDifference = series
+        ? yearDifferenceFromAverage(series.observations, selectedYear)
+        : null;
+
+    // Short text so it fits the HUD; the tooltip explains it fully.
+    const badgeText =
+        yearDifference === null
+            ? `${selectedYear} · NO FULL YEAR`
+            : `${selectedYear} · ${yearDifference >= 0 ? "+" : "−"}${Math.abs(
+                  yearDifference
+              ).toFixed(1)}°C VS AVG`;
+
+    const badgeStyle =
+        yearDifference === null || Math.abs(yearDifference) < 0.05
+            ? BADGE_STYLES.neutral
+            : yearDifference > 0
+              ? BADGE_STYLES.warmer
+              : BADGE_STYLES.cooler;
 
     // Responsive globe width
     useEffect(() => {
@@ -235,8 +286,12 @@ const handleGlobeClick = async (
 
                         <div className="hud-top">
                             <span>HUD RETICLE LOCK</span>
-                            <span className="anomaly-badge">
-                                ANOMALY HIGH
+                            <span
+                                className="anomaly-badge"
+                                style={badgeStyle}
+                                title="Mean NASA POWER T2M of the selected year minus the mean of all complete years 2016–2025 at this point. Not an official climate anomaly."
+                            >
+                                {badgeText}
                             </span>
                         </div>
 
@@ -297,45 +352,49 @@ const handleGlobeClick = async (
                         ATMOSPHERIC & BIOSPHERIC SENSOR OVERLAYS
                     </span>
 
-                    <span>ACTIVE: 4 / 6 FEEDS</span>
+                    <span>SONIFIED: 1 / 6 FEEDS</span>
                 </div>
 
                 <div className="sensor-grid">
 
-                    <div className="sensor-card active">
+                    {/* Highlighted card = the data that is turned into sound. */}
+                    <div
+                        className="sensor-card active"
+                        title="Monthly air temperature at 2 m. This feed drives the sound."
+                    >
                         <span>🌡</span>
-                        <strong>Surface Temp</strong>
-                        <small>GISTEMP v4</small>
+                        <strong>Surface Temp 🔊</strong>
+                        <small>NASA POWER T2M</small>
                     </div>
 
-                    <div className="sensor-card active">
+                    <div className="sensor-card">
                         <span>≋</span>
-                        <strong>Aerosol / PM</strong>
-                        <small>MODIS AOD</small>
+                        <strong>Air Quality / PM</strong>
+                        <small>Open-Meteo AQ</small>
                     </div>
 
-                    <div className="sensor-card active">
+                    <div className="sensor-card">
                         <span>CO₂</span>
-                        <strong>OCO-2 CO₂</strong>
-                        <small>Column Avg</small>
+                        <strong>Global CO₂ / CH₄</strong>
+                        <small>NOAA GML</small>
                     </div>
 
                     <div className="sensor-card">
                         <span>💧</span>
                         <strong>Precipitation</strong>
-                        <small>GPM IMERG</small>
+                        <small>Open-Meteo Archive</small>
                     </div>
 
-                    <div className="sensor-card active">
+                    <div className="sensor-card">
                         <span>🌳</span>
                         <strong>NDVI Veg</strong>
-                        <small>MODIS</small>
+                        <small>NASA MODIS MOD13Q1</small>
                     </div>
 
                     <div className="sensor-card">
                         <span>👥</span>
-                        <strong>WorldPop</strong>
-                        <small>Density Grid</small>
+                        <strong>Population</strong>
+                        <small>WorldPop</small>
                     </div>
 
                 </div>

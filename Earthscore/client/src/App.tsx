@@ -33,6 +33,7 @@ function App() {
           <GlobePanel
             selectedLocation={selectedLocation}
             onLocationSelect={setSelectedLocation}
+            selectedYear={selectedYear}
           />
         </div>
 
