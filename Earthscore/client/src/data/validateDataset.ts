@@ -134,5 +134,6 @@ export function parsePowerT2M(
     source,
     observations,
     missingCount: observations.filter((o) => o.temperatureC === null).length,
+    origin: "live",
   };
 }

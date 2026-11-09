@@ -29,8 +29,15 @@ No API keys or credentials are used.
 | Greenhouse gases | NOAA GML global monthly CO₂ and CH₄ (not NASA) | `https://gml.noaa.gov/webdata/ccgg/trends/` | `services/greenhouseGasAPI.ts` |
 | Population | WorldPop API (not NASA) | `https://api.worldpop.org/v3/point` | `services/populationAPI.ts` |
 
+## Offline backup
+
+`client/public/data/power-t2m-snapshot.json` holds saved NASA POWER T2M responses
+for the six preset locations. It is created by `npm run snapshot` (script:
+`client/scripts/makeSnapshot.mjs`) and used only when the live API fails.
+Re-run the script if the presets change. Do not edit the file by hand.
+
 ## Known limitations
 
-- Live APIs can be slow or unavailable; the app shows an error message instead of fake values.
+- Live APIs can be slow or unavailable. For temperature, the preset locations fall back to the saved snapshot; other locations and other panels show an error message instead of fake values.
 - `client/src/data/demoData.ts` contains illustrative values. They must not be presented as measurements.
 - The "Surface Temp" sensor card label says GISTEMP v4, but the app uses NASA POWER T2M. The label should be corrected (M1).

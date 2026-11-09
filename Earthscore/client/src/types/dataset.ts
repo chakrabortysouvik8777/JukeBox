@@ -26,6 +26,10 @@ export interface TemperatureObservation {
   readonly temperatureC: number | null;
 }
 
+// "live" = downloaded from NASA now.
+// "snapshot" = NASA data saved earlier in public/data (used when live fails).
+export type DataOrigin = "live" | "snapshot";
+
 // A validated time series for one location.
 export interface TemperatureSeries {
   readonly latitude: number;
@@ -33,4 +37,7 @@ export interface TemperatureSeries {
   readonly source: DataSourceInfo;
   readonly observations: readonly TemperatureObservation[]; // sorted by date
   readonly missingCount: number;
+  readonly origin: DataOrigin;
+  // When origin is "snapshot": when the snapshot was downloaded (ISO date).
+  readonly snapshotCreatedAt?: string;
 }

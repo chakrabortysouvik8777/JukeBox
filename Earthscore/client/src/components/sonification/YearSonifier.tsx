@@ -9,11 +9,14 @@ import type { TemperatureSeries } from "../../types/dataset";
 import type { Location } from "../../types/location";
 
 import SoundLegend from "./SoundLegend";
+import TemperatureChart from "./TemperatureChart";
 import "./YearSonifier.css";
 
 interface YearSonifierProps {
   location: Location;
   year: number;
+  // Optional: lets the chart change the selected year.
+  onYearChange?: (year: number) => void;
 }
 
 // Seconds between the start of one month's note and the next.
@@ -32,7 +35,11 @@ const MONTH_NAMES = [
 
 type LoadState = "loading" | "ready" | "error";
 
-export default function YearSonifier({ location, year }: YearSonifierProps) {
+export default function YearSonifier({
+  location,
+  year,
+  onYearChange,
+}: YearSonifierProps) {
   const engineRef = useAudioEngine();
 
   const [series, setSeries] = useState<TemperatureSeries | null>(null);
@@ -191,6 +198,9 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
     }
   }
 
+  const activeObservationId =
+    activeIndex !== null ? months[activeIndex]?.id ?? null : null;
+
   const activeSound =
     activeIndex !== null && months[activeIndex]
       ? temperatureToSound(
@@ -239,6 +249,16 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
           </label>
         </div>
       </div>
+
+      {series?.origin === "snapshot" && (
+        <p className="ys-status ys-offline">
+          NASA POWER is not responding, so saved NASA data is shown
+          {series.snapshotCreatedAt
+            ? ` (downloaded ${series.snapshotCreatedAt.slice(0, 10)})`
+            : ""}
+          .
+        </p>
+      )}
 
       {loadState === "loading" && (
         <p className="ys-status">Loading NASA POWER data…</p>
@@ -289,6 +309,15 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
         </ol>
       )}
 
+      {series && loadState === "ready" && (
+        <TemperatureChart
+          observations={series.observations}
+          selectedYear={year}
+          activeObservationId={activeObservationId}
+          onYearSelect={onYearChange}
+        />
+      )}
+
       <SoundLegend
         className="ys-legend"
         mapping={T2M_TEMPERATURE_MAPPING}
@@ -298,7 +327,9 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
       />
 
       <p className="ys-source">
-        Source: NASA POWER (T2M, monthly). Mapping: {T2M_TEMPERATURE_MAPPING.id}.
+        Source: NASA POWER (T2M, monthly)
+        {series?.origin === "snapshot" ? ", saved copy" : ""}. Mapping:{" "}
+        {T2M_TEMPERATURE_MAPPING.id}.
         * = outside the sound range, pitch limited to the nearest endpoint.
       </p>
     </section>

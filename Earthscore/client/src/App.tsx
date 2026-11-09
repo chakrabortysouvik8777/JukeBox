@@ -56,6 +56,7 @@ function App() {
       <YearSonifier
         location={selectedLocation}
         year={selectedYear}
+        onYearChange={setSelectedYear}
       />
 
       {/*Digital Audio Workstation*/}

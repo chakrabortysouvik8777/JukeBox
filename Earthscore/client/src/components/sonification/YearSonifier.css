@@ -86,6 +86,29 @@
   color: #ff8a8a;
 }
 
+.ys-offline {
+  padding: 8px 12px;
+  color: #ffd27a;
+  background: rgba(255, 196, 77, 0.08);
+  border: 1px solid rgba(255, 196, 77, 0.3);
+  border-radius: 8px;
+}
+
+.ys-chart {
+  margin: 20px 0 0;
+  padding: 12px 8px 4px;
+  background: rgba(28, 48, 69, 0.35);
+  border: 1px solid rgba(143, 165, 189, 0.12);
+  border-radius: 10px;
+}
+
+.ys-chart-caption {
+  margin: 0 0 6px 8px;
+  color: #8fa5bd;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
 .ys-months {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));

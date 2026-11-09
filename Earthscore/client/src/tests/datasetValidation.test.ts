@@ -11,6 +11,7 @@ import {
   selectYear,
 } from "../data/selectors";
 import {
+  SNAPSHOT_PATH,
   buildTemperatureUrl,
   clearTemperatureCache,
   fetchTemperatureSeries,
@@ -171,9 +172,21 @@ describe("selectors", () => {
 describe("fetchTemperatureSeries", () => {
   const fetchMock = vi.fn();
 
+  // What the fake network returns for live NASA and for the snapshot file.
+  let liveReply: () => unknown;
+  let snapshotReply: () => unknown;
+
   beforeEach(() => {
     clearTemperatureCache();
     fetchMock.mockReset();
+
+    liveReply = () => okResponse(powerResponse({ "201601": 10 }));
+    snapshotReply = () => ({ ok: false, status: 404 });
+
+    fetchMock.mockImplementation(async (url: string) =>
+      url === SNAPSHOT_PATH ? snapshotReply() : liveReply(),
+    );
+
     vi.stubGlobal("fetch", fetchMock);
   });
 
@@ -185,6 +198,11 @@ describe("fetchTemperatureSeries", () => {
     return { ok: true, status: 200, json: async () => json };
   }
 
+  function liveCalls() {
+    return fetchMock.mock.calls.filter(([url]) => url !== SNAPSHOT_PATH)
+      .length;
+  }
+
   it("builds the request URL with T2M, monthly 2016–2025", () => {
     const url = new URL(buildTemperatureUrl(22.5726, 88.3639));
 
@@ -194,37 +212,60 @@ describe("fetchTemperatureSeries", () => {
     expect(url.searchParams.get("latitude")).toBe("22.5726");
   });
 
-  it("downloads once and reuses the cached result", async () => {
-    fetchMock.mockResolvedValue(okResponse(powerResponse({ "201601": 10 })));
-
+  it("downloads once, marks the data as live, and reuses the cache", async () => {
     const first = await fetchTemperatureSeries(1, 2);
     const second = await fetchTemperatureSeries(1, 2);
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(first.origin).toBe("live");
+    expect(liveCalls()).toBe(1);
     expect(second).toBe(first);
   });
 
-  it("does not cache failed requests", async () => {
-    fetchMock.mockResolvedValueOnce({ ok: false, status: 503 });
-    fetchMock.mockResolvedValueOnce(
-      okResponse(powerResponse({ "201601": 10 })),
-    );
+  it("uses the saved snapshot when live NASA fails", async () => {
+    liveReply = () => ({ ok: false, status: 503 });
+    snapshotReply = () =>
+      okResponse({
+        createdAt: "2026-11-09T10:00:00.000Z",
+        entries: {
+          "1.0000,2.0000": {
+            url: "https://power.larc.nasa.gov/saved",
+            response: powerResponse({ "201601": 12.5 }),
+          },
+        },
+      });
 
-    await expect(fetchTemperatureSeries(3, 4)).rejects.toThrow("503");
+    const series = await fetchTemperatureSeries(1, 2);
+
+    expect(series.origin).toBe("snapshot");
+    expect(series.snapshotCreatedAt).toBe("2026-11-09T10:00:00.000Z");
+    expect(series.observations[0].temperatureC).toBe(12.5);
+  });
+
+  it("explains the failure when live fails and no snapshot exists", async () => {
+    liveReply = () => ({ ok: false, status: 503 });
+
+    await expect(fetchTemperatureSeries(3, 4)).rejects.toThrow(
+      /503.*No saved data/,
+    );
+  });
+
+  it("does not cache failed requests, so retrying works", async () => {
+    liveReply = () => ({ ok: false, status: 503 });
+    await expect(fetchTemperatureSeries(3, 4)).rejects.toThrow();
+
+    liveReply = () => okResponse(powerResponse({ "201601": 10 }));
     await expect(fetchTemperatureSeries(3, 4)).resolves.toBeTruthy();
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(liveCalls()).toBe(2);
   });
 
   it("rejects an aborted caller without breaking the shared download", async () => {
-    fetchMock.mockResolvedValue(okResponse(powerResponse({ "201601": 10 })));
-
     const controller = new AbortController();
     const aborted = fetchTemperatureSeries(5, 6, controller.signal);
     controller.abort();
 
     await expect(aborted).rejects.toThrow("Aborted");
     await expect(fetchTemperatureSeries(5, 6)).resolves.toBeTruthy();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(liveCalls()).toBe(1);
   });
 });

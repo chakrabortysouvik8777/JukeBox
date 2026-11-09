@@ -41,6 +41,8 @@ Defined in `client/src/types/dataset.ts`.
 | `source` | Name, parameter, units, resolution and exact request URL |
 | `observations` | Sorted monthly observations |
 | `missingCount` | How many observations are `null` |
+| `origin` | `"live"` (downloaded now) or `"snapshot"` (saved NASA data) |
+| `snapshotCreatedAt` | When the snapshot was downloaded (only for `"snapshot"`) |
 
 ## 4. Validation (`client/src/data/validateDataset.ts`)
 
@@ -68,6 +70,11 @@ Selectors never fetch data and never keep their own timer or position.
 ## 6. Fetching (`client/src/services/nasaAPI.ts`)
 
 - `fetchTemperatureSeries(lat, lng, signal?)` returns a validated series.
+- Live requests time out after 15 seconds.
+- If live NASA fails, the saved snapshot `client/public/data/power-t2m-snapshot.json`
+  is used for the preset locations. The UI says so and shows the download date.
+- The snapshot is real NASA data, created with `npm run snapshot` (in `client/`).
+  It is validated by the same rules as live data. Never edit it by hand.
 - Results are cached per location for the browser session.
 - Failed requests are not cached, so retrying works.
 - Aborting (e.g. location changed) stops the caller from waiting only.
