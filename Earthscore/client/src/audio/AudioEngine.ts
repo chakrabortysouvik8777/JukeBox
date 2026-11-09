@@ -90,6 +90,15 @@ export class AudioEngine implements ScheduledAudioEngine {
   }
 
   /**
+   * Time the listener is hearing right now, in audio-clock seconds.
+   * Use this (not getAudioTime) to decide which observation to highlight,
+   * because getAudioTime() runs slightly ahead for safe scheduling.
+   */
+  public getPlaybackTime(): number {
+    return Tone.immediate();
+  }
+
+  /**
    * Map a temperature to sound and play it now.
    * Returns the same mapping information the UI can display.
    *

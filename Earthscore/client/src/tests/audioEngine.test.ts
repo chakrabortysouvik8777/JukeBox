@@ -291,8 +291,10 @@ describe("AudioEngine", () => {
   });
 
   describe("scheduled playback", () => {
-    it("reports the audio clock", () => {
+    it("reports the scheduling clock and the playback clock", () => {
+      // Scheduling clock runs ahead of what the listener hears.
       expect(engine.getAudioTime()).toBe(10);
+      expect(engine.getPlaybackTime()).toBe(9.9);
     });
 
     it("rejects scheduling before audio has been started", () => {

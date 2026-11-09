@@ -5,7 +5,8 @@
 - Temperature mapping: tests passing (sst-pitch-v1 and t2m-pitch-v1).
 - AudioEngine.ts: 19 mocked tests passing (lifecycle + scheduled playback).
 - TypeScript check and production build: passing.
-- SoundLegend.tsx: not yet placed in the UI.
+- SoundLegend.tsx: shown inside YearSonifier (first end-to-end slice).
+- YearSonifier.tsx: plays the 12 monthly T2M values of the selected year.
 - Real-browser listening checks (section 9): pending.
 
 Mocked tests do not prove real browser sound; see section 9.
@@ -111,6 +112,12 @@ Duration includes the attack and fade-out.
 Current audio-clock time in seconds (Tone.now()).
 Use it as the base for all scheduled times.
 
+### getPlaybackTime(): number
+
+Time the listener is hearing now (Tone.immediate()).
+getAudioTime() runs slightly ahead (look-ahead) for safe scheduling,
+so use getPlaybackTime() to decide which observation to highlight.
+
 ### scheduleTemperature(temperatureC, startTime, durationSeconds, mapping?)
 
 Maps one observation and schedules it at an absolute audio-clock time.
@@ -211,7 +218,7 @@ The controller should:
 2. Schedule a batch of upcoming observations with absolute times.
 3. Update visuals for observation i when the audio clock reaches
    t0 + i * stepSeconds (for example with requestAnimationFrame that
-   compares against engine.getAudioTime()).
+   compares against engine.getPlaybackTime()).
 4. On pause, seek, speed change or region change: call stop(),
    then schedule again from the new position.
 

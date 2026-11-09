@@ -27,6 +27,9 @@ export interface ScheduledAudioEngine {
   // Current audio-clock time, safe to use as the base for scheduling.
   getAudioTime(): number;
 
+  // Time the listener hears now; use it to sync visuals.
+  getPlaybackTime(): number;
+
   // Schedule one observation. null schedules no tone but returns the
   // mapping result so the timeline position is preserved.
   scheduleTemperature(

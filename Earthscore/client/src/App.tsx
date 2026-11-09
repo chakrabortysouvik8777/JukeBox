@@ -7,6 +7,7 @@ import type { Location } from "./types/location";
 import TimelineScrubber from "./components/SonicScrubber/TimelineScrubber";
 import DAWEngine from "./components/DigitalAudio/DAWEngine";
 import TemperaturePanel from "./components/TemparatureAPI/TemparaturePanel";
+import YearSonifier from "./components/sonification/YearSonifier";
 
 function App() {
   const [selectedLocation, setSelectedLocation] =
@@ -49,6 +50,12 @@ function App() {
       <TimelineScrubber
         selectedYear={selectedYear}
         onYearChange={setSelectedYear}
+      />
+
+      {/*Temperature sonification (M3): plays the 12 months of the selected year*/}
+      <YearSonifier
+        location={selectedLocation}
+        year={selectedYear}
       />
 
       {/*Digital Audio Workstation*/}
