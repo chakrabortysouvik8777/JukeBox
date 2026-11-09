@@ -3,10 +3,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAudioEngine } from "../../audio/useAudioEngine";
 import { temperatureToSound } from "../../audio/temperatureMapping";
 import { T2M_TEMPERATURE_MAPPING } from "../../config/audioMapping";
-import {
-  fetchTemperature,
-  type TemperatureData,
-} from "../../services/nasaAPI";
+import { fetchTemperatureSeries } from "../../services/nasaAPI";
+import { selectYear } from "../../data/selectors";
+import type { TemperatureSeries } from "../../types/dataset";
 import type { Location } from "../../types/location";
 
 import SoundLegend from "./SoundLegend";
@@ -36,7 +35,7 @@ type LoadState = "loading" | "ready" | "error";
 export default function YearSonifier({ location, year }: YearSonifierProps) {
   const engineRef = useAudioEngine();
 
-  const [records, setRecords] = useState<TemperatureData[]>([]);
+  const [series, setSeries] = useState<TemperatureSeries | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [loadError, setLoadError] = useState("");
 
@@ -58,9 +57,9 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
     setLoadState("loading");
     setLoadError("");
 
-    fetchTemperature(location.lat, location.lng, controller.signal)
+    fetchTemperatureSeries(location.lat, location.lng, controller.signal)
       .then((data) => {
-        setRecords(data);
+        setSeries(data);
         setLoadState("ready");
       })
       .catch((error: unknown) => {
@@ -75,18 +74,12 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
     return () => controller.abort();
   }, [location.lat, location.lng]);
 
-  // The 12 months of the selected year.
-  // NASA POWER also returns month "13" (the annual mean), which is skipped.
-  const months = useMemo(() => {
-    return records
-      .filter((record) => {
-        const recordYear = Number(record.date.slice(0, 4));
-        const month = Number(record.date.slice(4, 6));
-
-        return recordYear === year && month >= 1 && month <= 12;
-      })
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }, [records, year]);
+  // The monthly observations of the selected year (already validated:
+  // month 13 removed, missing values are null).
+  const months = useMemo(
+    () => (series ? selectYear(series.observations, year) : []),
+    [series, year],
+  );
 
   // ---------- Playback ----------
 
@@ -140,7 +133,7 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
 
     months.forEach((month, index) => {
       engine.scheduleTemperature(
-        month.temperature,
+        month.temperatureC,
         t0 + index * STEP_SECONDS,
         NOTE_SECONDS,
         T2M_TEMPERATURE_MAPPING,
@@ -201,7 +194,7 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
   const activeSound =
     activeIndex !== null && months[activeIndex]
       ? temperatureToSound(
-          months[activeIndex].temperature,
+          months[activeIndex].temperatureC,
           T2M_TEMPERATURE_MAPPING,
         )
       : undefined;
@@ -265,25 +258,24 @@ export default function YearSonifier({ location, year }: YearSonifierProps) {
         <ol className="ys-months">
           {months.map((month, index) => {
             const sound = temperatureToSound(
-              month.temperature,
+              month.temperatureC,
               T2M_TEMPERATURE_MAPPING,
             );
-            const monthNumber = Number(month.date.slice(4, 6));
 
             return (
               <li
-                key={month.date}
+                key={month.id}
                 className={`ys-month ${index === activeIndex ? "active" : ""} ${
-                  month.temperature === null ? "missing" : ""
+                  month.temperatureC === null ? "missing" : ""
                 }`}
               >
                 <span className="ys-month-name">
-                  {MONTH_NAMES[monthNumber - 1]}
+                  {MONTH_NAMES[month.month - 1]}
                 </span>
                 <strong>
-                  {month.temperature === null
+                  {month.temperatureC === null
                     ? "—"
-                    : `${month.temperature.toFixed(1)}°C`}
+                    : `${month.temperatureC.toFixed(1)}°C`}
                 </strong>
                 <span className="ys-hz">
                   {sound.frequencyHz === null

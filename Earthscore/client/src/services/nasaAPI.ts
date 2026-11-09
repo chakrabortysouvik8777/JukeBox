@@ -1,75 +1,94 @@
+import { parsePowerT2M } from "../data/validateDataset";
+import type { TemperatureSeries } from "../types/dataset";
 
 const BASE_URL =
   "https://power.larc.nasa.gov/api/temporal/monthly/point";
 
-export interface TemperatureData {
-  date: string;
-  temperature: number | null;
-}
+export const POWER_START_YEAR = 2016;
+export const POWER_END_YEAR = 2025;
 
-export async function fetchTemperature(
+// Results already fetched in this browser session, keyed by request URL.
+// Avoids re-downloading when the user switches back to a location.
+const cache = new Map<string, Promise<TemperatureSeries>>();
+
+export function buildTemperatureUrl(
   latitude: number,
   longitude: number,
-  signal?: AbortSignal
-): Promise<TemperatureData[]> {
-
+): string {
   const params = new URLSearchParams({
     parameters: "T2M",
     community: "SB",
-    longitude: longitude.toString(),
-    latitude: latitude.toString(),
-    start: "2016",
-    end: "2025",
+    longitude: longitude.toFixed(4),
+    latitude: latitude.toFixed(4),
+    start: String(POWER_START_YEAR),
+    end: String(POWER_END_YEAR),
     format: "JSON",
   });
 
-  const url = `${BASE_URL}?${params.toString()}`;
+  return `${BASE_URL}?${params.toString()}`;
+}
 
-  console.log("NASA API Request:", url);
-
-  const response = await fetch(url, { signal });
+async function download(
+  url: string,
+  latitude: number,
+  longitude: number,
+): Promise<TemperatureSeries> {
+  const response = await fetch(url);
 
   if (!response.ok) {
-    const errorText = await response.text();
-
     throw new Error(
-      `NASA API Error ${response.status}: ${errorText}`
+      `NASA POWER request failed (${response.status}). Please try again.`,
     );
   }
 
-  const data = await response.json();
+  const json: unknown = await response.json();
 
-  console.log("NASA POWER properties:", data?.properties);
+  return parsePowerT2M(json, latitude, longitude, url);
+}
 
-  if (data?.header?.fill_value !== undefined) {
-    console.log("NASA fill value:", data.header.fill_value);
+/**
+ * Validated monthly T2M series for one point (NASA POWER).
+ *
+ * - Missing values are null, never 0.
+ * - POWER's month 13 (annual mean) is removed.
+ * - Results are cached for the session; failed requests are not cached.
+ * - The signal only stops this caller from waiting; a shared download
+ *   continues so other callers can still use it.
+ */
+export function fetchTemperatureSeries(
+  latitude: number,
+  longitude: number,
+  signal?: AbortSignal,
+): Promise<TemperatureSeries> {
+  const url = buildTemperatureUrl(latitude, longitude);
+
+  let request = cache.get(url);
+
+  if (!request) {
+    request = download(url, latitude, longitude);
+    cache.set(url, request);
+    request.catch(() => cache.delete(url));
   }
 
-  console.log("NASA API Response:", data);
+  if (!signal) return request;
 
-  const temperatureValues =
-    data?.properties?.parameter?.T2M;
+  return new Promise<TemperatureSeries>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
 
-  if (!temperatureValues) {
-    throw new Error(
-      "Temperature data (T2M) not found in NASA response."
+    signal.addEventListener(
+      "abort",
+      () => reject(new DOMException("Aborted", "AbortError")),
+      { once: true },
     );
-  }
 
-  const result: TemperatureData[] = Object.entries(
-    temperatureValues
-  ).map(([date, value]) => {
-
-    const temperature = Number(value);
-
-    return {
-      date,
-      temperature:
-        !Number.isFinite(temperature) || temperature === -999
-          ? null
-          : temperature,
-    };
+    request.then(resolve, reject);
   });
+}
 
-  return result;
+/** For tests only: forget cached responses. */
+export function clearTemperatureCache(): void {
+  cache.clear();
 }
