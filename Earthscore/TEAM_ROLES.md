@@ -12,10 +12,10 @@ Replace the member labels with names when assigning work.
 
 | Label | Team | Main responsibility | First deliverable |
 |---|---|---|---|
-| M1 | Visualization | UI, React integration, routing, design preservation | Explorer page with controls emitting actions |
-| M2 | Visualization | NASA data preparation, maps, charts, scientific values | One verified region/date series with matched frames |
-| M3 — YOU | Sonification | Data-to-frequency mapping and audio engine | Correct tone from a supplied measurement, with reliable stop |
-| M4 | Sonification | Shared state, playback timing, synchronization, integration | One sequence controlling sound and visuals together |
+| M1 - SWETA| Visualization | UI, React integration, routing, design preservation | Explorer page with controls emitting actions |
+| M2 - ROUMIK | Visualization | NASA data preparation, maps, charts, scientific values | One verified region/date series with matched frames |
+| M3 — SOUVIK | Sonification | Data-to-frequency mapping and audio engine | Correct tone from a supplied measurement, with reliable stop |
+| M4 - SANNOY | Sonification | Shared state, playback timing, synchronization, integration | One sequence controlling sound and visuals together |
 
 **Ownership means responsibility, not isolation.** Every file has one primary editor. Other members can contribute through a coordinated change reviewed by that owner. “Shared” means several modules depend on the file; it does not mean everyone edits it independently.
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Navbar from "./components/Navigation/Navbar";
-import GlobePanel from "./components/Globe/GlobePanel";
+import GlobePanel from "./components/globe/GlobePanel";
 import DiagnosticPanel from "./components/RightPanelDashboard/DiagnosticsPanel";
 import type { Location } from "./types/location";
 import TimelineScrubber from "./components/SonicScrubber/TimelineScrubber";
