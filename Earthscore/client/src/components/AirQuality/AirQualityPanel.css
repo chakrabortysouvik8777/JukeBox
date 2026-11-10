@@ -1,0 +1,92 @@
+
+.air-card {
+  background: #101c2b;
+  border: 1px solid #26394e;
+  border-radius: 16px;
+  padding: 22px;
+  color: #eaf2ff;
+  width: 100%;
+}
+
+.air-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.air-header h2 {
+  font-size: 19px;
+  margin: 0;
+}
+
+.air-header p {
+  color: #8da3ba;
+  font-size: 12px;
+}
+
+.air-indicator {
+  color: #38d9a9;
+  font-size: 11px;
+}
+
+.aqi-section {
+  margin: 22px 0;
+  padding: 20px;
+  border-radius: 12px;
+  background: #192b3d;
+}
+
+.aqi-label {
+  color: #9bb0c5;
+  font-size: 13px;
+}
+
+.aqi-section h1 {
+  font-size: 42px;
+  margin: 8px 0;
+}
+
+.aqi-status {
+  color: #38d9a9;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pollutant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.pollutant-item {
+  background: #192b3d;
+  border-radius: 10px;
+  padding: 13px;
+}
+
+.pollutant-item p {
+  color: #9bb0c5;
+  font-size: 12px;
+}
+
+.pollutant-item h3 {
+  font-size: 20px;
+  margin: 5px 0;
+}
+
+.pollutant-item small {
+  color: #8da3ba;
+  font-size: 10px;
+}
+
+.air-coordinates {
+  margin-top: 18px;
+  color: #8299b0;
+  font-size: 11px;
+}
+
+@media (max-width: 500px) {
+  .pollutant-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

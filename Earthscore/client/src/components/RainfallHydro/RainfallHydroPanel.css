@@ -1,0 +1,116 @@
+
+.rainfall-panel {
+  width: 100%;
+  padding: 22px;
+  background: #101c2b;
+  border: 1px solid #26394e;
+  border-radius: 16px;
+  color: #eaf2ff;
+}
+
+.rainfall-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.rainfall-header h2 {
+  font-size: 19px;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.rainfall-header p {
+  color: #8da3ba;
+  font-size: 12px;
+  margin-top: 7px;
+}
+
+.rainfall-live {
+  color: #65b9d8;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.rainfall-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.rainfall-metric {
+  background: #192b3d;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.rainfall-metric span {
+  color: #9bb0c5;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.rainfall-metric h3 {
+  font-size: 23px;
+  margin: 12px 0 6px;
+  color: #65b9d8;
+}
+
+.rainfall-metric small {
+  font-size: 10px;
+  color: #8da3ba;
+}
+
+.rainfall-chart-section {
+  margin-top: 25px;
+}
+
+.rainfall-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.rainfall-chart-header h3 {
+  font-size: 13px;
+}
+
+.rainfall-chart-header span {
+  font-size: 11px;
+  color: #8da3ba;
+}
+
+.rainfall-chart {
+  width: 100%;
+  height: 260px;
+}
+
+.rainfall-source {
+  color: #8299b0;
+  font-size: 10px;
+  margin-top: 18px;
+}
+
+.rainfall-error {
+  color: #ff8585;
+  font-size: 13px;
+}
+
+.rainfall-message {
+  color: #9bbcff;
+  font-size: 13px;
+}
+
+@media (max-width: 550px) {
+  .rainfall-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .rainfall-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

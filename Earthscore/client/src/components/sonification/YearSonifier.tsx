@@ -1,0 +1,337 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { useAudioEngine } from "../../audio/useAudioEngine";
+import { temperatureToSound } from "../../audio/temperatureMapping";
+import { T2M_TEMPERATURE_MAPPING } from "../../config/audioMapping";
+import { fetchTemperatureSeries } from "../../services/nasaAPI";
+import { selectYear } from "../../data/selectors";
+import type { TemperatureSeries } from "../../types/dataset";
+import type { Location } from "../../types/location";
+
+import SoundLegend from "./SoundLegend";
+import TemperatureChart from "./TemperatureChart";
+import "./YearSonifier.css";
+
+interface YearSonifierProps {
+  location: Location;
+  year: number;
+  // Optional: lets the chart change the selected year.
+  onYearChange?: (year: number) => void;
+}
+
+// Seconds between the start of one month's note and the next.
+const STEP_SECONDS = 0.6;
+
+// Note length; shorter than the step so months are heard separately.
+const NOTE_SECONDS = 0.5;
+
+// Small delay so the first note is never scheduled in the past.
+const LEAD_SECONDS = 0.1;
+
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+type LoadState = "loading" | "ready" | "error";
+
+export default function YearSonifier({
+  location,
+  year,
+  onYearChange,
+}: YearSonifierProps) {
+  const engineRef = useAudioEngine();
+
+  const [series, setSeries] = useState<TemperatureSeries | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>("loading");
+  const [loadError, setLoadError] = useState("");
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [volume, setVolume] = useState(0.5);
+  const [audioError, setAudioError] = useState("");
+
+  // Every new Play/Stop increases this number.
+  // Old callbacks compare their copy and quit if it is outdated.
+  const generationRef = useRef(0);
+  const frameRef = useRef<number | null>(null);
+
+  // ---------- Data: NASA POWER monthly T2M for the selected location ----------
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    setLoadState("loading");
+    setLoadError("");
+
+    fetchTemperatureSeries(location.lat, location.lng, controller.signal)
+      .then((data) => {
+        setSeries(data);
+        setLoadState("ready");
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+
+        setLoadError(
+          error instanceof Error ? error.message : "Could not load NASA data.",
+        );
+        setLoadState("error");
+      });
+
+    return () => controller.abort();
+  }, [location.lat, location.lng]);
+
+  // The monthly observations of the selected year (already validated:
+  // month 13 removed, missing values are null).
+  const months = useMemo(
+    () => (series ? selectYear(series.observations, year) : []),
+    [series, year],
+  );
+
+  // ---------- Playback ----------
+
+  function cancelFrame() {
+    if (frameRef.current !== null) {
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+    }
+  }
+
+  function stopPlayback() {
+    generationRef.current += 1;
+    cancelFrame();
+    engineRef.current?.stop();
+    setIsPlaying(false);
+    setActiveIndex(null);
+  }
+
+  // Stop when the location or year changes, and when leaving the page.
+  useEffect(() => {
+    return () => stopPlayback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.lat, location.lng, year]);
+
+  async function handlePlay() {
+    const engine = engineRef.current;
+
+    if (!engine || months.length === 0) return;
+
+    stopPlayback();
+    const generation = generationRef.current;
+
+    setAudioError("");
+
+    try {
+      // Must be called from the button click (browser audio rule).
+      await engine.start();
+    } catch (error) {
+      setAudioError(
+        error instanceof Error ? error.message : "Audio could not start.",
+      );
+      return;
+    }
+
+    // The user may have pressed Stop while audio was starting.
+    if (generation !== generationRef.current) return;
+
+    engine.setVolume(volume);
+
+    const t0 = engine.getAudioTime() + LEAD_SECONDS;
+
+    months.forEach((month, index) => {
+      engine.scheduleTemperature(
+        month.temperatureC,
+        t0 + index * STEP_SECONDS,
+        NOTE_SECONDS,
+        T2M_TEMPERATURE_MAPPING,
+      );
+    });
+
+    setIsPlaying(true);
+
+    // Highlight the month the listener is hearing now.
+    const tick = () => {
+      if (generation !== generationRef.current) return;
+
+      const elapsed = engine.getPlaybackTime() - t0;
+      const index = Math.floor(elapsed / STEP_SECONDS);
+
+      if (index >= months.length) {
+        setIsPlaying(false);
+        setActiveIndex(null);
+        frameRef.current = null;
+        return;
+      }
+
+      setActiveIndex(index >= 0 ? index : null);
+      frameRef.current = requestAnimationFrame(tick);
+    };
+
+    frameRef.current = requestAnimationFrame(tick);
+  }
+
+  function handleVolumeChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newVolume = Number(event.target.value);
+
+    setVolume(newVolume);
+    engineRef.current?.setVolume(newVolume);
+  }
+
+  // ---------- Sound legend preview ----------
+
+  async function handlePreview(temperatureC: number) {
+    const engine = engineRef.current;
+    if (!engine) return;
+
+    // Pause the timeline before previewing a reference tone.
+    stopPlayback();
+    setAudioError("");
+
+    try {
+      await engine.start();
+      engine.setVolume(volume);
+      engine.playTemperature(temperatureC, 1, T2M_TEMPERATURE_MAPPING);
+    } catch (error) {
+      setAudioError(
+        error instanceof Error ? error.message : "Audio could not start.",
+      );
+    }
+  }
+
+  const activeObservationId =
+    activeIndex !== null ? months[activeIndex]?.id ?? null : null;
+
+  const activeSound =
+    activeIndex !== null && months[activeIndex]
+      ? temperatureToSound(
+          months[activeIndex].temperatureC,
+          T2M_TEMPERATURE_MAPPING,
+        )
+      : undefined;
+
+  // ---------- Render ----------
+
+  return (
+    <section className="year-sonifier" aria-label="Temperature sonification">
+      <div className="ys-header">
+        <div>
+          <p className="ys-eyebrow">TEMPERATURE SONIFICATION</p>
+          <h2>
+            {location.name} · {year}
+          </h2>
+          <p className="ys-subtitle">
+            Each note is one month of NASA POWER T2M air temperature.
+            Higher pitch means warmer.
+          </p>
+        </div>
+
+        <div className="ys-controls">
+          <button
+            type="button"
+            className="ys-play"
+            onClick={isPlaying ? stopPlayback : handlePlay}
+            disabled={loadState !== "ready" || months.length === 0}
+          >
+            {isPlaying ? "■ STOP" : "▶ PLAY YEAR"}
+          </button>
+
+          <label className="ys-volume">
+            <span>Volume</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={handleVolumeChange}
+              aria-label="Sonification volume"
+            />
+          </label>
+        </div>
+      </div>
+
+      {series?.origin === "snapshot" && (
+        <p className="ys-status ys-offline">
+          NASA POWER is not responding, so saved NASA data is shown
+          {series.snapshotCreatedAt
+            ? ` (downloaded ${series.snapshotCreatedAt.slice(0, 10)})`
+            : ""}
+          .
+        </p>
+      )}
+
+      {loadState === "loading" && (
+        <p className="ys-status">Loading NASA POWER data…</p>
+      )}
+
+      {loadState === "error" && (
+        <p className="ys-status ys-error">{loadError}</p>
+      )}
+
+      {audioError && <p className="ys-status ys-error">{audioError}</p>}
+
+      {loadState === "ready" && months.length === 0 && (
+        <p className="ys-status">No monthly data available for {year}.</p>
+      )}
+
+      {months.length > 0 && (
+        <ol className="ys-months">
+          {months.map((month, index) => {
+            const sound = temperatureToSound(
+              month.temperatureC,
+              T2M_TEMPERATURE_MAPPING,
+            );
+
+            return (
+              <li
+                key={month.id}
+                className={`ys-month ${index === activeIndex ? "active" : ""} ${
+                  month.temperatureC === null ? "missing" : ""
+                }`}
+              >
+                <span className="ys-month-name">
+                  {MONTH_NAMES[month.month - 1]}
+                </span>
+                <strong>
+                  {month.temperatureC === null
+                    ? "—"
+                    : `${month.temperatureC.toFixed(1)}°C`}
+                </strong>
+                <span className="ys-hz">
+                  {sound.frequencyHz === null
+                    ? "no tone"
+                    : `${Math.round(sound.frequencyHz)} Hz`}
+                  {sound.clipped ? " *" : ""}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+
+      {series && loadState === "ready" && (
+        <TemperatureChart
+          observations={series.observations}
+          selectedYear={year}
+          activeObservationId={activeObservationId}
+          onYearSelect={onYearChange}
+        />
+      )}
+
+      <SoundLegend
+        className="ys-legend"
+        mapping={T2M_TEMPERATURE_MAPPING}
+        currentSound={activeSound}
+        onPreview={handlePreview}
+        onStopPreview={() => engineRef.current?.stop()}
+      />
+
+      <p className="ys-source">
+        Source: NASA POWER (T2M, monthly)
+        {series?.origin === "snapshot" ? ", saved copy" : ""}. Mapping:{" "}
+        {T2M_TEMPERATURE_MAPPING.id}.
+        * = outside the sound range, pitch limited to the nearest endpoint.
+      </p>
+    </section>
+  );
+}
