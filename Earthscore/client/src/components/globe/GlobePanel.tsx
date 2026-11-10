@@ -105,9 +105,16 @@ const GlobePanel = ({
         if (globeRef.current) {
             const controls = globeRef.current.controls();
 
-            controls.autoRotate = true;
-            controls.autoRotateSpeed = 0.5;
+            controls.autoRotate = false;
             controls.enableZoom = true;
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.minDistance = 120;
+            controls.maxDistance = 450;
+            controls.zoomSpeed = 0.8;
+
+            const renderer = globeRef.current.renderer();
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
             globeRef.current.pointOfView({
                 lat: 22.5726,
@@ -250,17 +257,21 @@ const handleGlobeClick = async (
                         width={globeWidth}
                         height={420}
 
-                        globeImageUrl="https://unpkg.com/three-globe/example/img/earth-night.jpg"
+                        globeImageUrl="/textures/earth-blue-marble.jpg"
 
-                        bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
+                        bumpImageUrl="/textures/earth-topology.png"
 
                         backgroundColor="rgba(0,0,0,0)"
 
                         showAtmosphere={true}
-                        atmosphereColor="#4779d8"
-                        atmosphereAltitude={0.18}
-
-                        showGraticules={true}
+                        atmosphereColor="#76baff"
+                        atmosphereAltitude={0.12}
+                        showGraticules={false}
+                        rendererConfig={{
+                            antialias: true,
+                            alpha: true,
+                            powerPreference: "high-performance",
+                        }}
 
                         pointsData={[selectedLocation]}
                         pointLat="lat"

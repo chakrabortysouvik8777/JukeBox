@@ -38,7 +38,7 @@ const Navbar = ({ muted, onLocationSelect, onMuteToggle }: NavbarProps) => {
             }
 
             onLocationSelect(location);
-            setSearchStatus(`Showing ${location.name}, ${location.country}.`);
+            setSearchStatus("");
         } catch (error) {
             if (controller.signal.aborted) return;
             setSearchStatus(
