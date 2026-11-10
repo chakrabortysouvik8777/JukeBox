@@ -21,10 +21,15 @@ function App() {
   const [selectedYear, setSelectedYear] = useState(2016);
 
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
 
   return (
     <>
-      <Navbar />
+      <Navbar
+        muted={isMuted}
+        onLocationSelect={setSelectedLocation}
+        onMuteToggle={() => setIsMuted((muted) => !muted)}
+      />
 
       <main className="dashboard-layout">
 
@@ -58,6 +63,7 @@ function App() {
         location={selectedLocation}
         year={selectedYear}
         onYearChange={setSelectedYear}
+        muted={isMuted}
       />
 
       {/*Digital Audio Workstation*/}

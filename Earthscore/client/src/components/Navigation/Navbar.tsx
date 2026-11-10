@@ -1,7 +1,58 @@
+import { useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
+import type { Location } from "../../types/location";
+import { searchLocation } from "../../utils/searchLocation";
 import "./Navbar.css";
 
-const Navbar = () => {
+interface NavbarProps {
+    muted: boolean;
+    onLocationSelect: (location: Location) => void;
+    onMuteToggle: () => void;
+}
+
+const Navbar = ({ muted, onLocationSelect, onMuteToggle }: NavbarProps) => {
     const navLinks = ["Planetary Explorer", "Earth Symphony Studio", "Regional Compare", "Data Sources & Methodology"];
+    const [query, setQuery] = useState("");
+    const [searchStatus, setSearchStatus] = useState("");
+    const [isSearching, setIsSearching] = useState(false);
+    const searchController = useRef<AbortController | null>(null);
+
+    useEffect(() => () => searchController.current?.abort(), []);
+
+    const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const searchQuery = query.trim();
+        if (!searchQuery || isSearching) return;
+
+        searchController.current?.abort();
+        const controller = new AbortController();
+        searchController.current = controller;
+        setIsSearching(true);
+        setSearchStatus("");
+
+        try {
+            const location = await searchLocation(searchQuery, controller.signal);
+            if (!location) {
+                setSearchStatus("No matching location found.");
+                return;
+            }
+
+            onLocationSelect(location);
+            setSearchStatus(`Showing ${location.name}, ${location.country}.`);
+        } catch (error) {
+            if (controller.signal.aborted) return;
+            setSearchStatus(
+                error instanceof Error
+                    ? error.message
+                    : "Location search failed. Please try again.",
+            );
+        } finally {
+            if (!controller.signal.aborted) {
+                setIsSearching(false);
+            }
+        }
+    };
+
     return (
         <header className="main-header">
 
@@ -43,16 +94,37 @@ const Navbar = () => {
 
                 {/* Search and Audio */}
                 <div className="nav-actions">
-                    <div className="search-box">
+                    <form className="search-box" onSubmit={handleSearch} role="search">
                         <span>⌕</span>
                         <input
                             type="text"
                             placeholder="Coordinate / Region Search..."
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            aria-label="Search for a place or coordinates"
                         />
-                    </div>
+                        <button
+                            className="search-submit"
+                            type="submit"
+                            aria-label="Search"
+                            disabled={isSearching || !query.trim()}
+                        >
+                            {isSearching ? "…" : "↵"}
+                        </button>
+                        <span className="search-status" role="status" aria-live="polite">
+                            {searchStatus}
+                        </span>
+                    </form>
 
-                    <button className="audio-button" aria-label="Audio settings">
-                        🔊
+                    <button
+                        className={`audio-button${muted ? " muted" : ""}`}
+                        type="button"
+                        onClick={onMuteToggle}
+                        aria-label={muted ? "Unmute sonification" : "Mute sonification"}
+                        aria-pressed={muted}
+                        title={muted ? "Unmute sonification" : "Mute sonification"}
+                    >
+                        {muted ? "🔇" : "🔊"}
                     </button>
                 </div>
 

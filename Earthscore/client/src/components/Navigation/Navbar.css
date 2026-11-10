@@ -113,6 +113,7 @@
 }
 
 .search-box {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -142,6 +143,32 @@
   color: #b6bdcc;
 }
 
+.search-submit {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 0;
+  color: #aab5cb;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.search-submit:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.search-status {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 6px);
+  right: 0;
+  width: max-content;
+  max-width: min(320px, 80vw);
+  color: #d5d9e6;
+  font-size: 12px;
+  white-space: normal;
+}
+
 .audio-button {
   background: #1c2535;
   color: white;
@@ -149,6 +176,11 @@
   padding: 9px;
   cursor: pointer;
   border-radius: 3px;
+}
+
+.audio-button.muted {
+  background: #482d35;
+  border-color: #754451;
 }
 
 /* Telemetry Bar */
