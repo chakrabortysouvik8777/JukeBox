@@ -257,3 +257,30 @@
     padding: 12px;
   }
 }
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-box input {
+    min-width: 180px;
+    outline: none;
+}
+
+.search-box button {
+    cursor: pointer;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+}
+
+.coordinate-error {
+    position: absolute;
+    top: 100%;
+    right: 50px;
+    color: #ff7979;
+    font-size: 12px;
+    margin-top: 5px;
+}

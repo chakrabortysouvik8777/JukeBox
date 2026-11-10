@@ -49,6 +49,19 @@ const GlobePanel = ({
     const [series, setSeries] = useState<TemperatureSeries | null>(null);
 
     useEffect(() => {
+        if (!globeRef.current) return;
+
+        globeRef.current.pointOfView(
+            {
+                lat: selectedLocation.lat,
+                lng: selectedLocation.lng,
+                altitude: 1.8,
+            },
+            1000
+        );
+    }, [selectedLocation.lat, selectedLocation.lng]);
+
+    useEffect(() => {
         const controller = new AbortController();
         setSeries(null);
 
@@ -74,15 +87,15 @@ const GlobePanel = ({
         yearDifference === null
             ? `${selectedYear} · NO FULL YEAR`
             : `${selectedYear} · ${yearDifference >= 0 ? "+" : "−"}${Math.abs(
-                  yearDifference
-              ).toFixed(1)}°C VS AVG`;
+                yearDifference
+            ).toFixed(1)}°C VS AVG`;
 
     const badgeStyle =
         yearDifference === null || Math.abs(yearDifference) < 0.05
             ? BADGE_STYLES.neutral
             : yearDifference > 0
-              ? BADGE_STYLES.warmer
-              : BADGE_STYLES.cooler;
+                ? BADGE_STYLES.warmer
+                : BADGE_STYLES.cooler;
 
     // Responsive globe width
     useEffect(() => {
@@ -101,59 +114,69 @@ const GlobePanel = ({
     }, []);
 
     // Globe initialization
+
     const handleGlobeReady = () => {
         if (globeRef.current) {
             const controls = globeRef.current.controls();
 
-            controls.autoRotate = true;
-            controls.autoRotateSpeed = 0.5;
-            controls.enableZoom = true;
+            // Disable automatic globe rotation
+            controls.autoRotate = false;
 
-            globeRef.current.pointOfView({
-                lat: 22.5726,
-                lng: 88.3639,
-                altitude: 1.8,
-            }, 1000);
+            // Keep manual mouse interaction enabled
+            controls.enableRotate = true;
+            controls.enableZoom = true;
+            controls.enablePan = false;
+
+            // Set initial view to Kolkata
+            globeRef.current.pointOfView(
+                {
+                    lat: 22.5726,
+                    lng: 88.3639,
+                    altitude: 1.8,
+                },
+                1000
+            );
         }
     };
 
+
     // Select location by clicking globe
-    
-const handleGlobeClick = async (
-    coords: { lat: number; lng: number }
-) => {
-    if (activeTool !== "point") return;
 
-    const lat = Number(coords.lat.toFixed(4));
-    const lng = Number(coords.lng.toFixed(4));
+    const handleGlobeClick = async (
+        coords: { lat: number; lng: number }
+    ) => {
+        if (activeTool !== "point") return;
 
-    // Show coordinates immediately
-    onLocationSelect({
-        name: "Finding location...",
-        country: "Loading...",
-        lat,
-        lng,
-    });
+        const lat = Number(coords.lat.toFixed(4));
+        const lng = Number(coords.lng.toFixed(4));
 
-    // Fetch actual place name
-    const result = await getPlaceName(lat, lng);
-
-    if (result) {
+        // Show coordinates immediately
         onLocationSelect({
-            name: result.city || result.name,
-            country: result.country || result.state || "Unknown",
+            name: "Finding location...",
+            country: "Loading...",
             lat,
             lng,
         });
-    } else {
-        onLocationSelect({
-            name: "Unknown Location",
-            country: "Unknown Region",
-            lat,
-            lng,
-        });
-    }
-};
+
+        // Fetch actual place name
+        const result = await getPlaceName(lat, lng);
+
+        if (result) {
+            onLocationSelect({
+                name: result.city || result.name,
+                country: result.country || result.state || "Unknown",
+                lat,
+                lng,
+            });
+        } else {
+            onLocationSelect({
+                name: "Unknown Location",
+                country: "Unknown Region",
+                lat,
+                lng,
+            });
+        }
+    };
 
 
     // Select preset location

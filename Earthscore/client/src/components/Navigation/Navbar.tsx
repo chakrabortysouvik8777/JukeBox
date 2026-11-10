@@ -1,24 +1,66 @@
+
+import { useState, type FormEvent } from "react";
+import type { Location } from "../../types/location";
 import "./Navbar.css";
 
-const Navbar = () => {
-    const navLinks = ["Planetary Explorer", "Earth Symphony Studio", "Regional Compare", "Data Sources & Methodology"];
+interface NavbarProps {
+    selectedLocation: Location;
+    onCoordinateSearch: (latitude: number, longitude: number) => void;
+}
+
+const Navbar = ({
+    selectedLocation,
+    onCoordinateSearch,
+}: NavbarProps) => {
+    const navLinks = [
+        "Planetary Explorer",
+        "Earth Symphony Studio",
+        "Regional Compare",
+    ];
+
+    const [coordinates, setCoordinates] = useState("");
+    const [searchError, setSearchError] = useState("");
+
+    const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        // Expected format: latitude, longitude
+        const parts = coordinates.split(",").map((value) => value.trim());
+
+        if (parts.length !== 2) {
+            setSearchError("Enter coordinates as latitude, longitude.");
+            return;
+        }
+
+        const latitude = Number(parts[0]);
+        const longitude = Number(parts[1]);
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude) ||
+            latitude < -90 ||
+            latitude > 90 ||
+            longitude < -180 ||
+            longitude > 180
+        ) {
+            setSearchError("Enter valid coordinates (lat: -90 to 90, lng: -180 to 180).");
+            return;
+        }
+
+        setSearchError("");
+        onCoordinateSearch(latitude, longitude);
+    };
+
     return (
         <header className="main-header">
-
-            {/* Main Navigation */}
             <nav className="navbar">
-
-                {/* Logo and Brand */}
                 <div className="brand-section">
-                    <div className="brand-logo">
-                        🛰️
-                    </div>
+                    <div className="brand-logo">🛰️</div>
 
                     <div className="brand-info">
                         <span className="brand-label">
                             NASA SPACE APPS 2026
                         </span>
-
                         <h2>EARTH INFORMATION JUKEBOX</h2>
                     </div>
 
@@ -28,7 +70,6 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Navigation Links */}
                 <div className="nav-links">
                     {navLinks.map((link, index) => (
                         <a
@@ -41,26 +82,38 @@ const Navbar = () => {
                     ))}
                 </div>
 
-                {/* Search and Audio */}
                 <div className="nav-actions">
-                    <div className="search-box">
+                    <form className="search-box" onSubmit={handleSearch}>
                         <span>⌕</span>
                         <input
                             type="text"
-                            placeholder="Coordinate / Region Search..."
+                            value={coordinates}
+                            onChange={(event) =>
+                                setCoordinates(event.target.value)
+                            }
+                            placeholder="Latitude, Longitude..."
+                            aria-label="Search by latitude and longitude"
                         />
-                    </div>
+                        <button type="submit" aria-label="Search coordinates">
+                            Go
+                        </button>
+                    </form>
 
-                    <button className="audio-button" aria-label="Audio settings">
+                    <button
+                        className="audio-button"
+                        aria-label="Audio settings"
+                        type="button"
+                    >
                         🔊
                     </button>
-                </div>
 
+                    {searchError && (
+                        <p className="coordinate-error">{searchError}</p>
+                    )}
+                </div>
             </nav>
 
-            {/* Telemetry Status Bar */}
             <div className="telemetry-bar">
-
                 <div className="sensor-live">
                     <span className="status-dot"></span>
                     ORBITAL SENSOR ARRAY LIVE
@@ -69,7 +122,9 @@ const Navbar = () => {
                 <div className="telemetry-divider"></div>
 
                 <div className="target-info">
-                    TARGET: 22.5726° N, 88.3639° E (BENGAL BASIN)
+                    TARGET: {selectedLocation.lat.toFixed(4)}°,
+                    {" "}{selectedLocation.lng.toFixed(4)}°
+                    {" "}({selectedLocation.name})
                 </div>
 
                 <div className="data-sources">
@@ -81,9 +136,7 @@ const Navbar = () => {
                     <strong>DECISION TELEMETRY</strong>
                     <span className="latency">LATENCY 18ms</span>
                 </div>
-
             </div>
-
         </header>
     );
 };
