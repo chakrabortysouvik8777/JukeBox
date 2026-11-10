@@ -10,98 +10,87 @@ import DAWEngine from "./components/DigitalAudio/DAWEngine";
 import YearSonifier from "./components/sonification/YearSonifier";
 
 import type { Location } from "./types/location";
-import { getPlaceName } from "./utils/reverseGeoCode";
 
 function App() {
-  const [selectedLocation, setSelectedLocation] =
-    useState<Location>({
-      name: "Kolkata",
-      country: "India",
-      lat: 22.5726,
-      lng: 88.3639,
-    });
+    // Currently selected location
+    const [selectedLocation, setSelectedLocation] =
+        useState<Location>({
+            name: "Kolkata",
+            country: "India",
+            lat: 22.5726,
+            lng: 88.3639,
+        });
 
-  const [selectedYear, setSelectedYear] = useState(2016);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    // Selected year for historical data and sonification
+    const [selectedYear, setSelectedYear] = useState(2016);
 
-  // Called when the user searches coordinates in Navbar
-  const handleCoordinateSearch = async (
-    latitude: number,
-    longitude: number
-  ) => {
-    // Update coordinates immediately
-    setSelectedLocation({
-      name: "Finding location...",
-      country: "Loading...",
-      lat: latitude,
-      lng: longitude,
-    });
+    // Generated audio URL for DAW engine
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-    try {
-      const place = await getPlaceName(latitude, longitude);
+    // Global audio mute state
+    const [isMuted, setIsMuted] = useState(false);
 
-      setSelectedLocation({
-        name: place?.name || "Unknown location",
-        country: place?.country || "Unknown country",
-        lat: latitude,
-        lng: longitude,
-      });
-    } catch (error) {
-      console.error("Reverse geocoding failed:", error);
+    // Toggle audio mute/unmute
+    const handleMuteToggle = () => {
+        setIsMuted((previousMuted) => !previousMuted);
+    };
 
-      setSelectedLocation({
-        name: "Unknown location",
-        country: "Unknown country",
-        lat: latitude,
-        lng: longitude,
-      });
-    }
-  };
+    return (
+        <>
+            {/* NAVBAR */}
+            <Navbar
+                selectedLocation={selectedLocation}
+                muted={isMuted}
+                onLocationSelect={setSelectedLocation}
+                onMuteToggle={handleMuteToggle}
+            />
 
-  return (
-    <>
-      {/* NAVBAR */}
-      <Navbar
-        selectedLocation={selectedLocation}
-        onCoordinateSearch={handleCoordinateSearch}
-      />
+            <main className="dashboard-workspace">
 
-      <main className="dashboard-layout">
-        {/* LEFT PANEL */}
-        <div className="left-panel">
-          <GlobePanel
-            selectedLocation={selectedLocation}
-            onLocationSelect={setSelectedLocation}
-            selectedYear={selectedYear}
-          />
-        </div>
+                {/* MAIN DASHBOARD */}
+                <div className="dashboard-layout">
 
-        {/* RIGHT PANEL */}
-        <div className="right-panel">
-          <DiagnosticPanel selectedLocation={selectedLocation} />
-        </div>
-      </main>
+                    {/* LEFT PANEL - INTERACTIVE GLOBE */}
+                    <div className="left-panel">
+                        <GlobePanel
+                            selectedLocation={selectedLocation}
+                            onLocationSelect={setSelectedLocation}
+                            selectedYear={selectedYear}
+                        />
+                    </div>
 
-      {/* CHRONOLOGICAL SONIC SCRUBBER */}
-      <TimelineScrubber
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
-      />
+                    {/* RIGHT PANEL - ENVIRONMENTAL DATA */}
+                    <div className="right-panel">
+                        <DiagnosticPanel
+                            selectedLocation={selectedLocation}
+                        />
+                    </div>
 
-      {/* TEMPERATURE SONIFICATION */}
-      <YearSonifier
-        location={selectedLocation}
-        year={selectedYear}
-        onYearChange={setSelectedYear}
-      />
+                </div>
 
-      {/* DIGITAL AUDIO WORKSTATION */}
-      <DAWEngine
-        audioUrl={audioUrl}
-        selectedYear={selectedYear}
-      />
-    </>
-  );
+                {/* CHRONOLOGICAL SONIC SCRUBBER */}
+                <TimelineScrubber
+                    selectedYear={selectedYear}
+                    onYearChange={setSelectedYear}
+                />
+
+                {/* YEAR-WISE TEMPERATURE SONIFICATION */}
+                <YearSonifier
+                    location={selectedLocation}
+                    year={selectedYear}
+                    onYearChange={setSelectedYear}
+                    muted={isMuted}
+                />
+
+                {/* DIGITAL AUDIO WORKSTATION */}
+                <DAWEngine
+                    audioUrl={audioUrl}
+                    selectedYear={selectedYear}
+                />
+
+            </main>
+        </>
+    );
 }
 
 export default App;

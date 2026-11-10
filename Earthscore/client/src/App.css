@@ -1,9 +1,22 @@
 
+.dashboard-workspace {
+  box-sizing: border-box;
+  width: min(100% - 32px, 1600px);
+  margin: 20px auto 36px;
+  padding: 18px 24px;
+  overflow: hidden;
+  color: #e8f1ff;
+  background: linear-gradient(145deg, #101722, #0b111a);
+  border: 1px solid #263142;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+}
+
 .dashboard-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 24px;
-  padding: 24px;
+  gap: 20px;
+  padding: 0 0 20px;
   align-items: start;
 }
 
@@ -12,9 +25,57 @@
   min-width: 0;
 }
 
-@media (max-width: 950px) {
+.dashboard-workspace .globe-panel,
+.dashboard-workspace .diagnostic-panel,
+.dashboard-workspace .sonic-scrubber,
+.dashboard-workspace .year-sonifier,
+.dashboard-workspace .daw-engine {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.dashboard-workspace .globe-panel,
+.dashboard-workspace .diagnostic-panel {
+  height: 100%;
+  padding: 8px;
+  background: transparent;
+}
+
+.dashboard-workspace .sonic-scrubber,
+.dashboard-workspace .year-sonifier,
+.dashboard-workspace .daw-engine {
+  padding: 24px 8px;
+  background: transparent;
+  border-top: 1px solid #293546;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-workspace {
+    width: calc(100% - 20px);
+    margin: 10px auto 24px;
+    padding: 12px 16px;
+    border-radius: 14px;
+  }
+
   .dashboard-layout {
     grid-template-columns: 1fr;
-    padding: 12px;
+    gap: 14px;
+    padding-bottom: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-workspace {
+    width: calc(100% - 12px);
+    padding: 8px 12px;
+  }
+
+  .dashboard-workspace .sonic-scrubber,
+  .dashboard-workspace .year-sonifier,
+  .dashboard-workspace .daw-engine {
+    padding: 20px 4px;
   }
 }

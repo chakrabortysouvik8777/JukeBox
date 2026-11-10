@@ -15,6 +15,7 @@ import "./YearSonifier.css";
 interface YearSonifierProps {
   location: Location;
   year: number;
+  muted: boolean;
   // Optional: lets the chart change the selected year.
   onYearChange?: (year: number) => void;
 }
@@ -39,6 +40,7 @@ export default function YearSonifier({
   location,
   year,
   onYearChange,
+  muted,
 }: YearSonifierProps) {
   const engineRef = useAudioEngine();
 
@@ -50,6 +52,10 @@ export default function YearSonifier({
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [volume, setVolume] = useState(0.5);
   const [audioError, setAudioError] = useState("");
+
+  useEffect(() => {
+    engineRef.current?.setVolume(muted ? 0 : volume);
+  }, [engineRef, muted, volume]);
 
   // Every new Play/Stop increases this number.
   // Old callbacks compare their copy and quit if it is outdated.
@@ -134,7 +140,7 @@ export default function YearSonifier({
     // The user may have pressed Stop while audio was starting.
     if (generation !== generationRef.current) return;
 
-    engine.setVolume(volume);
+    engine.setVolume(muted ? 0 : volume);
 
     const t0 = engine.getAudioTime() + LEAD_SECONDS;
 
@@ -189,7 +195,7 @@ export default function YearSonifier({
 
     try {
       await engine.start();
-      engine.setVolume(volume);
+      engine.setVolume(muted ? 0 : volume);
       engine.playTemperature(temperatureC, 1, T2M_TEMPERATURE_MAPPING);
     } catch (error) {
       setAudioError(

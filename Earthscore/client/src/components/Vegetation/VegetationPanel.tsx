@@ -30,7 +30,7 @@ export default function VegetationPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  
+
 useEffect(() => {
   const controller = new AbortController();
   let active = true;

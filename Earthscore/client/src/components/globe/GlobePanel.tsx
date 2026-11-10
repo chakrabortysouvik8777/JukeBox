@@ -1,8 +1,11 @@
+
 import { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
 import "./GlobePanel.css";
+
 import type { Location } from "../../types/location";
 import type { TemperatureSeries } from "../../types/dataset";
+
 import { getPlaceName } from "../../utils/reverseGeoCode";
 import { fetchTemperatureSeries } from "../../services/nasaAPI";
 import { yearDifferenceFromAverage } from "../../data/selectors";
@@ -10,11 +13,9 @@ import { yearDifferenceFromAverage } from "../../data/selectors";
 interface GlobePanelProps {
     selectedLocation: Location;
     onLocationSelect: (location: Location) => void;
-    // Year chosen on the timeline; used for the temperature badge.
     selectedYear: number;
 }
 
-// Badge colours: warmer = orange, cooler = blue, unknown = grey.
 const BADGE_STYLES = {
     warmer: { background: "#c2571a", color: "#ffffff" },
     cooler: { background: "#2f6fd0", color: "#ffffff" },
@@ -40,16 +41,17 @@ const GlobePanel = ({
     const globeRef = useRef<any>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const [globeWidth, setGlobeWidth] = useState<number>(650);
+    // Prevent older reverse-geocoding requests from overwriting newer selections.
+    const geocodeRequestId = useRef(0);
 
-    const [activeTool, setActiveTool] =
-        useState<ToolType>("point");
-
-    // NASA POWER series for the badge (shared cache with the sound panel).
+    const [globeWidth, setGlobeWidth] = useState(650);
+    const [globeReady, setGlobeReady] = useState(false);
+    const [activeTool, setActiveTool] = useState<ToolType>("point");
     const [series, setSeries] = useState<TemperatureSeries | null>(null);
 
+    // Move the globe whenever the selected coordinates change.
     useEffect(() => {
-        if (!globeRef.current) return;
+        if (!globeReady || !globeRef.current) return;
 
         globeRef.current.pointOfView(
             {
@@ -59,10 +61,12 @@ const GlobePanel = ({
             },
             1000
         );
-    }, [selectedLocation.lat, selectedLocation.lng]);
+    }, [selectedLocation.lat, selectedLocation.lng, globeReady]);
 
+    // Fetch NASA POWER temperature data for the selected location.
     useEffect(() => {
         const controller = new AbortController();
+
         setSeries(null);
 
         fetchTemperatureSeries(
@@ -70,9 +74,15 @@ const GlobePanel = ({
             selectedLocation.lng,
             controller.signal
         )
-            .then(setSeries)
-            .catch(() => {
-                // The sound panel shows the error message; badge stays neutral.
+            .then((data) => {
+                if (!controller.signal.aborted) {
+                    setSeries(data);
+                }
+            })
+            .catch((error) => {
+                if (!controller.signal.aborted) {
+                    console.error("Temperature series error:", error);
+                }
             });
 
         return () => controller.abort();
@@ -82,30 +92,32 @@ const GlobePanel = ({
         ? yearDifferenceFromAverage(series.observations, selectedYear)
         : null;
 
-    // Short text so it fits the HUD; the tooltip explains it fully.
     const badgeText =
         yearDifference === null
             ? `${selectedYear} · NO FULL YEAR`
-            : `${selectedYear} · ${yearDifference >= 0 ? "+" : "−"}${Math.abs(
-                yearDifference
-            ).toFixed(1)}°C VS AVG`;
+            : `${selectedYear} · ${
+                  yearDifference >= 0 ? "+" : "−"
+              }${Math.abs(yearDifference).toFixed(1)}°C VS AVG`;
 
     const badgeStyle =
         yearDifference === null || Math.abs(yearDifference) < 0.05
             ? BADGE_STYLES.neutral
             : yearDifference > 0
-                ? BADGE_STYLES.warmer
-                : BADGE_STYLES.cooler;
+              ? BADGE_STYLES.warmer
+              : BADGE_STYLES.cooler;
 
-    // Responsive globe width
+    // Responsive globe width.
     useEffect(() => {
         const container = containerRef.current;
 
         if (!container) return;
 
         const observer = new ResizeObserver((entries) => {
-            const width = entries[0].contentRect.width;
-            setGlobeWidth(Math.max(250, width));
+            const width = entries[0]?.contentRect.width;
+
+            if (width) {
+                setGlobeWidth(Math.max(250, width));
+            }
         });
 
         observer.observe(container);
@@ -113,35 +125,32 @@ const GlobePanel = ({
         return () => observer.disconnect();
     }, []);
 
-    // Globe initialization
-
+    // Initialize the globe and its controls.
     const handleGlobeReady = () => {
-        if (globeRef.current) {
-            const controls = globeRef.current.controls();
+        if (!globeRef.current) return;
 
-            // Disable automatic globe rotation
-            controls.autoRotate = false;
+        const controls = globeRef.current.controls();
 
-            // Keep manual mouse interaction enabled
-            controls.enableRotate = true;
-            controls.enableZoom = true;
-            controls.enablePan = false;
+        controls.autoRotate = false;
+        controls.enableRotate = true;
+        controls.enableZoom = true;
+        controls.enablePan = false;
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.minDistance = 120;
+        controls.maxDistance = 450;
+        controls.zoomSpeed = 0.8;
 
-            // Set initial view to Kolkata
-            globeRef.current.pointOfView(
-                {
-                    lat: 22.5726,
-                    lng: 88.3639,
-                    altitude: 1.8,
-                },
-                1000
-            );
-        }
+        const renderer = globeRef.current.renderer();
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio || 1, 2)
+        );
+
+        setGlobeReady(true);
     };
 
-
-    // Select location by clicking globe
-
+    // Select a location by clicking on the globe.
     const handleGlobeClick = async (
         coords: { lat: number; lng: number }
     ) => {
@@ -150,7 +159,9 @@ const GlobePanel = ({
         const lat = Number(coords.lat.toFixed(4));
         const lng = Number(coords.lng.toFixed(4));
 
-        // Show coordinates immediately
+        const requestId = ++geocodeRequestId.current;
+
+        // Update coordinates immediately.
         onLocationSelect({
             name: "Finding location...",
             country: "Loading...",
@@ -158,49 +169,52 @@ const GlobePanel = ({
             lng,
         });
 
-        // Fetch actual place name
-        const result = await getPlaceName(lat, lng);
+        try {
+            const result = await getPlaceName(lat, lng);
 
-        if (result) {
+            // Ignore an outdated request.
+            if (requestId !== geocodeRequestId.current) return;
+
             onLocationSelect({
-                name: result.city || result.name,
-                country: result.country || result.state || "Unknown",
+                name: result?.city || result?.name || "Unknown location",
+                country:
+                    result?.country ||
+                    result?.state ||
+                    "Unknown country",
                 lat,
                 lng,
             });
-        } else {
+        } catch (error) {
+            console.error("Reverse geocoding failed:", error);
+
+            if (requestId !== geocodeRequestId.current) return;
+
             onLocationSelect({
-                name: "Unknown Location",
-                country: "Unknown Region",
+                name: "Unknown location",
+                country: "Unknown country",
                 lat,
                 lng,
             });
         }
     };
 
-
-    // Select preset location
+    // Select one of the preset locations.
     const handlePresetClick = (location: Location) => {
-        onLocationSelect(location);
+        // Invalidate any pending reverse-geocoding request.
+        geocodeRequestId.current++;
 
-        globeRef.current?.pointOfView(
-            {
-                lat: location.lat,
-                lng: location.lng,
-                altitude: 1.8,
-            },
-            1000
-        );
+        onLocationSelect(location);
     };
 
-    // Format coordinates
+    // Format coordinates.
     const formatCoordinate = (
         value: number,
         positive: string,
         negative: string
     ): string => {
-        return `${Math.abs(value).toFixed(4)}° ${value >= 0 ? positive : negative
-            }`;
+        return `${Math.abs(value).toFixed(4)}° ${
+            value >= 0 ? positive : negative
+        }`;
     };
 
     return (
@@ -208,7 +222,6 @@ const GlobePanel = ({
 
             {/* Toolbar */}
             <div className="globe-toolbar">
-
                 <div className="tool-group">
                     <span className="toolbar-label">TOOL:</span>
 
@@ -242,7 +255,7 @@ const GlobePanel = ({
                     </button>
                 </div>
 
-                {/* Presets */}
+                {/* Preset locations */}
                 <div className="preset-group">
                     <span className="toolbar-label">PRESETS:</span>
 
@@ -260,38 +273,33 @@ const GlobePanel = ({
                         </button>
                     ))}
                 </div>
-
             </div>
 
             {/* Interactive Globe */}
             <div className="globe-container" ref={containerRef}>
-
                 <div className="globe-frame">
-
                     <Globe
                         ref={globeRef}
                         width={globeWidth}
                         height={420}
-
-                        globeImageUrl="https://unpkg.com/three-globe/example/img/earth-night.jpg"
-
-                        bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
-
+                        globeImageUrl="/textures/earth-blue-marble.jpg"
+                        bumpImageUrl="/textures/earth-topology.png"
                         backgroundColor="rgba(0,0,0,0)"
-
                         showAtmosphere={true}
-                        atmosphereColor="#4779d8"
-                        atmosphereAltitude={0.18}
-
-                        showGraticules={true}
-
+                        atmosphereColor="#76baff"
+                        atmosphereAltitude={0.12}
+                        showGraticules={false}
+                        rendererConfig={{
+                            antialias: true,
+                            alpha: true,
+                            powerPreference: "high-performance",
+                        }}
                         pointsData={[selectedLocation]}
                         pointLat="lat"
                         pointLng="lng"
                         pointColor={() => "#ff7979"}
                         pointAltitude={0.04}
                         pointRadius={0.55}
-
                         ringsData={[selectedLocation]}
                         ringLat="lat"
                         ringLng="lng"
@@ -299,16 +307,15 @@ const GlobePanel = ({
                         ringMaxRadius={4}
                         ringPropagationSpeed={2}
                         ringRepeatPeriod={1200}
-
                         onGlobeClick={handleGlobeClick}
                         onGlobeReady={handleGlobeReady}
                     />
 
-                    {/* Location Information */}
+                    {/* Location HUD */}
                     <div className="location-hud">
-
                         <div className="hud-top">
                             <span>HUD RETICLE LOCK</span>
+
                             <span
                                 className="anomaly-badge"
                                 style={badgeStyle}
@@ -325,8 +332,8 @@ const GlobePanel = ({
                                 selectedLocation.lat,
                                 "N",
                                 "S"
-                            )},
-                            {" "}
+                            )}
+                            {", "}
                             {formatCoordinate(
                                 selectedLocation.lng,
                                 "E",
@@ -335,7 +342,6 @@ const GlobePanel = ({
                         </p>
 
                         <div className="hud-stats">
-
                             <div>
                                 <span>LOCATION</span>
                                 <strong>{selectedLocation.country}</strong>
@@ -345,18 +351,14 @@ const GlobePanel = ({
                                 <span>SELECTION</span>
                                 <strong>ACTIVE</strong>
                             </div>
-
                         </div>
                     </div>
-
                 </div>
             </div>
 
             {/* Coordinate Display */}
             <div className="coordinate-display">
-
                 <span className="coordinate-indicator"></span>
-
                 <span>SELECTED TARGET</span>
 
                 <strong>
@@ -364,12 +366,10 @@ const GlobePanel = ({
                     {" "}
                     {selectedLocation.lng.toFixed(4)}°
                 </strong>
-
             </div>
 
             {/* Sensor Overlays */}
             <div className="sensor-section">
-
                 <div className="sensor-heading">
                     <span>
                         ATMOSPHERIC & BIOSPHERIC SENSOR OVERLAYS
@@ -379,8 +379,6 @@ const GlobePanel = ({
                 </div>
 
                 <div className="sensor-grid">
-
-                    {/* Highlighted card = the data that is turned into sound. */}
                     <div
                         className="sensor-card active"
                         title="Monthly air temperature at 2 m. This feed drives the sound."
@@ -419,10 +417,8 @@ const GlobePanel = ({
                         <strong>Population</strong>
                         <small>WorldPop</small>
                     </div>
-
                 </div>
             </div>
-
         </section>
     );
 };
