@@ -1,37 +1,143 @@
 
-# 🌍 Earth Information Jukebox
+# 🌍 EarthScore
 
-**NASA Hackathon Project | Team SARTHAK 🚀**
+**Earth Information Jukebox prototype | Team SARTHAK 🚀**
 
-## 📌 About the Project
+## Overview
 
-Welcome to **Earth Information Jukebox**, our collaborative project for the NASA Space App Challenge.
+EarthScore is an interactive Earth observation dashboard that blends geospatial exploration, environmental data analysis, and audio-driven storytelling. The project uses a 3D globe, climate and environmental metrics, and a sonification layer to help users explore how Earth systems vary across regions and years.
 
-This repository serves as the central workspace for our team to brainstorm ideas, explore possibilities, share resources, and develop our solution around the theme of Earth Information Jukebox.
+This repository contains the working prototype for a NASA-inspired Earth data experience with:
 
-We are at the beginning of our journey, and this repository will evolve as we refine our ideas and turn them into reality.
+- location-aware environmental insights
+- year-by-year temporal exploration
+- globe-based visualization
+- temperature and climate data mapping
+- audio synthesis based on observed values
+- diagnostic panels for environmental metrics
 
-## 🎯 Objectives
+## What the app does
 
-- Explore the possibilities within the Earth Information Jukebox challenge.
-- Research relevant data, tools, and technologies.
-- Collaborate effectively as a team.
-- Develop an innovative solution through experimentation and teamwork.
+- Explore a selected location on a 3D globe
+- Compare environmental conditions across years
+- View temperature, rainfall, vegetation, population, greenhouse-gas, and air-quality signals
+- Use a timeline scrubber and playback controls to traverse the dataset
+- Translate variations in data into musical patterns through a sonification engine
+- Present a unified dashboard combining visual and auditory interpretation
 
-## 👥 Team
+## Project structure
+
+```text
+earthscore/
+├── README.md
+├── Architechture.md
+├── CLAUDE.md
+├── PROGRESS.md
+├── client/
+│   ├── package.json
+│   ├── index.html
+│   ├── public/
+│   ├── scripts/
+│   └── src/
+│       ├── App.tsx
+│       ├── components/
+│       ├── audio/
+│       ├── data/
+│       ├── playback/
+│       ├── services/
+│       ├── state/
+│       ├── tests/
+│       └── types/
+├── data-pipeline/
+│   ├── config/
+│   ├── tests/
+│   ├── download.py
+│   ├── preprocess.py
+│   ├── prepare_frames.py
+│   ├── export_bundle.py
+│   └── validate.py
+├── docs/
+│   ├── AUDIO_CONTRACT.md
+│   ├── DATA_CONTRACT.md
+│   ├── DATA_SOURCES.md
+│   ├── Earth_Information_Jukebox_Complete_Guide.md
+│   └── VALIDATION.md
+└── Research_Document/
+```
+
+## Tech stack
+
+- Frontend: React + TypeScript + Vite
+- 3D globe: react-globe.gl, three.js, @react-three/fiber
+- Data visualization: Recharts
+- Audio: Tone.js with Web Audio synthesis
+- State management: React state and reducer patterns
+- Data preparation: Python pipeline for NASA and environmental datasets
+
+## Getting started
+
+### 1) Install frontend dependencies
+
+```bash
+cd earthscore/client
+npm install
+```
+
+### 2) Run the app locally
+
+```bash
+npm run dev
+```
+
+The app will be available in the local Vite dev server (typically at http://localhost:5173).
+
+### 3) Build for production
+
+```bash
+npm run build
+```
+
+### 4) Run validation checks
+
+```bash
+npm run typecheck
+npm run test:mapping
+npm run test:audio
+npm run test:data
+```
+
+## Data pipeline
+
+The project includes a Python data-preparation workflow for sourcing, processing, and validating environmental datasets before they are surfaced in the browser app. This is managed under the `data-pipeline/` folder.
+
+Typical workflow:
+
+```bash
+cd earthscore
+python -m venv .venv
+# activate environment
+pip install -r data-pipeline/requirements.txt
+python data-pipeline/download.py --config data-pipeline/config/pipeline.json
+python data-pipeline/preprocess.py --config data-pipeline/config/pipeline.json
+python data-pipeline/prepare_frames.py --config data-pipeline/config/pipeline.json
+python data-pipeline/export_bundle.py --config data-pipeline/config/pipeline.json
+python data-pipeline/validate.py --bundle client/public/data
+```
+
+## Team
 
 **Team Name:** SARTHAK
 
-## 🛠️ Project Status
+## Current status
 
-🚧 **Initial Phase — Ideation & Planning**
+The project is in an active prototype and iteration phase. Core UI, globe interactions, data-driven panels, and sonification flows are being refined and validated as the application evolves.
 
-The project concept, technology stack, and implementation details will be updated as our development progresses.
+## Notes
 
-## 🤝 Collaboration
+- The repository contains both app code and scientific/data-prep assets.
+- Documentation and implementation details are maintained in the `docs/` and `Architechture.md` files.
+- Work is intended to support an Earth observatory experience that makes environmental trends more intuitive through sound and interaction.
 
-This repository is our shared space for collaboration, planning, and development. Team members can contribute ideas, research, code, and documentation as the project takes shape.
+## Future direction
 
-## 🚀 Our Journey Starts Here
-
-*Exploring ideas today, building possibilities for tomorrow.*
+Planned evolution includes deeper climate-analysis workflows, richer environmental datasets, more robust validation, and higher-fidelity sonification mappings that align closely with the intended NASA Earth Information Jukebox experience.
