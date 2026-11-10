@@ -242,6 +242,12 @@
     display: none;
   }
 
+  .telemetry-bar {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
   .search-box {
     width: 160px;
   }

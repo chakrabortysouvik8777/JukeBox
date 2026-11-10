@@ -31,46 +31,35 @@ function App() {
         onMuteToggle={() => setIsMuted((muted) => !muted)}
       />
 
-      <main className="dashboard-layout">
+      <main className="dashboard-workspace">
+        <div className="dashboard-layout">
+          <div className="left-panel">
+            <GlobePanel
+              selectedLocation={selectedLocation}
+              onLocationSelect={setSelectedLocation}
+              selectedYear={selectedYear}
+            />
+          </div>
 
-        {/* LEFT PANEL */}
-        <div className="left-panel">
-          <GlobePanel
-            selectedLocation={selectedLocation}
-            onLocationSelect={setSelectedLocation}
-            selectedYear={selectedYear}
-          />
+          <div className="right-panel">
+            <DiagnosticPanel selectedLocation={selectedLocation} />
+          </div>
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="right-panel">
-          <DiagnosticPanel
-            selectedLocation={selectedLocation}
-          />
+        <TimelineScrubber
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+        />
 
-        </div>
+        <YearSonifier
+          location={selectedLocation}
+          year={selectedYear}
+          onYearChange={setSelectedYear}
+          muted={isMuted}
+        />
 
+        <DAWEngine audioUrl={audioUrl} selectedYear={selectedYear} />
       </main>
-
-      {/*Chronological Sonic Order*/}
-      <TimelineScrubber
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
-      />
-
-      {/*Temperature sonification (M3): plays the 12 months of the selected year*/}
-      <YearSonifier
-        location={selectedLocation}
-        year={selectedYear}
-        onYearChange={setSelectedYear}
-        muted={isMuted}
-      />
-
-      {/*Digital Audio Workstation*/}
-      <DAWEngine
-        audioUrl={audioUrl}
-        selectedYear={selectedYear}
-      />
     </>
   );
 }
