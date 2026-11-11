@@ -28,41 +28,70 @@ This repository contains the working prototype for a NASA-inspired Earth data ex
 ## Project structure
 
 ```text
-earthscore/
+JukeBox/
 ├── README.md
-├── Architechture.md
-├── CLAUDE.md
-├── PROGRESS.md
-├── client/
-│   ├── package.json
-│   ├── index.html
-│   ├── public/
-│   ├── scripts/
-│   └── src/
-│       ├── App.tsx
-│       ├── components/
-│       ├── audio/
-│       ├── data/
-│       ├── playback/
-│       ├── services/
-│       ├── state/
-│       ├── tests/
-│       └── types/
-├── data-pipeline/
-│   ├── config/
-│   ├── tests/
-│   ├── download.py
-│   ├── preprocess.py
-│   ├── prepare_frames.py
-│   ├── export_bundle.py
-│   └── validate.py
 ├── docs/
 │   ├── AUDIO_CONTRACT.md
 │   ├── DATA_CONTRACT.md
 │   ├── DATA_SOURCES.md
 │   ├── Earth_Information_Jukebox_Complete_Guide.md
+│   ├── UI_HANDOFF.md
 │   └── VALIDATION.md
-└── Research_Document/
+├── Research_Document/
+│   ├── 36-4-smith.pdf
+│   ├── fcomm-05-00046.pdf
+│   ├── fpsyg-13-1020102.pdf
+│   ├── gc-3-263-2020.pdf
+│   ├── file.pdf
+│   └── Research Papers.txt
+├── Earthscore/
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── Architechture.md
+│   ├── CLAUDE.md
+│   ├── LICENSE
+│   ├── PROGRESS.md
+│   ├── TEAM_ROLES.md
+│   ├── package-lock.json
+│   ├── client/
+│   │   ├── index.html
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── tsconfig.json
+│   │   ├── vite.config.mts
+│   │   ├── public/
+│   │   ├── scripts/
+│   │   └── src/
+│   │       ├── App.css
+│   │       ├── App.tsx
+│   │       ├── audio/
+│   │       ├── components/
+│   │       ├── config/
+│   │       ├── data/
+│   │       ├── index.css
+│   │       ├── main.tsx
+│   │       ├── playback/
+│   │       ├── services/
+│   │       ├── state/
+│   │       ├── tests/
+│   │       ├── types/
+│   │       ├── utils/
+│   │       └── vite-env.d.ts
+│   └── data-pipeline/
+│       ├── config/
+│       │   ├── pipeline.json
+│       │   └── regions.json
+│       ├── tests/
+│       │   ├── test_bundle_alignment.py
+│       │   ├── test_regional_mean.py
+│       │   └── test_units_and_masks.py
+│       ├── download.py
+│       ├── export_bundle.py
+│       ├── prepare_frames.py
+│       ├── preprocess.py
+│       ├── requirements.txt
+│       └── validate.py
+└── package-lock.json
 ```
 
 ## Tech stack
@@ -79,7 +108,7 @@ earthscore/
 ### 1) Install frontend dependencies
 
 ```bash
-cd earthscore/client
+cd Earthscore/client
 npm install
 ```
 
@@ -113,7 +142,7 @@ The project includes a Python data-preparation workflow for sourcing, processing
 Typical workflow:
 
 ```bash
-cd earthscore
+cd Earthscore
 python -m venv .venv
 # activate environment
 pip install -r data-pipeline/requirements.txt
