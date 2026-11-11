@@ -12,28 +12,97 @@ export const initialPlaybackState: PlaybackState = {
   soundEnabled: PLAYBACK_DEFAULTS.soundEnabled,
   volume: PLAYBACK_DEFAULTS.defaultVolume,
   events: [],
+  rangeStartIndex: 0,
+  playUntilIndex: null,
+  scheduleVersion: 0,
+  error: null,
 };
+
+function clampIndex(state: PlaybackState, index: number): number {
+  const maxIdx = Math.max(0, state.events.length - 1);
+  return Math.min(Math.max(0, Math.round(index)), maxIdx);
+}
+
+/** Last index of the current play range. */
+export function rangeEndIndex(state: PlaybackState): number {
+  const last = Math.max(0, state.events.length - 1);
+  return state.playUntilIndex === null ? last : Math.min(state.playUntilIndex, last);
+}
 
 export function appReducer(state: PlaybackState, action: PlaybackAction): PlaybackState {
   switch (action.type) {
-    case 'PLAY':
+    case 'PLAY': {
       if (state.events.length === 0) return state;
-      return { ...state, status: 'playing' };
+
+      // Resume a paused range as it was.
+      if (state.status === 'paused') {
+        return {
+          ...state,
+          status: 'playing',
+          error: null,
+          scheduleVersion: state.scheduleVersion + 1,
+        };
+      }
+
+      // Otherwise play the whole timeline from the current position,
+      // or from the beginning if we are already at the last month.
+      const lastIdx = state.events.length - 1;
+      const start = state.dateIndex >= lastIdx ? 0 : state.dateIndex;
+
+      return {
+        ...state,
+        status: 'playing',
+        dateIndex: start,
+        rangeStartIndex: start,
+        playUntilIndex: null,
+        error: null,
+        scheduleVersion: state.scheduleVersion + 1,
+      };
+    }
+
+    case 'PLAY_RANGE': {
+      if (state.events.length === 0) return state;
+      const start = clampIndex(state, action.payload.startIndex);
+      const end = Math.max(start, clampIndex(state, action.payload.endIndex));
+
+      return {
+        ...state,
+        status: 'playing',
+        dateIndex: start,
+        activeSlot: state.events[start]?.slot ?? 'A',
+        rangeStartIndex: start,
+        playUntilIndex: end,
+        error: null,
+        scheduleVersion: state.scheduleVersion + 1,
+      };
+    }
 
     case 'PAUSE':
+      if (state.status !== 'playing') return state;
       return { ...state, status: 'paused' };
 
     case 'STOP':
-      return { ...state, status: 'stopped', dateIndex: 0, activeSlot: 'A' };
+      // Stop the sound and go back to the start of the range that was playing.
+      return {
+        ...state,
+        status: 'stopped',
+        dateIndex: clampIndex(state, state.rangeStartIndex),
+        activeSlot: 'A',
+      };
 
     case 'SEEK': {
-      const maxIdx = Math.max(0, state.events.length - 1);
-      const targetIdx = Math.min(Math.max(0, action.payload.index), maxIdx);
+      const targetIdx = clampIndex(state, action.payload.index);
       const targetEvent = state.events[targetIdx];
+      const playing = state.status === 'playing';
+
       return {
         ...state,
         dateIndex: targetIdx,
         activeSlot: targetEvent ? targetEvent.slot : 'A',
+        // A seek ends a one-year range: from here the whole timeline plays on.
+        rangeStartIndex: playing ? targetIdx : state.rangeStartIndex,
+        playUntilIndex: playing ? null : state.playUntilIndex,
+        scheduleVersion: playing ? state.scheduleVersion + 1 : state.scheduleVersion,
       };
     }
 
@@ -42,7 +111,12 @@ export function appReducer(state: PlaybackState, action: PlaybackAction): Playba
         Math.max(action.payload.speed, PLAYBACK_DEFAULTS.minSpeed),
         PLAYBACK_DEFAULTS.maxSpeed
       );
-      return { ...state, playbackSpeed: speed };
+      const playing = state.status === 'playing';
+      return {
+        ...state,
+        playbackSpeed: speed,
+        scheduleVersion: playing ? state.scheduleVersion + 1 : state.scheduleVersion,
+      };
     }
 
     case 'SET_VOLUME': {
@@ -69,13 +143,23 @@ export function appReducer(state: PlaybackState, action: PlaybackAction): Playba
         status: 'idle',
       };
 
-    case 'SET_EVENTS':
+    case 'SET_EVENTS': {
+      // New data (e.g. another location): stop playback, keep the position if asked.
+      const events = action.payload.events;
+      const maxIdx = Math.max(0, events.length - 1);
+      const start = Math.min(Math.max(0, action.payload.startIndex ?? 0), maxIdx);
+
       return {
         ...state,
-        events: action.payload.events,
-        dateIndex: 0,
+        events,
+        status: state.status === 'playing' || state.status === 'paused' ? 'stopped' : state.status,
+        dateIndex: start,
         activeSlot: 'A',
+        rangeStartIndex: start,
+        playUntilIndex: null,
+        scheduleVersion: state.scheduleVersion + 1,
       };
+    }
 
     case 'STEP_NEXT': {
       if (state.events.length === 0) return state;
@@ -96,6 +180,25 @@ export function appReducer(state: PlaybackState, action: PlaybackAction): Playba
         activeSlot: state.events[prevIdx]?.slot ?? 'A',
       };
     }
+
+    case 'TICK': {
+      // Position reported by the audio clock. Never reschedules audio.
+      if (state.status !== 'playing') return state;
+      const idx = clampIndex(state, action.payload.index);
+      if (idx === state.dateIndex) return state;
+      return {
+        ...state,
+        dateIndex: idx,
+        activeSlot: state.events[idx]?.slot ?? 'A',
+      };
+    }
+
+    case 'ENDED':
+      if (state.status !== 'playing') return state;
+      return { ...state, status: 'stopped', dateIndex: rangeEndIndex(state) };
+
+    case 'PLAYBACK_ERROR':
+      return { ...state, status: 'stopped', error: action.payload.message };
 
     default:
       return state;

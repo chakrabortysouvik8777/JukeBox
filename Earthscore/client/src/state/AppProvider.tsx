@@ -1,8 +1,9 @@
 // client/src/state/AppProvider.tsx
-import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { PlaybackState, PlaybackAction } from '../types/playback';
 import { appReducer, initialPlaybackState } from './appReducer';
-import { PlaybackController, AudioEngineInterface } from '../playback/PlaybackController';
+import { PlaybackController, PlaybackAudioEngine } from '../playback/PlaybackController';
+import { AudioEngine } from '../audio/AudioEngine';
 
 interface AppContextValue {
   state: PlaybackState;
@@ -14,35 +15,50 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export interface AppProviderProps {
   children: React.ReactNode;
-  audioEngine?: AudioEngineInterface;
+  // Optional engine factory (tests can pass a fake engine).
+  createAudioEngine?: () => PlaybackAudioEngine;
 }
 
-export const AppProvider: React.FC<AppProviderProps> = ({ children, audioEngine }) => {
+export const AppProvider: React.FC<AppProviderProps> = ({ children, createAudioEngine }) => {
   const [state, dispatch] = useReducer(appReducer, initialPlaybackState);
-  const controllerRef = useRef<PlaybackController | null>(null);
+  const [controller, setController] = useState<PlaybackController | null>(null);
 
-  if (!controllerRef.current) {
-    controllerRef.current = new PlaybackController(dispatch, audioEngine);
-  }
+  // Latest state for effects that must not re-run on every TICK.
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
+  // One engine + controller for the app's lifetime.
+  // Created in an effect so React Strict Mode gets a fresh one after cleanup.
   useEffect(() => {
-    const controller = controllerRef.current;
-    if (controller) {
-      controller.syncWithState(state);
-      if (state.status === 'playing') {
-        controller.triggerCurrentAudio(state);
-      }
-    }
-  }, [state, audioEngine]);
+    const engine = createAudioEngine ? createAudioEngine() : new AudioEngine();
+    const instance = new PlaybackController(engine, dispatch);
+    setController(instance);
 
-  useEffect(() => {
     return () => {
-      controllerRef.current?.dispose();
+      instance.dispose();
+      setController((current) => (current === instance ? null : current));
     };
-  }, []);
+  }, [createAudioEngine]);
+
+  // (Re)schedule or halt the audio when playback changes.
+  // TICK only changes dateIndex, so it never reaches this effect.
+  useEffect(() => {
+    if (!controller) return;
+
+    if (state.status === 'playing') {
+      void controller.play(stateRef.current);
+    } else {
+      controller.halt();
+    }
+  }, [controller, state.status, state.scheduleVersion]);
+
+  // Volume and mute apply immediately, without rescheduling.
+  useEffect(() => {
+    controller?.applyVolume({ volume: state.volume, soundEnabled: state.soundEnabled });
+  }, [controller, state.volume, state.soundEnabled]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, controller: controllerRef.current }}>
+    <AppContext.Provider value={{ state, dispatch, controller }}>
       {children}
     </AppContext.Provider>
   );

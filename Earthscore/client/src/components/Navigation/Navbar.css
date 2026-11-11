@@ -303,7 +303,9 @@
 }
 
 .search-box input {
-    min-width: 180px;
+    /* min-width 0 lets the input shrink, so the search button stays
+       inside the box and does not cover the mute button. */
+    min-width: 0;
     outline: none;
 }
 

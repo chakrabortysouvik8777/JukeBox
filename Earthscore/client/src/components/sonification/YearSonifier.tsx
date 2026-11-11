@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { useAudioEngine } from "../../audio/useAudioEngine";
 import { temperatureToSound } from "../../audio/temperatureMapping";
 import { T2M_TEMPERATURE_MAPPING } from "../../config/audioMapping";
 import { fetchTemperatureSeries } from "../../services/nasaAPI";
 import { selectYear } from "../../data/selectors";
+import { useAppState } from "../../state/AppProvider";
+import {
+  firstIndexOfYear,
+  lastIndexOfYear,
+} from "../../playback/createPlaybackEvents";
 import type { TemperatureSeries } from "../../types/dataset";
 import type { Location } from "../../types/location";
 
@@ -15,19 +19,9 @@ import "./YearSonifier.css";
 interface YearSonifierProps {
   location: Location;
   year: number;
-  muted: boolean;
   // Optional: lets the chart change the selected year.
   onYearChange?: (year: number) => void;
 }
-
-// Seconds between the start of one month's note and the next.
-const STEP_SECONDS = 0.6;
-
-// Note length; shorter than the step so months are heard separately.
-const NOTE_SECONDS = 0.5;
-
-// Small delay so the first note is never scheduled in the past.
-const LEAD_SECONDS = 0.1;
 
 const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -36,47 +30,39 @@ const MONTH_NAMES = [
 
 type LoadState = "loading" | "ready" | "error";
 
+/**
+ * Shows the 12 months of the selected year, the 2016–2025 chart and the
+ * sound legend. All sound comes from the shared PlaybackController, so this
+ * panel and the Chronological Sonic Scrubber never play at the same time.
+ */
 export default function YearSonifier({
   location,
   year,
   onYearChange,
-  muted,
 }: YearSonifierProps) {
-  const engineRef = useAudioEngine();
+  const { state: playback, dispatch, controller } = useAppState();
 
   const [series, setSeries] = useState<TemperatureSeries | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [loadError, setLoadError] = useState("");
-
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [volume, setVolume] = useState(0.5);
-  const [audioError, setAudioError] = useState("");
-
-  useEffect(() => {
-    engineRef.current?.setVolume(muted ? 0 : volume);
-  }, [engineRef, muted, volume]);
-
-  // Every new Play/Stop increases this number.
-  // Old callbacks compare their copy and quit if it is outdated.
-  const generationRef = useRef(0);
-  const frameRef = useRef<number | null>(null);
+  const [previewError, setPreviewError] = useState("");
 
   // ---------- Data: NASA POWER monthly T2M for the selected location ----------
+  // (Shared cache: the timeline uses the same download.)
 
   useEffect(() => {
-    const controller = new AbortController();
+    const abort = new AbortController();
 
     setLoadState("loading");
     setLoadError("");
 
-    fetchTemperatureSeries(location.lat, location.lng, controller.signal)
+    fetchTemperatureSeries(location.lat, location.lng, abort.signal)
       .then((data) => {
         setSeries(data);
         setLoadState("ready");
       })
       .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
+        if (abort.signal.aborted) return;
 
         setLoadError(
           error instanceof Error ? error.message : "Could not load NASA data.",
@@ -84,136 +70,86 @@ export default function YearSonifier({
         setLoadState("error");
       });
 
-    return () => controller.abort();
+    return () => abort.abort();
   }, [location.lat, location.lng]);
 
-  // The monthly observations of the selected year (already validated:
+  // The monthly observations of the selected year (validated:
   // month 13 removed, missing values are null).
   const months = useMemo(
     () => (series ? selectYear(series.observations, year) : []),
     [series, year],
   );
 
-  // ---------- Playback ----------
+  // ---------- Shared playback position ----------
 
-  function cancelFrame() {
-    if (frameRef.current !== null) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-    }
-  }
+  const isPlaying = playback.status === "playing";
+  const showPosition = isPlaying || playback.status === "paused";
 
-  function stopPlayback() {
-    generationRef.current += 1;
-    cancelFrame();
-    engineRef.current?.stop();
-    setIsPlaying(false);
-    setActiveIndex(null);
-  }
+  const activeEvent = showPosition
+    ? playback.events[playback.dateIndex]
+    : undefined;
 
-  // Stop when the location or year changes, and when leaving the page.
-  useEffect(() => {
-    return () => stopPlayback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.lat, location.lng, year]);
+  const activeObservationId = activeEvent?.id ?? null;
 
-  async function handlePlay() {
-    const engine = engineRef.current;
-
-    if (!engine || months.length === 0) return;
-
-    stopPlayback();
-    const generation = generationRef.current;
-
-    setAudioError("");
-
-    try {
-      // Must be called from the button click (browser audio rule).
-      await engine.start();
-    } catch (error) {
-      setAudioError(
-        error instanceof Error ? error.message : "Audio could not start.",
-      );
-      return;
-    }
-
-    // The user may have pressed Stop while audio was starting.
-    if (generation !== generationRef.current) return;
-
-    engine.setVolume(muted ? 0 : volume);
-
-    const t0 = engine.getAudioTime() + LEAD_SECONDS;
-
-    months.forEach((month, index) => {
-      engine.scheduleTemperature(
-        month.temperatureC,
-        t0 + index * STEP_SECONDS,
-        NOTE_SECONDS,
-        T2M_TEMPERATURE_MAPPING,
-      );
-    });
-
-    setIsPlaying(true);
-
-    // Highlight the month the listener is hearing now.
-    const tick = () => {
-      if (generation !== generationRef.current) return;
-
-      const elapsed = engine.getPlaybackTime() - t0;
-      const index = Math.floor(elapsed / STEP_SECONDS);
-
-      if (index >= months.length) {
-        setIsPlaying(false);
-        setActiveIndex(null);
-        frameRef.current = null;
-        return;
-      }
-
-      setActiveIndex(index >= 0 ? index : null);
-      frameRef.current = requestAnimationFrame(tick);
-    };
-
-    frameRef.current = requestAnimationFrame(tick);
-  }
-
-  function handleVolumeChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const newVolume = Number(event.target.value);
-
-    setVolume(newVolume);
-    engineRef.current?.setVolume(newVolume);
-  }
-
-  // ---------- Sound legend preview ----------
-
-  async function handlePreview(temperatureC: number) {
-    const engine = engineRef.current;
-    if (!engine) return;
-
-    // Pause the timeline before previewing a reference tone.
-    stopPlayback();
-    setAudioError("");
-
-    try {
-      await engine.start();
-      engine.setVolume(muted ? 0 : volume);
-      engine.playTemperature(temperatureC, 1, T2M_TEMPERATURE_MAPPING);
-    } catch (error) {
-      setAudioError(
-        error instanceof Error ? error.message : "Audio could not start.",
-      );
-    }
-  }
-
-  const activeObservationId =
-    activeIndex !== null ? months[activeIndex]?.id ?? null : null;
+  const activeIndex = activeObservationId
+    ? months.findIndex((month) => month.id === activeObservationId)
+    : -1;
 
   const activeSound =
-    activeIndex !== null && months[activeIndex]
+    activeIndex >= 0
       ? temperatureToSound(
           months[activeIndex].temperatureC,
           T2M_TEMPERATURE_MAPPING,
         )
       : undefined;
+
+  // The shared events belong to this location once their ids match.
+  const eventsReady =
+    playback.events.length > 0 &&
+    months.length > 0 &&
+    playback.events.some((event) => event.id === months[0].id);
+
+  // ---------- Controls ----------
+
+  function handlePlayYear() {
+    const start = firstIndexOfYear(playback.events, year);
+    const end = lastIndexOfYear(playback.events, year);
+    if (start < 0 || end < 0) return;
+
+    setPreviewError("");
+    // Start audio inside the click (browser rule), then play.
+    controller?.unlock();
+    dispatch({ type: "PLAY_RANGE", payload: { startIndex: start, endIndex: end } });
+  }
+
+  function handleStop() {
+    dispatch({ type: "STOP" });
+  }
+
+  function handleVolumeChange(event: React.ChangeEvent<HTMLInputElement>) {
+    dispatch({
+      type: "SET_VOLUME",
+      payload: { volume: Number(event.target.value) },
+    });
+  }
+
+  async function handlePreview(temperatureC: number) {
+    if (!controller) return;
+
+    // Pause the timeline before previewing a reference tone.
+    if (isPlaying) dispatch({ type: "PAUSE" });
+    setPreviewError("");
+
+    try {
+      await controller.preview(temperatureC, playback, T2M_TEMPERATURE_MAPPING);
+    } catch (error) {
+      setPreviewError(
+        error instanceof Error ? error.message : "Audio could not start.",
+      );
+    }
+  }
+
+  const audioError = playback.error || previewError;
 
   // ---------- Render ----------
 
@@ -235,20 +171,20 @@ export default function YearSonifier({
           <button
             type="button"
             className="ys-play"
-            onClick={isPlaying ? stopPlayback : handlePlay}
-            disabled={loadState !== "ready" || months.length === 0}
+            onClick={isPlaying ? handleStop : handlePlayYear}
+            disabled={!isPlaying && (!eventsReady || months.length === 0)}
           >
             {isPlaying ? "■ STOP" : "▶ PLAY YEAR"}
           </button>
 
           <label className="ys-volume">
-            <span>Volume</span>
+            <span>Volume{playback.soundEnabled ? "" : " (muted)"}</span>
             <input
               type="range"
               min={0}
               max={1}
               step={0.01}
-              value={volume}
+              value={playback.volume}
               onChange={handleVolumeChange}
               aria-label="Sonification volume"
             />
@@ -329,7 +265,7 @@ export default function YearSonifier({
         mapping={T2M_TEMPERATURE_MAPPING}
         currentSound={activeSound}
         onPreview={handlePreview}
-        onStopPreview={() => engineRef.current?.stop()}
+        onStopPreview={() => controller?.halt()}
       />
 
       <p className="ys-source">

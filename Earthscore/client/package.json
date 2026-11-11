@@ -11,7 +11,9 @@
     "test:mapping": "vitest run src/tests/temperatureMapping.test.ts",
     "test:audio": "vitest run src/tests/temperatureMapping.test.ts src/tests/audioEngine.test.ts",
     "test:data": "vitest run src/tests/datasetValidation.test.ts src/tests/selectors.test.ts",
-    "snapshot": "node scripts/makeSnapshot.mjs"
+    "snapshot": "node scripts/makeSnapshot.mjs",
+    "test:playback": "vitest run src/tests/playbackTransitions.test.ts",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",

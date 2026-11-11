@@ -1,4 +1,8 @@
 import { ObservationEvent } from '../types/playback';
+import type { TemperatureSeries } from '../types/dataset';
+import type { TemperatureMappingConfig } from '../types/audio';
+import { temperatureToSound } from '../audio/temperatureMapping';
+import { locationKey } from '../data/validateDataset';
 
 export interface RawRecord {
   id: string;
@@ -44,4 +48,46 @@ export function createPlaybackEvents(
   }
 
   return events;
+}
+
+/**
+ * Turns a validated NASA POWER series into playback records.
+ * The frequency is computed once here with the shared mapping, so the
+ * controller, the panel and the legend all agree on the pitch.
+ * Missing temperatures stay null (silent), never 0.
+ */
+export function recordsFromSeries(
+  series: TemperatureSeries,
+  mapping: TemperatureMappingConfig
+): RawRecord[] {
+  const regionId = locationKey(series.latitude, series.longitude);
+
+  return series.observations.map((observation) => {
+    const sound = temperatureToSound(observation.temperatureC, mapping);
+
+    return {
+      id: observation.id,
+      date: observation.date,
+      regionId,
+      temperatureCelsius: observation.temperatureC,
+      temperatureKelvin:
+        observation.temperatureC === null ? null : observation.temperatureC + 273.15,
+      audioFrequencyHz: sound.frequencyHz,
+    };
+  });
+}
+
+/** Index of the first event of a year ("YYYY-01"), or -1. */
+export function firstIndexOfYear(events: readonly ObservationEvent[], year: number): number {
+  const prefix = `${year}-`;
+  return events.findIndex((event) => event.date.startsWith(prefix));
+}
+
+/** Index of the last event of a year ("YYYY-12"), or -1. */
+export function lastIndexOfYear(events: readonly ObservationEvent[], year: number): number {
+  const prefix = `${year}-`;
+  for (let i = events.length - 1; i >= 0; i--) {
+    if (events[i].date.startsWith(prefix)) return i;
+  }
+  return -1;
 }

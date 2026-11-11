@@ -1,6 +1,7 @@
 
-import { useEffect, useState } from "react";
 import "./TimelineScrubber.css";
+import { useAppState } from "../../state/AppProvider";
+import { rangeEndIndex } from "../../state/appReducer";
 
 interface TimelineScrubberProps {
   selectedYear: number;
@@ -10,54 +11,87 @@ interface TimelineScrubberProps {
 const START_YEAR = 2016;
 const END_YEAR = 2025;
 
+const MONTH_NAMES = [
+  "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+  "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
+];
+
 function TimelineScrubber({
   selectedYear,
   onYearChange,
 }: TimelineScrubberProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
+  // Shared playback (M4 state + audio-clock controller).
+  // This component has no timer of its own.
+  const { state, dispatch, controller } = useAppState();
 
-  // Automatically move through the timeline while playing
-  useEffect(() => {
-    if (!isPlaying) return;
+  const hasEvents = state.events.length > 0;
+  const isPlaying = state.status === "playing";
+  const isPaused = state.status === "paused";
 
-    if (selectedYear >= END_YEAR) {
-      setIsPlaying(false);
-      return;
-    }
+  // Whole-timeline playback (not a one-year preview from the panel below).
+  const isTimelineRange =
+    state.playUntilIndex === null ||
+    rangeEndIndex(state) === state.events.length - 1;
 
-    const timer = window.setInterval(() => {
-      onYearChange(selectedYear + 1);
-    }, 1500);
+  const currentEvent = state.events[state.dateIndex];
+  const currentMonth = currentEvent
+    ? MONTH_NAMES[Number(currentEvent.date.slice(5, 7)) - 1]
+    : null;
 
-    return () => window.clearInterval(timer);
-  }, [isPlaying, selectedYear, onYearChange]);
+  // Smooth progress through all months, for the slider fill.
+  const progress = hasEvents
+    ? (state.dateIndex / Math.max(1, state.events.length - 1)) * 100
+    : ((selectedYear - START_YEAR) / (END_YEAR - START_YEAR)) * 100;
 
   const handlePrevious = () => {
-    setIsPlaying(false);
     onYearChange(Math.max(START_YEAR, selectedYear - 1));
   };
 
   const handleNext = () => {
-    setIsPlaying(false);
     onYearChange(Math.min(END_YEAR, selectedYear + 1));
   };
 
   const handlePlayPause = () => {
-    if (selectedYear >= END_YEAR) {
-      onYearChange(START_YEAR);
-      setIsPlaying(true);
+    if (isPlaying) {
+      dispatch({ type: "PAUSE" });
       return;
     }
 
-    setIsPlaying((previous) => !previous);
+    // Start audio inside the click (browser rule), then play.
+    controller?.unlock();
+
+    if (isPaused && !isTimelineRange) {
+      // A paused one-year preview: continue as the full timeline from here.
+      dispatch({
+        type: "PLAY_RANGE",
+        payload: {
+          startIndex: state.dateIndex,
+          endIndex: state.events.length - 1,
+        },
+      });
+      return;
+    }
+
+    dispatch({ type: "PLAY" });
+  };
+
+  const handleStop = () => {
+    dispatch({ type: "STOP" });
   };
 
   const handleSliderChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setIsPlaying(false);
     onYearChange(Number(event.target.value));
   };
+
+  const statusText = isPlaying
+    ? `TIMELINE PLAYING · ${currentMonth ?? ""} ${selectedYear}`
+    : isPaused
+      ? `TIMELINE PAUSED · ${currentMonth ?? ""} ${selectedYear}`
+      : hasEvents
+        ? "TIMELINE READY"
+        : "LOADING NASA DATA…";
 
   return (
     <section className="sonic-scrubber">
@@ -66,7 +100,8 @@ function TimelineScrubber({
           <p className="scrubber-eyebrow">TEMPORAL SONIFICATION</p>
           <h2>Chronological Sonic Scrubber</h2>
           <p className="scrubber-description">
-            Travel through environmental changes across time.
+            Travel through environmental changes across time. Play the
+            timeline to hear every month from {START_YEAR} to {END_YEAR}.
           </p>
         </div>
 
@@ -92,11 +127,7 @@ function TimelineScrubber({
           onChange={handleSliderChange}
           aria-label="Select timeline year"
           style={{
-            "--slider-progress": `${
-              ((selectedYear - START_YEAR) /
-                (END_YEAR - START_YEAR)) *
-              100
-            }%`,
+            "--slider-progress": `${progress}%`,
           } as React.CSSProperties}
         />
 
@@ -110,10 +141,7 @@ function TimelineScrubber({
               className={`year-marker ${
                 selectedYear === year ? "active" : ""
               }`}
-              onClick={() => {
-                setIsPlaying(false);
-                onYearChange(year);
-              }}
+              onClick={() => onYearChange(year)}
               aria-label={`Select ${year}`}
             >
               <span className="marker-dot" />
@@ -136,8 +164,18 @@ function TimelineScrubber({
         <button
           className="play-button"
           onClick={handlePlayPause}
+          disabled={!hasEvents}
         >
-          {isPlaying ? "Ⅱ  PAUSE" : "▶  PLAY TIMELINE"}
+          {isPlaying ? "Ⅱ  PAUSE" : isPaused ? "▶  RESUME" : "▶  PLAY TIMELINE"}
+        </button>
+
+        <button
+          className="skip-button"
+          onClick={handleStop}
+          disabled={!isPlaying && !isPaused}
+          aria-label="Stop timeline"
+        >
+          ■ STOP
         </button>
 
         <button
@@ -153,9 +191,13 @@ function TimelineScrubber({
       <div className="scrubber-footer">
         <span>
           <span className="status-dot" />
-          {isPlaying ? "TIMELINE PLAYING" : "TIMELINE PAUSED"}
+          {statusText}
         </span>
-        <span>10-YEAR ENVIRONMENTAL WINDOW</span>
+        <span>
+          {state.error
+            ? `AUDIO ERROR: ${state.error}`
+            : "10-YEAR ENVIRONMENTAL WINDOW · NASA POWER T2M"}
+        </span>
       </div>
     </section>
   );
