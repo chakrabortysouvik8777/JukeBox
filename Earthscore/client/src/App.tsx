@@ -34,9 +34,6 @@ function App() {
     // Selected year for historical data and sonification
     const [selectedYear, setSelectedYear] = useState(2016);
 
-    // Generated audio URL for DAW engine
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
     // Load the NASA POWER months of the selected location into the shared
     // timeline. Keeps the selected year when the location changes.
     useEffect(() => {
@@ -142,7 +139,7 @@ function App() {
 
                 {/* DIGITAL AUDIO WORKSTATION */}
                 <DAWEngine
-                    audioUrl={audioUrl}
+                    locationName={selectedLocation.name}
                     selectedYear={selectedYear}
                 />
 

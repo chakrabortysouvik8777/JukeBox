@@ -294,3 +294,21 @@
     flex-wrap: wrap;
   }
 }
+
+/* Render buttons (added for the real WAV export) */
+
+.daw-render-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.daw-render-row .daw-download:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.daw-error {
+  color: #ff8a8a;
+}
