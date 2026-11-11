@@ -13,7 +13,7 @@ For repository use, the owner can place that existing document at `docs/Earth_In
 ## B. Tech stack
 
 | Layer | Selected technology | Responsibility | Scope |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Interface | React + TypeScript | Components, user actions, typed data contracts | Core |
 | Build tooling | Vite + npm | Development server and production bundle | Core |
 | Styling | CSS with shared design tokens | Responsive layout, contrast, visible focus | Core |
@@ -127,7 +127,7 @@ earthscore/
 ### Responsibility of each major area
 
 | Area | Owns | Must not do |
-|---|---|---|
+| --- | --- | --- |
 | `data-pipeline/` | Units, masks, geographic selection, aggregation, provenance | Put credentials into generated public files |
 | `client/src/data/` | Fetching, validating, selecting prepared records | Recompute a different scientific dataset from image colours |
 | `client/src/state/` | User choices and displayed playback position | Create independent timers for each component |
@@ -190,7 +190,7 @@ Define `typecheck` as a TypeScript no-emit check, `test` as a non-watch test run
 ### Suggested teammate split
 
 | Owner | Primary work | Integration handoff |
-|---|---|---|
+| --- | --- | --- |
 | Teammate A | Python pipeline, bundle schema, provenance, data validation | A validated bundle and small labelled fixture |
 | Teammate B | React shell, image overlay, chart, controls, accessibility | Components driven by the agreed state and record types |
 | Joint integration | Audio engine, playback controller, A/B comparison | One synchronized interaction and tested cancellation |
