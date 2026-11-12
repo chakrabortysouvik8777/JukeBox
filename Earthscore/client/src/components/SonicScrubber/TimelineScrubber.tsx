@@ -3,6 +3,9 @@ import "./TimelineScrubber.css";
 import { useAppState } from "../../state/AppProvider";
 import { rangeEndIndex } from "../../state/appReducer";
 
+// Playback speeds offered to the user (1× = one month every 0.5 s).
+const SPEEDS = [0.5, 1, 2] as const;
+
 interface TimelineScrubberProps {
   selectedYear: number;
   onYearChange: (year: number) => void;
@@ -76,7 +79,14 @@ function TimelineScrubber({
   };
 
   const handleStop = () => {
+    // Also cancels a legend preview that is still starting.
+    controller?.stopAll();
     dispatch({ type: "STOP" });
+  };
+
+  const handleSpeed = (speed: number) => {
+    // While playing, the controller reschedules from the current month.
+    dispatch({ type: "SET_SPEED", payload: { speed } });
   };
 
   const handleSliderChange = (
@@ -186,6 +196,30 @@ function TimelineScrubber({
         >
           +1 YEAR
         </button>
+      </div>
+
+      <div
+        className="scrubber-speed"
+        role="group"
+        aria-label="Playback speed"
+      >
+        <span>SPEED</span>
+        {SPEEDS.map((speed) => (
+          <button
+            key={speed}
+            type="button"
+            className={`speed-button ${
+              state.playbackSpeed === speed ? "active" : ""
+            }`}
+            onClick={() => handleSpeed(speed)}
+            aria-pressed={state.playbackSpeed === speed}
+          >
+            {speed}×
+          </button>
+        ))}
+        <small>
+          {(state.secondsPerEvent / state.playbackSpeed).toFixed(2)} s per month
+        </small>
       </div>
 
       <div className="scrubber-footer">

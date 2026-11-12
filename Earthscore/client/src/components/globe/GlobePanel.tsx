@@ -44,6 +44,10 @@ const GlobePanel = ({
     // Prevent older reverse-geocoding requests from overwriting newer selections.
     const geocodeRequestId = useRef(0);
 
+    // Latest selected location, read after slow reverse-geocoding requests.
+    const selectedRef = useRef(selectedLocation);
+    selectedRef.current = selectedLocation;
+
     const [globeWidth, setGlobeWidth] = useState(650);
     const [globeReady, setGlobeReady] = useState(false);
     const [activeTool, setActiveTool] = useState<ToolType>("point");
@@ -150,6 +154,9 @@ const GlobePanel = ({
         setGlobeReady(true);
     };
 
+    const isStillSelected = (lat: number, lng: number) =>
+        selectedRef.current.lat === lat && selectedRef.current.lng === lng;
+
     // Select a location by clicking on the globe.
     const handleGlobeClick = async (
         coords: { lat: number; lng: number }
@@ -172,8 +179,10 @@ const GlobePanel = ({
         try {
             const result = await getPlaceName(lat, lng);
 
-            // Ignore an outdated request.
+            // Ignore an outdated request, or one whose point is no longer
+            // selected (e.g. a search result arrived in the meantime).
             if (requestId !== geocodeRequestId.current) return;
+            if (!isStillSelected(lat, lng)) return;
 
             onLocationSelect({
                 name: result?.city || result?.name || "Unknown location",
@@ -188,6 +197,7 @@ const GlobePanel = ({
             console.error("Reverse geocoding failed:", error);
 
             if (requestId !== geocodeRequestId.current) return;
+            if (!isStillSelected(lat, lng)) return;
 
             onLocationSelect({
                 name: "Unknown location",
@@ -236,15 +246,15 @@ const GlobePanel = ({
                         ⌖ Point
                     </button>
 
+                    {/* Polygon selection is not implemented yet. */}
                     <button
-                        className={
-                            activeTool === "polygon"
-                                ? "tool-btn selected"
-                                : "tool-btn"
-                        }
-                        onClick={() => setActiveTool("polygon")}
+                        className="tool-btn"
+                        disabled
+                        aria-disabled="true"
+                        title="Area selection is coming later. Use Point for now."
+                        style={{ opacity: 0.45, cursor: "not-allowed" }}
                     >
-                        ⬡ Polygon
+                        ⬡ Polygon (soon)
                     </button>
 
                     <button
@@ -314,7 +324,7 @@ const GlobePanel = ({
                     {/* Location HUD */}
                     <div className="location-hud">
                         <div className="hud-top">
-                            <span>HUD RETICLE LOCK</span>
+                            <span>SELECTED POINT</span>
 
                             <span
                                 className="anomaly-badge"
@@ -348,8 +358,8 @@ const GlobePanel = ({
                             </div>
 
                             <div>
-                                <span>SELECTION</span>
-                                <strong>ACTIVE</strong>
+                                <span>DATA</span>
+                                <strong>NASA POWER T2M</strong>
                             </div>
                         </div>
                     </div>
@@ -372,7 +382,7 @@ const GlobePanel = ({
             <div className="sensor-section">
                 <div className="sensor-heading">
                     <span>
-                        ATMOSPHERIC & BIOSPHERIC SENSOR OVERLAYS
+                        DATA FEEDS IN THIS PROTOTYPE
                     </span>
 
                     <span>SONIFIED: 1 / 6 FEEDS</span>

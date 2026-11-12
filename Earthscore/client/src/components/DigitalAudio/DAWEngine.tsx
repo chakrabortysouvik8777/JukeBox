@@ -98,9 +98,10 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
     };
   }, [track?.url]);
 
-  // A file belongs to one location: clear it when the location changes.
+  // A file belongs to one location: clear it as soon as the location
+  // changes (also while the new location is still loading).
   useEffect(() => {
-    if (track && regionId !== null && track.regionId !== regionId) {
+    if (track && track.regionId !== regionId) {
       setTrack(null);
       setCurrentTime(0);
       setDuration(0);

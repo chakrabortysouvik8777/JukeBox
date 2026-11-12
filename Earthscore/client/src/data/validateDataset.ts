@@ -45,6 +45,41 @@ export function cleanTemperature(
 }
 
 /**
+ * Every calendar month from the earliest to the latest observation,
+ * sorted, with absent months added as null observations.
+ */
+export function fillMissingMonths(
+  observations: readonly TemperatureObservation[],
+  key: string,
+): TemperatureObservation[] {
+  if (observations.length === 0) return [];
+
+  const byDate = new Map(observations.map((o) => [o.date, o]));
+  const sorted = [...observations].sort((a, b) => a.date.localeCompare(b.date));
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+
+  const result: TemperatureObservation[] = [];
+  let year = first.year;
+  let month = first.month;
+
+  while (year < last.year || (year === last.year && month <= last.month)) {
+    const date = `${year}-${String(month).padStart(2, "0")}`;
+    result.push(
+      byDate.get(date) ?? { id: `${key}:${date}`, date, year, month, temperatureC: null },
+    );
+
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+  }
+
+  return result;
+}
+
+/**
  * Validate a NASA POWER monthly point response for parameter T2M
  * and turn it into a clean, sorted TemperatureSeries.
  *
@@ -111,13 +146,14 @@ export function parsePowerT2M(
     });
   }
 
-  const observations = [...byDate.values()].sort((a, b) =>
-    a.date.localeCompare(b.date),
-  );
-
-  if (observations.length === 0) {
+  if (byDate.size === 0) {
     throw new DatasetError("NASA POWER response contains no monthly values.");
   }
+
+  // Months absent from the response (not even a fill value) are inserted as
+  // missing (null), so every month between the first and last one exists.
+  // This keeps the timeline, the chart and the sound evenly spaced in time.
+  const observations = fillMissingMonths([...byDate.values()], key);
 
   const source: DataSourceInfo = {
     name: "NASA POWER",

@@ -324,3 +324,14 @@
     font-size: 12px;
     margin-top: 5px;
 }
+/* "How it works" link in the status bar */
+.mission-status a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mission-status a:hover,
+.mission-status a:focus-visible {
+  color: #ffffff;
+  outline: 1px solid #5485e6;
+}

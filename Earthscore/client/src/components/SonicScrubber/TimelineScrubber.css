@@ -249,3 +249,43 @@
     font-size: 8px;
   }
 }
+
+/* Playback speed (0.5× / 1× / 2×) */
+.scrubber-speed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: #8fa5bd;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.speed-button {
+  padding: 5px 12px;
+  border: 1px solid rgba(66, 217, 232, 0.35);
+  border-radius: 6px;
+  color: #b8c9da;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.speed-button.active {
+  color: #04121c;
+  background: #42d9e8;
+  border-color: #42d9e8;
+}
+
+.speed-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.scrubber-speed small {
+  color: #6f849b;
+  letter-spacing: 0;
+}

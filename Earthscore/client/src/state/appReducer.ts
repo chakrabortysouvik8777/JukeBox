@@ -99,9 +99,11 @@ export function appReducer(state: PlaybackState, action: PlaybackAction): Playba
         ...state,
         dateIndex: targetIdx,
         activeSlot: targetEvent ? targetEvent.slot : 'A',
-        // A seek ends a one-year range: from here the whole timeline plays on.
-        rangeStartIndex: playing ? targetIdx : state.rangeStartIndex,
-        playUntilIndex: playing ? null : state.playUntilIndex,
+        // A seek always ends a one-year range (playing, paused or stopped):
+        // from the new position the whole timeline plays on. This prevents
+        // resuming a paused year range from a month outside that year.
+        rangeStartIndex: targetIdx,
+        playUntilIndex: null,
         scheduleVersion: playing ? state.scheduleVersion + 1 : state.scheduleVersion,
       };
     }

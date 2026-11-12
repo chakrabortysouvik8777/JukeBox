@@ -153,6 +153,17 @@ export class PlaybackController {
     this.engine.stop();
   }
 
+  /**
+   * Full stop for Stop buttons: halts the timeline AND cancels a legend
+   * preview that is still waiting for audio to start.
+   * (halt() alone keeps a pending preview, because a preview click
+   * itself pauses the timeline.)
+   */
+  public stopAll(): void {
+    this.previewToken += 1;
+    this.halt();
+  }
+
   /** Apply volume and mute without touching the schedule. */
   public applyVolume(state: Pick<PlaybackState, 'volume' | 'soundEnabled'>): void {
     if (this.disposed) return;

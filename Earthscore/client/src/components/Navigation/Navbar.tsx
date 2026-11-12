@@ -4,10 +4,12 @@ import type { FormEvent } from "react";
 
 import type { Location } from "../../types/location";
 import { searchLocation } from "../../utils/searchLocation";
+import { PAGES, hashForPage, type PageId } from "../../utils/useHashPage";
 
 import "./Navbar.css";
 
 interface NavbarProps {
+    currentPage: PageId;
     selectedLocation: Location;
     muted: boolean;
     onLocationSelect: (location: Location) => void;
@@ -15,18 +17,12 @@ interface NavbarProps {
 }
 
 const Navbar = ({
+    currentPage,
     selectedLocation,
     muted,
     onLocationSelect,
     onMuteToggle,
 }: NavbarProps) => {
-
-    const navLinks = [
-        "Planetary Explorer",
-        "Earth Symphony Studio",
-        "Regional Compare",
-        "Data Sources & Methodology",
-    ];
 
     const [query, setQuery] = useState("");
     const [searchStatus, setSearchStatus] = useState("");
@@ -40,6 +36,16 @@ const Navbar = ({
             searchController.current?.abort();
         };
     }, []);
+
+    // If the location is changed elsewhere (globe, preset) while a search is
+    // still running, cancel the search so its late result cannot overwrite
+    // the newer selection.
+    useEffect(() => {
+        if (searchController.current && !searchController.current.signal.aborted) {
+            searchController.current.abort();
+            setIsSearching(false);
+        }
+    }, [selectedLocation.lat, selectedLocation.lng]);
 
     // Search for a location or coordinates.
     const handleSearch = async (
@@ -73,6 +79,9 @@ const Navbar = ({
                 setSearchStatus("No matching location found.");
                 return;
             }
+
+            // Done: this search is no longer pending.
+            searchController.current = null;
 
             // Update the selected location in App.tsx.
             onLocationSelect(location);
@@ -121,23 +130,20 @@ const Navbar = ({
                         <h2>EARTH INFORMATION JUKEBOX</h2>
                     </div>
 
-                    <div className="connection-status">
-                        <span className="status-dot"></span>
-                        ORBITAL TELEMETRY ONLINE
-                    </div>
 
                 </div>
 
                 {/* Navigation Links */}
                 <div className="nav-links">
 
-                    {navLinks.map((link, index) => (
+                    {PAGES.map((page) => (
                         <a
-                            href="#"
-                            key={link}
-                            className={index === 0 ? "active" : ""}
+                            href={hashForPage(page.id)}
+                            key={page.id}
+                            className={page.id === currentPage ? "active" : ""}
+                            aria-current={page.id === currentPage ? "page" : undefined}
                         >
-                            {link}
+                            {page.label}
                         </a>
                     ))}
 
@@ -212,38 +218,27 @@ const Navbar = ({
 
             </nav>
 
-            {/* Telemetry Status Bar */}
+            {/* Status bar: selected point and the data actually used */}
             <div className="telemetry-bar">
 
-                <div className="sensor-live">
-                    <span className="status-dot"></span>
-                    ORBITAL SENSOR ARRAY LIVE
-                </div>
-
-                <div className="telemetry-divider"></div>
-
                 <div className="target-info">
-                    TARGET: {selectedLocation.lat.toFixed(4)}°,
+                    SELECTED POINT: {selectedLocation.lat.toFixed(4)}°,
                     {" "}
                     {selectedLocation.lng.toFixed(4)}°
                     {" "}
                     ({selectedLocation.name})
                 </div>
 
+                <div className="telemetry-divider"></div>
+
                 <div className="data-sources">
-                    MODIS/TERRA · OCO-2 · GPM-IMERG
+                    SOUND: NASA POWER T2M (monthly air temperature at 2 m)
                 </div>
 
                 <div className="mission-status">
-                    <span>MISSION MODE:</span>
-
-                    <strong>
-                        DECISION TELEMETRY
-                    </strong>
-
-                    <span className="latency">
-                        LATENCY 18ms
-                    </span>
+                    <a className="latency" href={hashForPage("methodology")}>
+                        HOW IT WORKS
+                    </a>
                 </div>
 
             </div>

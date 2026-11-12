@@ -88,7 +88,7 @@ export default function TemperaturePanel({
       <div className="temperature-heading">
         <div>
           <h3>Current Weather Conditions</h3>
-          <p>Live conditions for the selected globe location</p>
+          <p>Current model estimate at this point (Open-Meteo, not NASA). The sound uses NASA POWER monthly history instead.</p>
         </div>
 
         <span>{weather.isDay ? "☀️ Day" : "🌙 Night"}</span>

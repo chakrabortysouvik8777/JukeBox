@@ -123,6 +123,7 @@ export default function YearSonifier({
   }
 
   function handleStop() {
+    controller?.stopAll();
     dispatch({ type: "STOP" });
   }
 
@@ -162,8 +163,9 @@ export default function YearSonifier({
             {location.name} · {year}
           </h2>
           <p className="ys-subtitle">
-            Each note is one month of NASA POWER T2M air temperature.
-            Higher pitch means warmer.
+            Each note is one month of NASA POWER T2M: monthly mean air
+            temperature 2 metres above the ground at this point (historical,
+            2016–2025). Higher pitch means warmer.
           </p>
         </div>
 
@@ -265,7 +267,7 @@ export default function YearSonifier({
         mapping={T2M_TEMPERATURE_MAPPING}
         currentSound={activeSound}
         onPreview={handlePreview}
-        onStopPreview={() => controller?.halt()}
+        onStopPreview={() => controller?.stopAll()}
       />
 
       <p className="ys-source">

@@ -7,6 +7,8 @@ import DiagnosticPanel from "./components/RightPanelDashboard/DiagnosticsPanel";
 import TimelineScrubber from "./components/SonicScrubber/TimelineScrubber";
 import DAWEngine from "./components/DigitalAudio/DAWEngine";
 import YearSonifier from "./components/sonification/YearSonifier";
+import RegionalComparePage from "./pages/RegionalComparePage";
+import MethodologyPage from "./pages/MethodologyPage";
 
 import type { Location } from "./types/location";
 import { useAppState } from "./state/AppProvider";
@@ -17,10 +19,14 @@ import {
     firstIndexOfYear,
     recordsFromSeries,
 } from "./playback/createPlaybackEvents";
+import { useHashPage } from "./utils/useHashPage";
 
 function App() {
     // Shared playback state (M4): one timeline for sound and visuals.
-    const { state: playback, dispatch } = useAppState();
+    const { state: playback, dispatch, controller } = useAppState();
+
+    // Current page: #/explorer (default), #/compare, #/methodology
+    const page = useHashPage();
 
     // Currently selected location
     const [selectedLocation, setSelectedLocation] =
@@ -34,17 +40,26 @@ function App() {
     // Selected year for historical data and sonification
     const [selectedYear, setSelectedYear] = useState(2016);
 
-    // Load the NASA POWER months of the selected location into the shared
-    // timeline. Keeps the selected year when the location changes.
+    // Location switch:
+    // 1. stop all sound (timeline and any pending legend preview),
+    // 2. clear the old location's events, so Play is disabled while loading,
+    // 3. load the new NASA POWER months and keep the selected year.
+    // Aborting the previous request means an older, slower response can
+    // never overwrite the newer location.
     useEffect(() => {
-        const controller = new AbortController();
+        const abort = new AbortController();
+
+        controller?.stopAll();
+        dispatch({ type: "SET_EVENTS", payload: { events: [] } });
 
         fetchTemperatureSeries(
             selectedLocation.lat,
             selectedLocation.lng,
-            controller.signal
+            abort.signal
         )
             .then((series) => {
+                if (abort.signal.aborted) return;
+
                 const events = createPlaybackEvents(
                     recordsFromSeries(series, T2M_TEMPERATURE_MAPPING)
                 );
@@ -59,10 +74,19 @@ function App() {
                 // The sonification panel shows the loading error.
             });
 
-        return () => controller.abort();
-        // selectedYear is read once per location on purpose.
+        return () => abort.abort();
+        // selectedYear is read once per location on purpose;
+        // controller is stable for the app's lifetime.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLocation.lat, selectedLocation.lng, dispatch]);
+
+    // Leaving the Explorer stops its sound.
+    useEffect(() => {
+        if (page !== "explorer") {
+            controller?.stopAll();
+            dispatch({ type: "STOP" });
+        }
+    }, [page, controller, dispatch]);
 
     // While the timeline plays, the selected year follows the sound.
     const currentEvent = playback.events[playback.dateIndex];
@@ -95,55 +119,62 @@ function App() {
         <>
             {/* NAVBAR */}
             <Navbar
+                currentPage={page}
                 selectedLocation={selectedLocation}
                 muted={isMuted}
                 onLocationSelect={setSelectedLocation}
                 onMuteToggle={handleMuteToggle}
             />
 
-            <main className="dashboard-workspace">
+            {page === "explorer" && (
+                <main className="dashboard-workspace">
 
-                {/* MAIN DASHBOARD */}
-                <div className="dashboard-layout">
+                    {/* MAIN DASHBOARD */}
+                    <div className="dashboard-layout">
 
-                    {/* LEFT PANEL - INTERACTIVE GLOBE */}
-                    <div className="left-panel">
-                        <GlobePanel
-                            selectedLocation={selectedLocation}
-                            onLocationSelect={setSelectedLocation}
-                            selectedYear={selectedYear}
-                        />
+                        {/* LEFT PANEL - INTERACTIVE GLOBE */}
+                        <div className="left-panel">
+                            <GlobePanel
+                                selectedLocation={selectedLocation}
+                                onLocationSelect={setSelectedLocation}
+                                selectedYear={selectedYear}
+                            />
+                        </div>
+
+                        {/* RIGHT PANEL - ENVIRONMENTAL DATA */}
+                        <div className="right-panel">
+                            <DiagnosticPanel
+                                selectedLocation={selectedLocation}
+                            />
+                        </div>
+
                     </div>
 
-                    {/* RIGHT PANEL - ENVIRONMENTAL DATA */}
-                    <div className="right-panel">
-                        <DiagnosticPanel
-                            selectedLocation={selectedLocation}
-                        />
-                    </div>
+                    {/* CHRONOLOGICAL SONIC SCRUBBER */}
+                    <TimelineScrubber
+                        selectedYear={selectedYear}
+                        onYearChange={handleYearChange}
+                    />
 
-                </div>
+                    {/* YEAR-WISE TEMPERATURE SONIFICATION */}
+                    <YearSonifier
+                        location={selectedLocation}
+                        year={selectedYear}
+                        onYearChange={handleYearChange}
+                    />
 
-                {/* CHRONOLOGICAL SONIC SCRUBBER */}
-                <TimelineScrubber
-                    selectedYear={selectedYear}
-                    onYearChange={handleYearChange}
-                />
+                    {/* DIGITAL AUDIO WORKSTATION */}
+                    <DAWEngine
+                        locationName={selectedLocation.name}
+                        selectedYear={selectedYear}
+                    />
 
-                {/* YEAR-WISE TEMPERATURE SONIFICATION */}
-                <YearSonifier
-                    location={selectedLocation}
-                    year={selectedYear}
-                    onYearChange={handleYearChange}
-                />
+                </main>
+            )}
 
-                {/* DIGITAL AUDIO WORKSTATION */}
-                <DAWEngine
-                    locationName={selectedLocation.name}
-                    selectedYear={selectedYear}
-                />
+            {page === "compare" && <RegionalComparePage />}
 
-            </main>
+            {page === "methodology" && <MethodologyPage />}
         </>
     );
 }

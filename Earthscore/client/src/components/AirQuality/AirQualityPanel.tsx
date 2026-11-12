@@ -6,14 +6,20 @@ interface AirQualityProps {
   longitude: number;
 }
 
+// Open-Meteo can return null (or omit a field) when a value is unavailable.
 interface AirQualityData {
-  us_aqi?: number;
-  pm2_5?: number;
-  pm10?: number;
-  carbon_monoxide?: number;
-  nitrogen_dioxide?: number;
-  sulphur_dioxide?: number;
-  ozone?: number;
+  us_aqi?: number | null;
+  pm2_5?: number | null;
+  pm10?: number | null;
+  carbon_monoxide?: number | null;
+  nitrogen_dioxide?: number | null;
+  sulphur_dioxide?: number | null;
+  ozone?: number | null;
+}
+
+/** A finite number, or null for missing/invalid values. */
+function validNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 const AirQualityPanel: React.FC<AirQualityProps> = ({
@@ -68,8 +74,8 @@ const AirQualityPanel: React.FC<AirQualityProps> = ({
     return () => controller.abort();
   }, [latitude, longitude]);
 
-  const getStatus = (aqi?: number) => {
-    if (aqi === undefined) return "Unavailable";
+  const getStatus = (aqi: number | null) => {
+    if (aqi === null) return "Unavailable";
     if (aqi <= 50) return "Good";
     if (aqi <= 100) return "Moderate";
     if (aqi <= 150) return "Unhealthy for Sensitive Groups";
@@ -78,7 +84,7 @@ const AirQualityPanel: React.FC<AirQualityProps> = ({
     return "Hazardous";
   };
 
-  const status = getStatus(data?.us_aqi);
+  const status = getStatus(validNumber(data?.us_aqi));
 
   if (loading) return <div className="air-card">Loading air quality...</div>;
 
@@ -102,15 +108,15 @@ const AirQualityPanel: React.FC<AirQualityProps> = ({
       <div className="air-header">
         <div>
           <h2>Air Quality & Pollution</h2>
-          <p>Live atmospheric conditions</p>
+          <p>Current model estimate at this point (Open-Meteo, not NASA)</p>
         </div>
-        <span className="air-indicator">● LIVE</span>
+        <span className="air-indicator">● CURRENT · MODEL</span>
       </div>
 
       <div className="aqi-section">
         <div>
           <p className="aqi-label">US Air Quality Index</p>
-          <h1>{data.us_aqi ?? "N/A"}</h1>
+          <h1>{validNumber(data.us_aqi) ?? "N/A"}</h1>
           <span className="aqi-status">{status}</span>
         </div>
       </div>
@@ -120,8 +126,8 @@ const AirQualityPanel: React.FC<AirQualityProps> = ({
           <div className="pollutant-item" key={item.label}>
             <p>{item.label}</p>
             <h3>
-              {item.value !== undefined
-                ? item.value.toFixed(1)
+              {validNumber(item.value) !== null
+                ? (item.value as number).toFixed(1)
                 : "N/A"}
             </h3>
             <small>{item.unit}</small>

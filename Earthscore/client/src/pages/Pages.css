@@ -1,0 +1,155 @@
+/* Shared styles for the Regional Compare and Methodology pages.
+   Colours follow the existing dashboard panels. */
+
+.page-workspace {
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  color: #e8f1ff;
+}
+
+.page-hero {
+  padding: 24px;
+  background: linear-gradient(145deg, #101c2c, #091421);
+  border: 1px solid rgba(91, 153, 204, 0.25);
+  border-radius: 16px;
+}
+
+.page-eyebrow {
+  margin: 0 0 8px;
+  color: #42d9e8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.page-hero h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.page-hero p {
+  margin: 10px 0 0;
+  max-width: 760px;
+  color: #a9bbd0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.page-status {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 196, 77, 0.35);
+  border-radius: 6px;
+  color: #ffd27a;
+  background: rgba(255, 196, 77, 0.08);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.page-card {
+  padding: 20px;
+  background: rgba(16, 28, 44, 0.85);
+  border: 1px solid rgba(143, 165, 189, 0.15);
+  border-radius: 12px;
+}
+
+.page-card h2 {
+  margin: 0 0 10px;
+  color: #e8f1ff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.page-card p,
+.page-card li {
+  color: #b9c8da;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.page-card p {
+  margin: 0 0 8px;
+}
+
+.page-card ul,
+.page-card ol {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.page-card code,
+.page-formula {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  color: #42d9e8;
+}
+
+.page-formula {
+  display: block;
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: rgba(4, 12, 22, 0.7);
+  border-radius: 8px;
+  white-space: pre-wrap;
+}
+
+.page-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.page-table th,
+.page-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(143, 165, 189, 0.12);
+  text-align: left;
+  vertical-align: top;
+  color: #c9d7e8;
+}
+
+.page-table th {
+  color: #8fa5bd;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.page-table-wrap {
+  overflow-x: auto;
+}
+
+.page-wide {
+  grid-column: 1 / -1;
+}
+
+.page-link {
+  color: #42d9e8;
+}
+
+.page-link:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .page-workspace {
+    padding: 12px;
+  }
+
+  .page-hero h1 {
+    font-size: 21px;
+  }
+}
