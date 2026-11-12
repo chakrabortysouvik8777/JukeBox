@@ -1,7 +1,8 @@
 # DATA_SOURCES — Earth Information Jukebox
 
 All data is fetched live in the browser from public endpoints.
-No API keys or credentials are used.
+No API keys or credentials are used. There is no backend and no Python
+pipeline (the unused `data-pipeline/` folder was removed).
 
 ## Used for sound (validated)
 
@@ -11,33 +12,37 @@ No API keys or credentials are used.
 |---|---|
 | Provider | NASA Langley Research Center, POWER project |
 | Endpoint | `https://power.larc.nasa.gov/api/temporal/monthly/point` |
-| Parameter | `T2M` — air temperature at 2 m above the surface |
+| Parameter | `T2M` — monthly mean air temperature at 2 m above the ground |
 | Community | `SB` |
 | Period requested | 2016–2025 |
 | Units | °C |
-| Missing value | `-999` (also read from `header.fill_value`) |
-| Extra key | Month `13` = annual mean (dropped by the app) |
+| Missing value | `-999` (also read from `header.fill_value`) → missing, never 0 |
+| Extra key | Month `13` = annual mean (dropped) |
+| Absent months | Inserted as missing, so timing stays even |
 | Spatial meaning | Value of POWER's gridded product at the requested point; not a station measurement |
-| Code | `client/src/services/nasaAPI.ts`, validated by `client/src/data/validateDataset.ts` |
+| Timeout | 15 s, then the saved snapshot (preset locations only) |
+| Code | `services/nasaAPI.ts`, validated by `data/validateDataset.ts` |
 
-## Shown in panels (not used for sound yet)
+## Shown in panels (not used for sound)
 
-| Panel | Source | Endpoint | Code |
+| Panel | Source | Endpoint | Checks in the app |
 |---|---|---|---|
-| Current weather | Open-Meteo forecast API (not NASA) | `https://api.open-meteo.com/v1/forecast` | `services/currentWeatherAPI.ts` |
-| Vegetation (NDVI) | NASA MODIS MOD13Q1 via ORNL DAAC web service | `https://modis.ornl.gov/rst/api/v1` | `services/vegetationAPI.ts` |
-| Greenhouse gases | NOAA GML global monthly CO₂ and CH₄ (not NASA) | `https://gml.noaa.gov/webdata/ccgg/trends/` | `services/greenhouseGasAPI.ts` |
-| Population | WorldPop API (not NASA) | `https://api.worldpop.org/v3/point` | `services/populationAPI.ts` |
+| Current weather | Open-Meteo forecast API (model, not NASA) | `api.open-meteo.com/v1/forecast` | Labelled as a current model estimate |
+| Air quality | Open-Meteo air-quality API (model, not NASA) | `air-quality-api.open-meteo.com` | Missing/invalid values shown as "N/A" |
+| Rainfall | Open-Meteo historical API, ERA5 / ERA5-Land reanalysis (not NASA) | `archive-api.open-meteo.com/v1/archive` | Years with < 95 % of days are flagged and excluded from the average and the comparison; "last 30 days" = last 30 calendar days of the data, with dates and gap count; soil moisture shown with its date; data date range shown (`data/rainfall.ts`) |
+| Vegetation (NDVI) | NASA MODIS MOD13Q1 (250 m, 16-day) via ORNL DAAC | `modis.ornl.gov/rst/api/v1` | Centre pixel computed from the reported grid (`nrows × ncols`); band length checked; NDVI kept only in −2000…10000 and with pixel reliability 0 (good) or 1 (marginal); excluded composites counted and shown |
+| Greenhouse gases | NOAA GML global monthly CO₂ and CH₄ (not NASA) | `gml.noaa.gov/webdata/ccgg/trends/` | Labelled as global averages, not values for the selected point |
+| Population | WorldPop (modelled estimate, not NASA) | `api.worldpop.org/v3/point` | Missing / negative (no-data) values rejected; density only with a valid cell area; cell size shown from the data |
 
 ## Offline backup
 
-`client/public/data/power-t2m-snapshot.json` holds saved NASA POWER T2M responses
-for the six preset locations. It is created by `npm run snapshot` (script:
-`client/scripts/makeSnapshot.mjs`) and used only when the live API fails.
+`client/public/data/power-t2m-snapshot.json` holds saved NASA POWER T2M
+responses for the six preset locations. It is created by `npm run snapshot`
+(script: `client/scripts/makeSnapshot.mjs`) and used only when the live API
+fails. The app says when saved data is shown and when it was downloaded.
 Re-run the script if the presets change. Do not edit the file by hand.
 
 ## Known limitations
 
-- Live APIs can be slow or unavailable. For temperature, the preset locations fall back to the saved snapshot; other locations and other panels show an error message instead of fake values.
-- `client/src/data/demoData.ts` contains illustrative values. They must not be presented as measurements.
-- The globe HUD badge shows how much warmer or cooler the selected year was than the average of all complete years 2016–2025 at that point (NASA POWER T2M). It is a simple comparison within this period, not an official climate anomaly (those use a 30-year baseline). Years with a missing month show "NO FULL YEAR".
+- Live APIs can be slow or unavailable. For temperature, preset locations fall back to the snapshot; other locations and other panels show an error instead of fake values.
+- The globe badge compares the selected year with the average of complete years 2016–2025 at that point. It is not an official climate anomaly (30-year baseline). Years with a missing month show "NO FULL YEAR".

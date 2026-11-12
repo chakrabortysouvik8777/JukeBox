@@ -1,61 +1,89 @@
 # VALIDATION — Earth Information Jukebox
 
 Record what was actually observed, not what is expected.
-Write PASS, FAIL or NOT TESTED in the Result column, and add a short note.
+Results marked **(sandbox)** were observed by the coding assistant in an
+automated Chromium browser with **synthetic (made-up) API responses**, except
+where "real snapshot" is noted. They check behaviour and wiring, not real
+sound quality. Rows marked **TO DO** need a person with working speakers or
+headphones.
 
 ## Test environment
 
 | Item | Value |
 |---|---|
-| Date | |
-| Tester | M3 |
-| Browser and version | |
-| Device / OS | |
-| Output (laptop speakers / headphones) | |
-| Code version (git commit) | |
-
-To find the commit: run `git log -1 --oneline` in the terminal.
+| Date | 2026-11-12 |
+| Code version | `git log -1 --oneline` after the Phase 2 commit |
+| Automated browser | Chromium (Playwright), 1366×900 and 390×844 |
+| Real-device listening | TO DO (team member, browser, device, headphones/speakers) |
 
 ## A. Automated checks (client)
 
-| Check | Command | Result | Note |
-|---|---|---|---|
-| Audio + mapping tests | `npm run test:audio` | | expected: 41 passed |
-| Type check | `npx tsc --noEmit` | | expected: no output |
-| Production build | `npm run build` | | expected: "built in ..." |
+Run from `Earthscore/client`.
 
-## B. Audio listening checks (YearSonifier panel)
+| Check | Command | Result |
+|---|---|---|
+| All unit tests | `npm test` | PASS — 148 tests in 9 files |
+| Type check | `npx tsc --noEmit` | PASS — no errors |
+| Production build | `npm run build` | PASS |
 
-Keep the timeline PAUSED while doing these checks.
+What the tests cover: temperature→pitch mapping, audio engine lifecycle and
+scheduling (mocked audio), playback state transitions, NASA POWER validation
+(fill values, month 13, missing months, units), selectors and the year
+badge, WAV rendering and encoding, location search parsing, page routing,
+rainfall completeness, MODIS NDVI grid and quality flags, WorldPop values.
+
+## B. Browser behaviour (sandbox)
+
+| # | Check | Result |
+|---|---|---|
+| B1 | PLAY TIMELINE plays months in order; year, month cards, chart dot and badge follow | PASS (sandbox) |
+| B2 | Pause / Resume / Stop; Stop returns to the start of the played range | PASS (sandbox) |
+| B3 | Speed 0.5× / 1× / 2× (2× = 4 months per second); change while playing | PASS (sandbox) |
+| B4 | Seek by year while playing continues from January of that year | PASS (sandbox) |
+| B5 | Location switch while playing: sound stops, Play disabled until new data loads | PASS (sandbox) |
+| B6 | Slow older response (Svalbard, 3 s) cannot overwrite newer choice (Tokyo) | PASS (sandbox) |
+| B7 | Navbar mute and panel volume change the output level; mute = silent | PASS (sandbox, measured signal level) |
+| B8 | Explorer audio and DAW file never play at the same time | PASS (sandbox) |
+| B9 | DAW WAV: 2.5 °C month ≈ 440 Hz, 22 °C ≈ 605 Hz, gaps and missing month silent | PASS (sandbox, measured from the file) |
+| B10 | Leaving the Explorer page stops the sound; browser Back works | PASS (sandbox) |
+| B11 | NASA POWER blocked → saved NASA data used, yellow notice shown | PASS (sandbox, real snapshot) |
+| B12 | Missing air-quality values show "N/A" without errors | PASS (sandbox) |
+| B13 | Rainfall: incomplete year flagged and excluded from average | PASS (sandbox) |
+| B14 | Vegetation: cloudy composite excluded; Retry works without reloading | PASS (sandbox) |
+| B15 | Population: ocean / no-data cell shows a clear message | PASS (sandbox) |
+| B16 | Keyboard: Space on PLAY TIMELINE starts and pauses | PASS (sandbox) |
+| B17 | Phone width 390 px: no sideways scrolling | PASS (sandbox) |
+| B18 | Browser console: no errors during the runs above | PASS (sandbox) |
+
+## C. Real-device listening checks — TO DO
+
+Use live NASA data (not the sandbox). Write PASS / FAIL and a note.
 
 | # | What to do | Expected | Result | Note |
 |---|---|---|---|---|
-| B1 | Load page, wait for months, click PLAY YEAR | 12 notes play, about 0.6 s apart | | |
-| B2 | Watch the highlighted month while listening | Highlight moves with each note, no visible lag | | |
-| B3 | Listen at the start and end of each note | No clicks or pops | | |
-| B4 | Listen at volume 50% on speakers / headphones | Comfortable, not harsh | | |
-| B5 | Click STOP in the middle of a year | Sound stops immediately, nothing plays afterwards | | |
-| B6 | Click PLAY / STOP quickly 10 times | Never two sequences at once; ends silent after final STOP | | |
-| B7 | Move volume slider during playback, then to 0 | Loudness changes smoothly; 0 is silent | | |
-| B8 | Select Kolkata, play; select Svalbard, play | Svalbard clearly lower pitch than Kolkata | | |
-| B9 | Change year or location while playing | Old sequence stops; no leftover notes | | |
-| B10 | A month showing "—" (if any) | That month is silent; timing of later months unchanged | | |
-| B11 | Sound legend: click each Listen button | 220 Hz low, 440 Hz middle, 880 Hz high | | |
-| B12 | Sound legend: Listen, then Stop preview | Preview stops immediately | | |
-| B13 | Play, then switch to another browser tab for 5 s, return | Note what happens (sound continues / stops / highlight jumps) | | |
-| B14 | Play, then reload the page | Sound stops; no error after reload | | |
-| B15 | Open browser console (F12) during B1–B14 | No red errors from audio code | | |
+| C1 | Kolkata → PLAY TIMELINE | Notes clearly audible, one per month | | |
+| C2 | Listen to note starts and ends | No clicks or pops | | |
+| C3 | Volume 50 %, headphones | Comfortable, not harsh | | |
+| C4 | Kolkata then Svalbard | Svalbard clearly lower | | |
+| C5 | Stop during playback; press Play/Stop rapidly | Silence after Stop, never two sequences | | |
+| C6 | Legend Listen buttons | Low / middle / high tones | | |
+| C7 | Play, switch browser tab 5 s, return | Write what happens | | |
+| C8 | Download a WAV and play it in a music player | Same notes as the app | | |
+| C9 | Demo device and demo browser | All of C1–C8 on the device used for judging | | |
 
-## C. Known limitations (from AUDIO_CONTRACT.md)
+## D. Known limitations
 
-- Mocked tests check commands and lifecycle, not real sound.
-- Visual highlight can lag the sound by about one screen frame (~16 ms).
-- The Chronological Sonic Scrubber still advances years with its own timer;
-  playing the timeline stops the year sonification on each year change.
-  Unified playback is M4's PlaybackController work.
+- Mocked tests check commands and lifecycle, not perceived sound.
+- Visuals can lag the sound by about one screen frame (~16 ms).
+- Hidden browser tabs may slow visual updates; audio keeps its schedule.
+- Regional Compare is not built yet (page shows "in development").
 
-## D. Issues found
+## E. Issues found and fixed
 
-| # | Check | What happened | Fixed in commit |
-|---|---|---|---|
-| | | | |
+| Issue | Fix |
+|---|---|
+| Seeking to a new year while playing left old notes scheduled | Controller clears notes before rescheduling |
+| Navbar search button covered the mute button at 1366 px | Search input may shrink (`min-width: 0`) |
+| Missing population (`null`) was read as 0 people | `parsePopulation` rejects null / empty values |
+| Resuming a paused one-year range after choosing another year | Any seek ends the one-year range |
+| Stop did not cancel a legend preview that was still starting | `stopAll()` cancels pending previews |

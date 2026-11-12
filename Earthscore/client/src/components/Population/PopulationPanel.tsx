@@ -20,6 +20,7 @@ export default function PopulationPanel({
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
 
     async function loadPopulation() {
       try {
@@ -29,7 +30,8 @@ export default function PopulationPanel({
 
         const result = await fetchPopulation(
           selectedLocation.lat,
-          selectedLocation.lng
+          selectedLocation.lng,
+          controller.signal
         );
 
         if (active) setData(result);
@@ -50,6 +52,7 @@ export default function PopulationPanel({
 
     return () => {
       active = false;
+      controller.abort();
     };
   }, [selectedLocation.lat, selectedLocation.lng]);
 
@@ -72,9 +75,11 @@ export default function PopulationPanel({
 
         <div className="population-card">
           <span>Estimated population density</span>
-          <h2>{data.density_per_km2.toLocaleString("en-IN", {
-            maximumFractionDigits: 0,
-          })}</h2>
+          <h2>{Number.isFinite(data.density_per_km2)
+            ? data.density_per_km2.toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+              })
+            : "N/A"}</h2>
           <small>People / km²</small>
         </div>
       </div>
@@ -82,9 +87,14 @@ export default function PopulationPanel({
       <div className="population-details">
         <p><strong>Country:</strong> {data.country}</p>
         <p><strong>Administrative area:</strong> {data.unit}</p>
-        <p><strong>Dataset year:</strong> {data.data_year}</p>
-        <p><strong>Resolution:</strong> Approximately 100 m</p>
-        <p><strong>Source:</strong> WorldPop Global2</p>
+        <p><strong>Dataset year:</strong> {Number.isFinite(data.data_year) ? data.data_year : "N/A"}</p>
+        <p>
+          <strong>Grid cell area:</strong>{" "}
+          {Number.isFinite(data.cell_area_km2)
+            ? `${data.cell_area_km2.toFixed(4)} km² (≈ ${Math.round(Math.sqrt(data.cell_area_km2) * 1000)} m × ${Math.round(Math.sqrt(data.cell_area_km2) * 1000)} m)`
+            : "N/A"}
+        </p>
+        <p><strong>Source:</strong> WorldPop (modelled estimate, not a census count; not NASA)</p>
       </div>
     </div>
   );

@@ -29,6 +29,8 @@ export default function VegetationPanel({
   const [data, setData] = useState<VegetationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Increase to fetch again (Retry) without reloading the whole app.
+  const [attempt, setAttempt] = useState(0);
 
 
 useEffect(() => {
@@ -87,7 +89,7 @@ useEffect(() => {
     controller.abort();
   };
 
-}, [selectedLocation.lat, selectedLocation.lng]);
+}, [selectedLocation.lat, selectedLocation.lng, attempt]);
 
 
   if (loading) {
@@ -105,7 +107,7 @@ if (error) {
     <div className="vegetation-error">
       <p>{error}</p>
 
-      <button onClick={() => window.location.reload()}>
+      <button type="button" onClick={() => setAttempt((n) => n + 1)}>
         Retry
       </button>
     </div>
@@ -180,8 +182,15 @@ if (error) {
         <p><strong>Longitude:</strong> {selectedLocation.lng}</p>
         <p><strong>Latest observation:</strong> {data.latestDate}</p>
         <p><strong>Dataset:</strong> MODIS MOD13Q1.061</p>
-        <p><strong>Resolution:</strong> 250 metres</p>
+        <p><strong>Resolution:</strong> 250 metres (centre pixel of a {data.gridSize} subset)</p>
         <p><strong>Observation interval:</strong> 16 days</p>
+        <p>
+          <strong>Quality:</strong> {data.observations.length} of{" "}
+          {data.requestedCount} latest composites usable
+          {data.excludedCount > 0
+            ? ` (${data.excludedCount} excluded: cloud, snow/ice or no data)`
+            : ""}
+        </p>
       </div>
 
       <p className="vegetation-disclaimer">

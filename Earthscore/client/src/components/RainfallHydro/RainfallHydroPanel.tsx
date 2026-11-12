@@ -8,9 +8,14 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Cell,
 } from "recharts";
 
 import "./RainfallHydroPanel.css";
+import {
+  summarizeRainfall,
+  type RainfallSummary,
+} from "../../data/rainfall";
 
 interface RainfallHydroProps {
   latitude: number;
@@ -21,11 +26,6 @@ interface DailyData {
   time: string[];
   precipitation_sum: (number | null)[];
   soil_moisture_0_to_7cm_mean?: (number | null)[];
-}
-
-interface AnnualRainfall {
-  year: string;
-  rainfall: number;
 }
 
 interface RainfallAPIResponse {
@@ -40,9 +40,7 @@ const RainfallHydroPanel = ({
   latitude,
   longitude,
 }: RainfallHydroProps) => {
-  const [annualData, setAnnualData] = useState<AnnualRainfall[]>([]);
-  const [last30Days, setLast30Days] = useState<number | null>(null);
-  const [soilMoisture, setSoilMoisture] = useState<number | null>(null);
+  const [summary, setSummary] = useState<RainfallSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -52,6 +50,7 @@ const RainfallHydroPanel = ({
     const fetchRainfall = async () => {
       setLoading(true);
       setError("");
+      setSummary(null);
 
       try {
         const url =
@@ -79,62 +78,20 @@ const RainfallHydroPanel = ({
 
         const { time, precipitation_sum } = result.daily;
 
-        // Calculate annual rainfall
-        const yearlyTotals: Record<string, number> = {};
+        if (time.length !== precipitation_sum.length) {
+          throw new Error("Rainfall data is inconsistent (dates and values differ).");
+        }
 
-        time.forEach((date, index) => {
-          const year = date.substring(0, 4);
-          const rainfall = precipitation_sum[index];
+        if (controller.signal.aborted) return;
 
-          if (rainfall !== null && rainfall !== undefined) {
-            yearlyTotals[year] =
-              (yearlyTotals[year] || 0) + rainfall;
-          }
-        });
-
-        const yearlyChartData = Object.entries(yearlyTotals)
-          .map(([year, rainfall]) => ({
-            year,
-            rainfall: Number(rainfall.toFixed(1)),
-          }))
-          .sort((a, b) => a.year.localeCompare(b.year));
-
-        setAnnualData(yearlyChartData);
-
-        // Calculate latest available 30-day rainfall
-        const validReadings = time
-          .map((date, index) => ({
-            date,
-            rainfall: precipitation_sum[index],
-          }))
-          .filter(
-            (item) =>
-              item.rainfall !== null &&
-              item.rainfall !== undefined
-          );
-
-        const recentReadings = validReadings.slice(-30);
-
-        const recentTotal = recentReadings.reduce(
-          (sum, item) => sum + (item.rainfall ?? 0),
-          0
+        // Completeness checks, averages and the 30-day total (see data/rainfall.ts).
+        setSummary(
+          summarizeRainfall(
+            time,
+            precipitation_sum,
+            result.daily.soil_moisture_0_to_7cm_mean ?? [],
+          ),
         );
-
-        setLast30Days(
-          recentReadings.length > 0 ? recentTotal : null
-        );
-
-        // Latest available surface soil moisture
-        const moistureReadings =
-          result.daily.soil_moisture_0_to_7cm_mean ?? [];
-
-        const latestMoisture = [...moistureReadings]
-          .reverse()
-          .find(
-            (value) => value !== null && value !== undefined
-          );
-
-        setSoilMoisture(latestMoisture ?? null);
 
       } catch (err) {
         if (
@@ -155,22 +112,17 @@ const RainfallHydroPanel = ({
     return () => controller.abort();
   }, [latitude, longitude]);
 
-  const averageRainfall =
-    annualData.length > 0
-      ? annualData.reduce((sum, item) => sum + item.rainfall, 0) /
-        annualData.length
-      : null;
+  const averageRainfall = summary?.averageRainfall ?? null;
+  const incompleteYears = summary?.years.filter((y) => !y.complete) ?? [];
 
-  const latestYear = annualData[annualData.length - 1];
-
-  const rainfallDifference =
-    averageRainfall !== null &&
-    averageRainfall > 0 &&
-    latestYear
-      ? ((latestYear.rainfall - averageRainfall) /
-          averageRainfall) *
-        100
-      : null;
+  const formatDate = (date: string | null) =>
+    date
+      ? new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : "";
 
   return (
     <section className="rainfall-panel">
@@ -195,7 +147,7 @@ const RainfallHydroPanel = ({
         </p>
       )}
 
-      {!loading && !error && (
+      {!loading && !error && summary && (
         <>
           <div className="rainfall-metrics">
 
@@ -206,37 +158,52 @@ const RainfallHydroPanel = ({
                   ? `${averageRainfall.toFixed(1)} mm`
                   : "N/A"}
               </h3>
-              <small>Annual precipitation</small>
+              <small>
+                Annual precipitation, {summary.completeYearCount} complete
+                {summary.completeYearCount === 1 ? " year" : " years"}
+              </small>
             </div>
 
             <div className="rainfall-metric">
-              <span>LAST 30 DAYS</span>
+              <span>LAST 30 DAYS OF DATA</span>
               <h3>
-                {last30Days !== null
-                  ? `${last30Days.toFixed(1)} mm`
+                {summary.last30Total !== null
+                  ? `${summary.last30Total.toFixed(1)} mm`
                   : "N/A"}
               </h3>
-              <small>Latest available 30-day period</small>
+              <small>
+                {formatDate(summary.last30From)} – {formatDate(summary.last30To)}
+                {summary.last30ValidDays < 30
+                  ? ` (${summary.last30ValidDays} of 30 days have data)`
+                  : ""}
+              </small>
             </div>
 
             <div className="rainfall-metric">
               <span>SURFACE SOIL MOISTURE</span>
               <h3>
-                {soilMoisture !== null
-                  ? `${soilMoisture.toFixed(3)} m³/m³`
+                {summary.soilMoisture !== null
+                  ? `${summary.soilMoisture.toFixed(3)} m³/m³`
                   : "N/A"}
               </h3>
-              <small>Top 7 cm of soil</small>
+              <small>
+                Top 7 cm of soil
+                {summary.soilMoistureDate
+                  ? `, ${formatDate(summary.soilMoistureDate)}`
+                  : ""}
+              </small>
             </div>
 
             <div className="rainfall-metric">
-              <span>RAINFALL ANOMALY</span>
+              <span>
+                {summary.anomalyYear ?? "LATEST YEAR"} VS AVERAGE
+              </span>
               <h3>
-                {rainfallDifference !== null
-                  ? `${rainfallDifference > 0 ? "+" : ""}${rainfallDifference.toFixed(1)}%`
+                {summary.anomalyPercent !== null
+                  ? `${summary.anomalyPercent > 0 ? "+" : ""}${summary.anomalyPercent.toFixed(1)}%`
                   : "N/A"}
               </h3>
-              <small>Latest year vs 10-year average</small>
+              <small>Latest complete year vs average of complete years</small>
             </div>
 
           </div>
@@ -248,12 +215,12 @@ const RainfallHydroPanel = ({
               <span>2016 – 2025</span>
             </div>
 
-            {annualData.length > 0 ? (
+            {summary.years.length > 0 ? (
               <div className="rainfall-chart">
 
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={annualData}
+                    data={summary.years}
                     margin={{
                       top: 10,
                       right: 10,
@@ -278,8 +245,12 @@ const RainfallHydroPanel = ({
                     />
 
                     <Tooltip
-                      formatter={(value) => [
-                        `${Number(value).toFixed(1)} mm`,
+                      formatter={(value, _name, item) => [
+                        `${Number(value).toFixed(1)} mm${
+                          item?.payload && !item.payload.complete
+                            ? ` (incomplete: ${item.payload.validDays}/${item.payload.expectedDays} days)`
+                            : ""
+                        }`,
                         "Rainfall",
                       ]}
                       contentStyle={{
@@ -294,7 +265,16 @@ const RainfallHydroPanel = ({
                       fill="#65b9d8"
                       radius={[5, 5, 0, 0]}
                       name="Annual Rainfall"
-                    />
+                    >
+                      {/* Incomplete years are drawn faded. */}
+                      {summary.years.map((year) => (
+                        <Cell
+                          key={year.year}
+                          fill="#65b9d8"
+                          fillOpacity={year.complete ? 1 : 0.35}
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
 
@@ -305,9 +285,18 @@ const RainfallHydroPanel = ({
 
           </div>
 
+          {incompleteYears.length > 0 && (
+            <p className="rainfall-message">
+              Incomplete {incompleteYears.length === 1 ? "year" : "years"} (fewer
+              than 95% of days with data), not used in the average or the
+              comparison: {incompleteYears.map((y) => `${y.year} (${y.validDays}/${y.expectedDays} days)`).join(", ")}.
+            </p>
+          )}
+
           <p className="rainfall-source">
-            Source: Open-Meteo Historical Weather API ·
-            ERA5 / ERA5-Land reanalysis
+            Source: Open-Meteo Historical Weather API · ERA5 / ERA5-Land
+            reanalysis (model data, not NASA) · data from{" "}
+            {formatDate(summary.firstDate)} to {formatDate(summary.lastDate)}
           </p>
         </>
       )}

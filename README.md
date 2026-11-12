@@ -1,172 +1,118 @@
 
 # 🌍 EarthScore
 
-**Earth Information Jukebox prototype | Team SARTHAK 🚀**
+**Earth Information Jukebox prototype | Team SARTHAK 🚀 | NASA Space Apps Challenge 2026**
 
 ## Overview
 
-EarthScore is an interactive Earth observation dashboard that blends geospatial exploration, environmental data analysis, and audio-driven storytelling. The project uses a 3D globe, climate and environmental metrics, and a sonification layer to help users explore how Earth systems vary across regions and years.
-
-This repository contains the working prototype for a NASA-inspired Earth data experience with:
-
-- location-aware environmental insights
-- year-by-year temporal exploration
-- globe-based visualization
-- temperature and climate data mapping
-- audio synthesis based on observed values
-- diagnostic panels for environmental metrics
+EarthScore lets you **hear** how air temperature changes over the year and
+across the decade at any point on Earth. It turns NASA POWER monthly air
+temperature (2016–2025) into sound — one note per month, higher pitch =
+warmer — while a globe, a timeline and a chart show the same values.
 
 ## What the app does
 
-- Explore a selected location on a 3D globe
-- Compare environmental conditions across years
-- View temperature, rainfall, vegetation, population, greenhouse-gas, and air-quality signals
-- Use a timeline scrubber and playback controls to traverse the dataset
-- Translate variations in data into musical patterns through a sonification engine
-- Present a unified dashboard combining visual and auditory interpretation
+Three pages (links in the top bar):
+
+1. **Planetary Explorer**
+   - Pick a point on the globe, a preset (Kolkata, Svalbard, Amazon, Tokyo,
+     Sahara, Tuvalu) or a search result.
+   - **PLAY TIMELINE** plays every month from the selected year to 2025;
+     **PLAY YEAR** plays one year. Pause, resume, stop, seek by year or by
+     clicking the chart, speed 0.5× / 1× / 2×, volume and mute.
+   - The timeline, month cards, chart dot and globe badge follow the sound.
+   - **DAW Engine** renders the same notes to a WAV file you can scrub and
+     download.
+   - Side panels: current weather, air quality, rainfall, vegetation (NDVI),
+     greenhouse gases and population, each labelled with its real source.
+2. **Regional Compare** — in development (two locations, A → B sound).
+3. **Data Sources & Methodology** — the data, the checks, the pitch formula
+   and what the prototype does not claim.
 
 ## Project structure
 
 ```text
 JukeBox/
 ├── README.md
-├── docs/
-│   ├── AUDIO_CONTRACT.md
-│   ├── DATA_CONTRACT.md
-│   ├── DATA_SOURCES.md
-│   ├── Earth_Information_Jukebox_Complete_Guide.md
-│   ├── UI_HANDOFF.md
-│   └── VALIDATION.md
-├── Research_Document/
-│   ├── 36-4-smith.pdf
-│   ├── fcomm-05-00046.pdf
-│   ├── fpsyg-13-1020102.pdf
-│   ├── gc-3-263-2020.pdf
-│   ├── file.pdf
-│   └── Research Papers.txt
-├── Earthscore/
-│   ├── .env.example
-│   ├── .gitignore
-│   ├── Architechture.md
-│   ├── CLAUDE.md
-│   ├── LICENSE
-│   ├── PROGRESS.md
-│   ├── TEAM_ROLES.md
-│   ├── package-lock.json
-│   ├── client/
-│   │   ├── index.html
-│   │   ├── package.json
-│   │   ├── package-lock.json
-│   │   ├── tsconfig.json
-│   │   ├── vite.config.mts
-│   │   ├── public/
-│   │   ├── scripts/
-│   │   └── src/
-│   │       ├── App.css
-│   │       ├── App.tsx
-│   │       ├── audio/
-│   │       ├── components/
-│   │       ├── config/
-│   │       ├── data/
-│   │       ├── index.css
-│   │       ├── main.tsx
-│   │       ├── playback/
-│   │       ├── services/
-│   │       ├── state/
-│   │       ├── tests/
-│   │       ├── types/
-│   │       ├── utils/
-│   │       └── vite-env.d.ts
-│   └── data-pipeline/
-│       ├── config/
-│       │   ├── pipeline.json
-│       │   └── regions.json
-│       ├── tests/
-│       │   ├── test_bundle_alignment.py
-│       │   ├── test_regional_mean.py
-│       │   └── test_units_and_masks.py
-│       ├── download.py
-│       ├── export_bundle.py
-│       ├── prepare_frames.py
-│       ├── preprocess.py
-│       ├── requirements.txt
-│       └── validate.py
-└── package-lock.json
+├── docs/                      AUDIO_CONTRACT, DATA_CONTRACT, DATA_SOURCES, VALIDATION, guide
+├── Research_Document/         sonification research papers
+└── Earthscore/
+    ├── PROGRESS.md            what works, what is next
+    ├── TEAM_ROLES.md, Architechture.md, CLAUDE.md
+    └── client/                the React app
+        ├── public/data/       saved NASA POWER data (offline backup)
+        ├── public/textures/   globe images
+        ├── scripts/           makeSnapshot.mjs (refresh the backup)
+        └── src/
+            ├── audio/         pitch mapping, AudioEngine, WAV rendering
+            ├── playback/      PlaybackController (audio-clock scheduling)
+            ├── state/         shared playback state (reducer + provider)
+            ├── data/          validation, selectors, rainfall summary
+            ├── services/      API calls (NASA POWER, MODIS, WorldPop, …)
+            ├── components/    globe, panels, timeline, sonification, DAW
+            ├── pages/         Regional Compare, Methodology
+            └── tests/         Vitest unit tests
 ```
 
 ## Tech stack
 
 - Frontend: React + TypeScript + Vite
-- 3D globe: react-globe.gl, three.js, @react-three/fiber
-- Data visualization: Recharts
-- Audio: Tone.js with Web Audio synthesis
-- State management: React state and reducer patterns
-- Data preparation: Python pipeline for NASA and environmental datasets
+- 3D globe: react-globe.gl, three.js
+- Charts: Recharts
+- Audio: Tone.js / Web Audio, notes scheduled on the audio clock; WAV export with OfflineAudioContext
+- State: React reducer + context (one shared playback timeline)
+- Data: fetched live from public APIs in the browser and validated; no backend, no API keys
+
+## Data
+
+| Used for | Source |
+|---|---|
+| Sound, chart, badge | NASA POWER T2M — monthly mean air temperature at 2 m (2016–2025) |
+| Vegetation panel | NASA MODIS MOD13Q1 NDVI (250 m, 16-day) via ORNL DAAC |
+| Weather, air quality, rainfall | Open-Meteo (model / reanalysis data, not NASA) |
+| Greenhouse gases | NOAA GML global monthly averages (not NASA) |
+| Population | WorldPop modelled estimates (not NASA) |
+
+Details and all checks: `docs/DATA_SOURCES.md`.
 
 ## Getting started
 
-### 1) Install frontend dependencies
-
 ```bash
 cd Earthscore/client
-npm install
+npm ci          # install exact dependency versions
+npm run dev     # http://localhost:5173
 ```
 
-### 2) Run the app locally
+Checks:
 
 ```bash
-npm run dev
+npm test               # all unit tests
+npx tsc --noEmit       # type check
+npm run build          # production build
+npm run snapshot       # refresh the saved NASA data for the presets (needs internet)
 ```
 
-The app will be available in the local Vite dev server (typically at http://localhost:5173).
-
-### 3) Build for production
-
-```bash
-npm run build
-```
-
-### 4) Run validation checks
-
-```bash
-npm run typecheck
-npm run test:mapping
-npm run test:audio
-npm run test:data
-```
-
-## Data pipeline
-
-The project includes a Python data-preparation workflow for sourcing, processing, and validating environmental datasets before they are surfaced in the browser app. This is managed under the `data-pipeline/` folder.
-
-Typical workflow:
-
-```bash
-cd Earthscore
-python -m venv .venv
-# activate environment
-pip install -r data-pipeline/requirements.txt
-python data-pipeline/download.py --config data-pipeline/config/pipeline.json
-python data-pipeline/preprocess.py --config data-pipeline/config/pipeline.json
-python data-pipeline/prepare_frames.py --config data-pipeline/config/pipeline.json
-python data-pipeline/export_bundle.py --config data-pipeline/config/pipeline.json
-python data-pipeline/validate.py --bundle client/public/data
-```
+Results are recorded in `docs/VALIDATION.md`.
 
 ## Team
 
 **Team Name:** SARTHAK
 
+| Role | Member | Area |
+|---|---|---|
+| M1 | Sweta | UI, navigation, globe, design |
+| M2 | Roumik → handled by Souvik | Data validation and data documentation |
+| M3 | Souvik | Sonification, audio engine, data layer |
+| M4 | Sannoy | Shared state and playback controller |
+
 ## Current status
 
-The project is in an active prototype and iteration phase. Core UI, globe interactions, data-driven panels, and sonification flows are being refined and validated as the application evolves.
+Planetary Explorer is working and tested (see `Earthscore/PROGRESS.md` and
+`docs/VALIDATION.md`). Real-device listening checks and the Regional Compare
+page are next.
 
 ## Notes
 
-- The repository contains both app code and scientific/data-prep assets.
-- Documentation and implementation details are maintained in the `docs/` and `Architechture.md` files.
-- Work is intended to support an Earth observatory experience that makes environmental trends more intuitive through sound and interaction.
-
-## Future direction
-
-Planned evolution includes deeper climate-analysis workflows, richer environmental datasets, more robust validation, and higher-fidelity sonification mappings that align closely with the intended NASA Earth Information Jukebox experience.
+- Every value shown comes from a named source; nothing is invented.
+- Missing data is shown as missing (and is silent in the sound), never as 0.
+- This is a prototype: it does not detect heatwaves or prove climate trends.
