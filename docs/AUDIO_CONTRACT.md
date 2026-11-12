@@ -126,7 +126,12 @@ Returns the same mapping result as playTemperature().
 null schedules no tone (a silent gap) but still returns a result,
 so the controller keeps its timeline position.
 
-### scheduleFrequency(frequencyHz, startTime, durationSeconds)
+### scheduleFrequency(frequencyHz, startTime, durationSeconds, pan?)
+
+`pan` is the stereo position, −1 (left) … 0 (centre, default) … 1 (right).
+Regional Compare uses −0.6 for location A and +0.6 for location B; the
+Explorer and the sound legend play centred. Pitch never depends on pan.
+
 
 Schedules one note at an absolute audio-clock time.
 

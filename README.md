@@ -25,7 +25,11 @@ Three pages (links in the top bar):
      download.
    - Side panels: current weather, air quality, rainfall, vegetation (NDVI),
      greenhouse gases and population, each labelled with its real source.
-2. **Regional Compare** — in development (two locations, A → B sound).
+2. **Regional Compare** — two locations side by side: one chart with both
+   temperature lines on the same scale, the selected month's values and
+   their difference (A − B), and alternating A → B sound with the same
+   pitch mapping (A in the left ear, B in the right). Play, pause, stop,
+   month seek, speed, volume, matchup presets and search.
 3. **Data Sources & Methodology** — the data, the checks, the pitch formula
    and what the prototype does not claim.
 
@@ -47,7 +51,7 @@ JukeBox/
             ├── audio/         pitch mapping, AudioEngine, WAV rendering
             ├── playback/      PlaybackController (audio-clock scheduling)
             ├── state/         shared playback state (reducer + provider)
-            ├── data/          validation, selectors, rainfall summary
+            ├── data/          validation, selectors, rainfall summary, A/B alignment
             ├── services/      API calls (NASA POWER, MODIS, WorldPop, …)
             ├── components/    globe, panels, timeline, sonification, DAW
             ├── pages/         Regional Compare, Methodology
@@ -107,9 +111,9 @@ Results are recorded in `docs/VALIDATION.md`.
 
 ## Current status
 
-Planetary Explorer is working and tested (see `Earthscore/PROGRESS.md` and
-`docs/VALIDATION.md`). Real-device listening checks and the Regional Compare
-page are next.
+Planetary Explorer and Regional Compare are working and tested (see
+`Earthscore/PROGRESS.md` and `docs/VALIDATION.md`). Real-device listening
+checks on the demo device are next.
 
 ## Notes
 

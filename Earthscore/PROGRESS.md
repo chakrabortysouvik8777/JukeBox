@@ -1,6 +1,6 @@
 # PROGRESS — Earth Information Jukebox
 
-Last updated: 12 November 2026. See `docs/VALIDATION.md` for evidence.
+Last updated: 12 November 2026 (Regional Compare added). See `docs/VALIDATION.md` for evidence.
 
 ## Working (verified with automated tests and sandbox browser runs)
 
@@ -18,8 +18,18 @@ Last updated: 12 November 2026. See `docs/VALIDATION.md` for evidence.
   heard, pitch bars, download; never plays together with the timeline.
 - Other panels with validation: rainfall completeness, MODIS NDVI quality
   and grid, WorldPop values, safe air-quality display; honest source labels.
-- Pages: Planetary Explorer, Regional Compare (placeholder), Data Sources &
-  Methodology.
+- Pages: Planetary Explorer, Regional Compare, Data Sources & Methodology.
+  Any page change stops the sound.
+
+**Regional Compare**
+- Location A and B: presets, search, quick matchups; loading, error and
+  saved-data notices for each.
+- Both series aligned by calendar month (missing months kept as missing).
+- One chart, shared date and °C scales; selected month's A, B and A − B.
+- Alternating A → B sound with the same mapping; A left, B right (stereo).
+- Active location and month highlighted with the sound.
+- Play, pause, resume, stop, month seek (slider, buttons, chart click),
+  speed, volume, mute; changing a location stops sound and cancels requests.
 
 ## Not yet verified
 
@@ -27,9 +37,9 @@ Last updated: 12 November 2026. See `docs/VALIDATION.md` for evidence.
 
 ## Next
 
-- Regional Compare: two locations, shared chart, A − B difference,
-  alternating A → B sound, full controls (mentor's list, items 1–16).
-- Final check of both pages together, then deploy.
+- Real-device listening checks for both pages (docs/VALIDATION.md, C).
+- Optional: comparison audio export (stereo WAV).
+- Deploy as a static site and check on the demo device.
 
 ## Team
 

@@ -19,6 +19,9 @@ const TIME_EPSILON = 1e-6;
 export class AudioEngine implements ScheduledAudioEngine {
   private oscillator: Tone.Oscillator | null = null;
   private envelope: Tone.Gain | null = null;
+  // Stereo position of each note: −1 = left, 0 = centre, 1 = right.
+  // Regional Compare plays location A on the left and B on the right.
+  private panner: Tone.Panner | null = null;
   private output: Tone.Gain | null = null;
 
   private volume = DEFAULT_VOLUME;
@@ -69,8 +72,10 @@ export class AudioEngine implements ScheduledAudioEngine {
 
     this.output = new Tone.Gain(this.volume).toDestination();
 
+    this.panner = new Tone.Panner(0).connect(this.output);
+
     // Start silent.
-    this.envelope = new Tone.Gain(0).connect(this.output);
+    this.envelope = new Tone.Gain(0).connect(this.panner);
 
     this.oscillator = new Tone.Oscillator({
       type: "sine",
@@ -148,6 +153,10 @@ export class AudioEngine implements ScheduledAudioEngine {
     oscillator.frequency.cancelAndHoldAtTime(now);
     envelope.gain.cancelAndHoldAtTime(now);
 
+    // Immediate notes (e.g. the sound legend) are always centred.
+    this.panner?.pan.cancelAndHoldAtTime(now);
+    this.panner?.pan.setValueAtTime(0, now);
+
     // A short pitch transition reduces abrupt changes between notes.
     oscillator.frequency.linearRampToValueAtTime(
       frequencyHz,
@@ -204,6 +213,7 @@ export class AudioEngine implements ScheduledAudioEngine {
     frequencyHz: number | null,
     startTime: number,
     durationSeconds: number,
+    pan = 0,
   ): void {
     this.assertNotDisposed();
 
@@ -234,7 +244,14 @@ export class AudioEngine implements ScheduledAudioEngine {
 
     this.validateFrequency(frequencyHz);
 
+    if (!Number.isFinite(pan) || pan < -1 || pan > 1) {
+      throw new Error("Pan must be between -1 (left) and 1 (right).");
+    }
+
     const end = startTime + durationSeconds;
+
+    // Stereo position changes at the note start, while the envelope is 0.
+    this.panner?.pan.setValueAtTime(pan, startTime);
 
     // The previous note has faded to zero by startTime,
     // so the pitch can change instantly without an audible jump.
@@ -295,6 +312,7 @@ export class AudioEngine implements ScheduledAudioEngine {
     // cancelAndHoldAtTime removes every automation event after `now`,
     // which includes all future scheduled notes.
     this.oscillator?.frequency.cancelAndHoldAtTime(now);
+    this.panner?.pan.cancelAndHoldAtTime(now);
 
     this.envelope.gain.cancelAndHoldAtTime(now);
     this.envelope.gain.linearRampToValueAtTime(
@@ -319,10 +337,12 @@ export class AudioEngine implements ScheduledAudioEngine {
 
     this.oscillator?.dispose();
     this.envelope?.dispose();
+    this.panner?.dispose();
     this.output?.dispose();
 
     this.oscillator = null;
     this.envelope = null;
+    this.panner = null;
     this.output = null;
   }
 

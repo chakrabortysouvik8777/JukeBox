@@ -46,7 +46,11 @@ function App() {
     // 3. load the new NASA POWER months and keep the selected year.
     // Aborting the previous request means an older, slower response can
     // never overwrite the newer location.
+    // Runs again when returning to the Explorer from another page, because
+    // Regional Compare puts its own A/B events into the shared timeline.
     useEffect(() => {
+        if (page !== "explorer") return;
+
         const abort = new AbortController();
 
         controller?.stopAll();
@@ -78,14 +82,13 @@ function App() {
         // selectedYear is read once per location on purpose;
         // controller is stable for the app's lifetime.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedLocation.lat, selectedLocation.lng, dispatch]);
+    }, [selectedLocation.lat, selectedLocation.lng, dispatch, page]);
 
-    // Leaving the Explorer stops its sound.
+    // Any page change stops the sound, so Explorer and Compare audio can
+    // never play at the same time.
     useEffect(() => {
-        if (page !== "explorer") {
-            controller?.stopAll();
-            dispatch({ type: "STOP" });
-        }
+        controller?.stopAll();
+        dispatch({ type: "STOP" });
     }, [page, controller, dispatch]);
 
     // While the timeline plays, the selected year follows the sound.
@@ -93,6 +96,7 @@ function App() {
     const playbackYear = currentEvent ? Number(currentEvent.date.slice(0, 4)) : null;
 
     useEffect(() => {
+        if (page !== "explorer") return;
         if (playbackYear !== null && playbackYear !== selectedYear) {
             setSelectedYear(playbackYear);
         }

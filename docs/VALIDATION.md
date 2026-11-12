@@ -22,7 +22,7 @@ Run from `Earthscore/client`.
 
 | Check | Command | Result |
 |---|---|---|
-| All unit tests | `npm test` | PASS — 148 tests in 9 files |
+| All unit tests | `npm test` | PASS — 162 tests in 10 files |
 | Type check | `npx tsc --noEmit` | PASS — no errors |
 | Production build | `npm run build` | PASS |
 
@@ -30,7 +30,8 @@ What the tests cover: temperature→pitch mapping, audio engine lifecycle and
 scheduling (mocked audio), playback state transitions, NASA POWER validation
 (fill values, month 13, missing months, units), selectors and the year
 badge, WAV rendering and encoding, location search parsing, page routing,
-rainfall completeness, MODIS NDVI grid and quality flags, WorldPop values.
+rainfall completeness, MODIS NDVI grid and quality flags, WorldPop values,
+Regional Compare alignment, A/B events, stereo position and seeking.
 
 ## B. Browser behaviour (sandbox)
 
@@ -55,6 +56,21 @@ rainfall completeness, MODIS NDVI grid and quality flags, WorldPop values.
 | B17 | Phone width 390 px: no sideways scrolling | PASS (sandbox) |
 | B18 | Browser console: no errors during the runs above | PASS (sandbox) |
 
+### Regional Compare (sandbox)
+
+| # | Check | Result |
+|---|---|---|
+| R1 | Both locations load; two lines on one chart; A, B and A − B shown | PASS (sandbox) |
+| R2 | Playback alternates A → B; active card and chart dot follow | PASS (sandbox) |
+| R3 | Stereo: A notes louder in the left channel, B in the right (measured ≈ 0.07 vs 0.02) | PASS (sandbox, measured) |
+| R4 | Pause, resume, stop; month slider, month buttons, chart click | PASS (sandbox) |
+| R5 | Speed 2× while playing; volume; navbar mute silences | PASS (sandbox) |
+| R6 | Changing a location while playing stops sound; Play disabled while loading | PASS (sandbox) |
+| R7 | Slow older request (Tokyo, 3 s) does not overwrite newer choice (Sahara) | PASS (sandbox) |
+| R8 | One location fails: error shown, Play disabled | PASS (sandbox) |
+| R9 | Leaving Compare is silent; Explorer then plays centred (equal L/R) | PASS (sandbox, measured) |
+| R10 | Keyboard Space on Play; phone width 390 px without sideways scrolling | PASS (sandbox) |
+
 ## C. Real-device listening checks — TO DO
 
 Use live NASA data (not the sandbox). Write PASS / FAIL and a note.
@@ -69,14 +85,17 @@ Use live NASA data (not the sandbox). Write PASS / FAIL and a note.
 | C6 | Legend Listen buttons | Low / middle / high tones | | |
 | C7 | Play, switch browser tab 5 s, return | Write what happens | | |
 | C8 | Download a WAV and play it in a music player | Same notes as the app | | |
-| C9 | Demo device and demo browser | All of C1–C8 on the device used for judging | | |
+| C9 | Compare Kolkata / Svalbard with headphones | A clearly left, B clearly right; Svalbard lower | | |
+| C10 | Compare at speeds 0.5×, 1×, 2× | A and B still easy to tell apart | | |
+| C11 | Demo device and demo browser | All checks above on the device used for judging | | |
 
 ## D. Known limitations
 
 - Mocked tests check commands and lifecycle, not perceived sound.
 - Visuals can lag the sound by about one screen frame (~16 ms).
 - Hidden browser tabs may slow visual updates; audio keeps its schedule.
-- Regional Compare is not built yet (page shows "in development").
+- Regional Compare has no audio export yet (optional next step).
+- On speakers the stereo difference is smaller than on headphones.
 
 ## E. Issues found and fixed
 

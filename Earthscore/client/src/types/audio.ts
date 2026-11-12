@@ -39,10 +39,12 @@ export interface ScheduledAudioEngine {
     mapping?: TemperatureMappingConfig,
   ): TemperatureSound;
 
+  // pan: stereo position, −1 = left, 0 = centre (default), 1 = right.
   scheduleFrequency(
     frequencyHz: number | null,
     startTime: number,
     durationSeconds: number,
+    pan?: number,
   ): void;
 
   // Fade out the current note AND cancel every future scheduled note.

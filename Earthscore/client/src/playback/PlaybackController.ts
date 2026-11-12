@@ -11,7 +11,12 @@ export interface PlaybackAudioEngine {
   start(): Promise<void>;
   getAudioTime(): number; // scheduling clock (runs slightly ahead)
   getPlaybackTime(): number; // what the listener hears now
-  scheduleFrequency(frequencyHz: number | null, startTime: number, durationSeconds: number): void;
+  scheduleFrequency(
+    frequencyHz: number | null,
+    startTime: number,
+    durationSeconds: number,
+    pan?: number
+  ): void;
   playTemperature(
     temperatureC: number | null,
     durationSeconds?: number,
@@ -32,6 +37,10 @@ const browserFrames: FrameScheduler = {
   request: (callback) => requestAnimationFrame(callback),
   cancel: (id) => cancelAnimationFrame(id),
 };
+
+// Stereo position for Regional Compare: A at −0.6 (left), B at +0.6 (right).
+// Not fully hard-panned, so speakers and one-ear listening still hear both.
+export const COMPARE_PAN = 0.6;
 
 // Small delay so the first note is never scheduled in the past.
 const LEAD_SECONDS = 0.1;
@@ -102,11 +111,19 @@ export class PlaybackController {
     const endIndex = rangeEndIndex(state);
     const t0 = this.engine.getAudioTime() + LEAD_SECONDS;
 
+    // A/B comparison: location A on the left, B on the right.
+    // A single location plays centred.
+    const comparing = state.events.some((event) => event.slot === 'B');
+
     for (let i = startIndex; i <= endIndex; i++) {
+      const event = state.events[i];
+      const pan = comparing ? (event.slot === 'A' ? -COMPARE_PAN : COMPARE_PAN) : 0;
+
       this.engine.scheduleFrequency(
-        state.events[i].audioFrequencyHz,
+        event.audioFrequencyHz,
         t0 + (i - startIndex) * step,
-        note
+        note,
+        pan
       );
     }
 

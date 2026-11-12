@@ -52,9 +52,25 @@ const audioMocks = vi.hoisted(() => {
     }
   }
 
+  class FakePanner {
+    static instances: FakePanner[] = [];
+
+    pan = new FakeParam();
+    dispose = vi.fn();
+
+    constructor(public initialValue: number) {
+      FakePanner.instances.push(this);
+    }
+
+    connect(_destination: unknown): this {
+      return this;
+    }
+  }
+
   return {
     FakeGain,
     FakeOscillator,
+    FakePanner,
     start: vi.fn<() => Promise<void>>(),
     context: { state: "running" },
   };
@@ -64,6 +80,7 @@ const audioMocks = vi.hoisted(() => {
 vi.mock("tone", () => ({
   Gain: audioMocks.FakeGain,
   Oscillator: audioMocks.FakeOscillator,
+  Panner: audioMocks.FakePanner,
   start: audioMocks.start,
   getContext: () => audioMocks.context,
 
@@ -80,6 +97,7 @@ describe("AudioEngine", () => {
 
     audioMocks.FakeGain.instances.length = 0;
     audioMocks.FakeOscillator.instances.length = 0;
+    audioMocks.FakePanner.instances.length = 0;
 
     audioMocks.context.state = "running";
     audioMocks.start.mockReset();
@@ -399,6 +417,33 @@ describe("AudioEngine", () => {
       }
 
       expect(() => engine.scheduleFrequency(440, 12, 0.01)).toThrow();
+    });
+
+    it("places each scheduled note in stereo (A left, B right)", async () => {
+      await engine.start();
+
+      engine.scheduleFrequency(440, 12, 0.4, -0.6);
+      engine.scheduleFrequency(440, 12.5, 0.4, 0.6);
+      engine.scheduleFrequency(440, 13, 0.4); // default: centre
+
+      const panner = audioMocks.FakePanner.instances[0];
+      expect(panner.pan.setValueAtTime.mock.calls).toEqual([
+        [-0.6, 12],
+        [0.6, 12.5],
+        [0, 13],
+      ]);
+    });
+
+    it("rejects an invalid stereo position", async () => {
+      await engine.start();
+      expect(() => engine.scheduleFrequency(440, 12, 0.4, 2)).toThrow("Pan");
+    });
+
+    it("dispose() also releases the panner", async () => {
+      await engine.start();
+      const panner = audioMocks.FakePanner.instances[0];
+      engine.dispose();
+      expect(panner.dispose).toHaveBeenCalledTimes(1);
     });
 
     it("stop() cancels future notes and allows a new schedule", async () => {

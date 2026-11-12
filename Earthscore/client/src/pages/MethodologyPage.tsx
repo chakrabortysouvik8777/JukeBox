@@ -137,7 +137,17 @@ frequency = ${m.minFrequencyHz} Hz × 2^(${m.octaves} × u)`}
         </section>
 
         <section className="page-card">
-          <h2>7. What this prototype does not claim</h2>
+          <h2>7. Regional Compare</h2>
+          <ul>
+            <li>Two locations are aligned by calendar month; a month missing at one location stays missing (silent) there.</li>
+            <li>Both use the same pitch mapping, so the same temperature always gives the same note.</li>
+            <li>Each month plays A then B. With headphones A is on the left and B on the right (partly panned, so speakers still play both).</li>
+            <li>The difference is <strong>A − B</strong> for the same month in °C, not a climate anomaly.</li>
+          </ul>
+        </section>
+
+        <section className="page-card">
+          <h2>8. What this prototype does not claim</h2>
           <ul>
             <li>It does not detect heatwaves or prove climate trends.</li>
             <li>A 10-year point series is not a climate record.</li>
