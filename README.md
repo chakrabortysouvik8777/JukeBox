@@ -5,10 +5,11 @@
 
 ## Overview
 
-EarthScore lets you **hear** how air temperature changes over the year and
-across the decade at any point on Earth. It turns NASA POWER monthly air
-temperature (2016–2025) into sound — one note per month, higher pitch =
-warmer — while a globe, a timeline and a chart show the same values.
+EarthScore lets you **hear** how Earth data changes over the year and
+across the decade. It turns monthly data (2016–2025) into sound — one note
+per month, higher pitch = higher value — while a globe, a timeline and a
+chart show the same values. Sound sources: air temperature and rainfall at
+any point (NASA POWER), and global CO₂ and methane (NOAA).
 
 ## What the app does
 
@@ -21,6 +22,8 @@ Three pages (links in the top bar):
      **PLAY YEAR** plays one year. Pause, resume, stop, seek by year or by
      clicking the chart, speed 0.5× / 1× / 2×, volume and mute.
    - The timeline, month cards, chart dot and globe badge follow the sound.
+   - **Sound source**: Temperature, Rainfall, CO₂ or CH₄ (CO₂ / CH₄ are
+     global averages, labelled as such).
    - **DAW Engine** renders the same notes to a WAV file you can scrub and
      download.
    - Side panels: current weather, air quality, rainfall, vegetation (NDVI),
@@ -28,8 +31,9 @@ Three pages (links in the top bar):
 2. **Regional Compare** — two locations side by side: one chart with both
    temperature lines on the same scale, the selected month's values and
    their difference (A − B), and alternating A → B sound with the same
-   pitch mapping (A in the left ear, B in the right). Play, pause, stop,
-   month seek, speed, volume, matchup presets and search.
+   pitch mapping (A in the left ear, B in the right). Temperature or
+   rainfall. Play, pause, stop, month seek, speed, volume, matchup presets
+   and search, and a DAW Engine that exports the comparison as a stereo WAV.
 3. **Data Sources & Methodology** — the data, the checks, the pitch formula
    and what the prototype does not claim.
 
@@ -72,6 +76,8 @@ JukeBox/
 | Used for | Source |
 |---|---|
 | Sound, chart, badge | NASA POWER T2M — monthly mean air temperature at 2 m (2016–2025) |
+| Sound (rainfall) | NASA POWER PRECTOTCORR — monthly mean precipitation, mm/day |
+| Sound (CO₂, CH₄) | NOAA GML global monthly averages (not NASA, same for every place) |
 | Vegetation panel | NASA MODIS MOD13Q1 NDVI (250 m, 16-day) via ORNL DAAC |
 | Weather, air quality, rainfall | Open-Meteo (model / reanalysis data, not NASA) |
 | Greenhouse gases | NOAA GML global monthly averages (not NASA) |

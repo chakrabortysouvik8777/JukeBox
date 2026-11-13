@@ -11,11 +11,18 @@ import {
   YAxis,
 } from "recharts";
 
-import type { TemperatureObservation } from "../../types/dataset";
+import type { MonthlyObservation } from "../../types/dataset";
+import {
+  SOUND_PARAMETERS,
+  type SoundParameter,
+} from "../../config/parameters";
 
 interface TemperatureChartProps {
-  // All months 2016–2025 for the selected location (validated).
-  observations: readonly TemperatureObservation[];
+  // All months 2016–2025 of the selected parameter (validated).
+  observations: readonly MonthlyObservation[];
+
+  // Which parameter is shown (default: temperature).
+  parameter?: SoundParameter;
 
   // Year currently selected (shaded on the chart).
   selectedYear: number;
@@ -30,11 +37,17 @@ interface TemperatureChartProps {
 interface ChartPoint {
   date: string;
   year: number;
-  temperatureC: number | null;
+  value: number | null;
 }
 
+/**
+ * Monthly line chart of the sonified parameter (2016–2025): the selected
+ * year is shaded and the month being heard is marked with a dot.
+ * (Kept under its original file name; it now charts any parameter.)
+ */
 export default function TemperatureChart({
   observations,
+  parameter = SOUND_PARAMETERS.temperature,
   selectedYear,
   activeObservationId,
   onYearSelect,
@@ -44,7 +57,7 @@ export default function TemperatureChart({
       observations.map((o) => ({
         date: o.date,
         year: o.year,
-        temperatureC: o.temperatureC,
+        value: o.value,
       })),
     [observations],
   );
@@ -65,7 +78,8 @@ export default function TemperatureChart({
   return (
     <figure className="ys-chart">
       <figcaption className="ys-chart-caption">
-        Monthly temperature 2016–2025 · shaded: {selectedYear}
+        Monthly {parameter.quantity} ({parameter.unit}) · shaded: {selectedYear}
+        {parameter.scope === "global" ? " · global average" : ""}
         {onYearSelect ? " · click the chart to choose a year" : ""}
       </figcaption>
 
@@ -103,11 +117,18 @@ export default function TemperatureChart({
           />
 
           <YAxis
-            unit="°C"
-            width={56}
+            width={64}
             tick={{ fill: "#8fa5bd", fontSize: 11 }}
             stroke="rgba(143,165,189,0.3)"
             domain={["auto", "auto"]}
+            tickFormatter={(v: number) => `${v}`}
+            label={{
+              value: parameter.unit,
+              angle: -90,
+              position: "insideLeft",
+              fill: "#8fa5bd",
+              fontSize: 11,
+            }}
           />
 
           <Tooltip
@@ -120,15 +141,15 @@ export default function TemperatureChart({
             labelStyle={{ color: "#8fa5bd" }}
             formatter={(value) =>
               typeof value === "number"
-                ? [`${value.toFixed(1)} °C`, "T2M"]
-                : ["missing", "T2M"]
+                ? [`${value.toFixed(parameter.decimals)} ${parameter.unit}`, parameter.label]
+                : ["missing", parameter.label]
             }
           />
 
           {/* connectNulls=false: missing months stay visible as gaps */}
           <Line
             type="monotone"
-            dataKey="temperatureC"
+            dataKey="value"
             stroke="#42d9e8"
             strokeWidth={2}
             dot={false}
@@ -136,10 +157,10 @@ export default function TemperatureChart({
             isAnimationActive={false}
           />
 
-          {active && active.temperatureC !== null && (
+          {active && active.value !== null && (
             <ReferenceDot
               x={active.date}
-              y={active.temperatureC}
+              y={active.value}
               r={6}
               fill="#ffffff"
               stroke="#42d9e8"

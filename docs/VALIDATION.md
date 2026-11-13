@@ -11,7 +11,7 @@ headphones.
 
 | Item | Value |
 |---|---|
-| Date | 2026-11-12 |
+| Date | 2026-11-13 |
 | Code version | `git log -1 --oneline` after the Phase 2 commit |
 | Automated browser | Chromium (Playwright), 1366×900 and 390×844 |
 | Real-device listening | TO DO (team member, browser, device, headphones/speakers) |
@@ -22,7 +22,7 @@ Run from `Earthscore/client`.
 
 | Check | Command | Result |
 |---|---|---|
-| All unit tests | `npm test` | PASS — 162 tests in 10 files |
+| All unit tests | `npm test` | PASS — 181 tests in 11 files |
 | Type check | `npx tsc --noEmit` | PASS — no errors |
 | Production build | `npm run build` | PASS |
 
@@ -31,7 +31,9 @@ scheduling (mocked audio), playback state transitions, NASA POWER validation
 (fill values, month 13, missing months, units), selectors and the year
 badge, WAV rendering and encoding, location search parsing, page routing,
 rainfall completeness, MODIS NDVI grid and quality flags, WorldPop values,
-Regional Compare alignment, A/B events, stereo position and seeking.
+Regional Compare alignment, A/B events, stereo position and seeking,
+the four sound parameters (rainfall parsing and range checks, NOAA gas
+series padding, mappings, compare with rainfall) and stereo WAV encoding.
 
 ## B. Browser behaviour (sandbox)
 
@@ -70,6 +72,19 @@ Regional Compare alignment, A/B events, stereo position and seeking.
 | R8 | One location fails: error shown, Play disabled | PASS (sandbox) |
 | R9 | Leaving Compare is silent; Explorer then plays centred (equal L/R) | PASS (sandbox, measured) |
 | R10 | Keyboard Space on Play; phone width 390 px without sideways scrolling | PASS (sandbox) |
+
+### Sound sources and Compare DAW (sandbox)
+
+| # | Check | Result |
+|---|---|---|
+| P1 | Sound source switch Temperature → Rainfall → CO₂ → CH₄ → Temperature: cards, units, Hz, chart, footer and navbar follow | PASS (sandbox) |
+| P2 | CO₂ / CH₄ show the "global average" note; Temperature / Rainfall do not | PASS (sandbox) |
+| P3 | PLAY YEAR with Rainfall: active month card follows | PASS (sandbox) |
+| P4 | Explorer DAW with Rainfall: file `earthscore-kolkata-rainfall-2016.wav`, values in mm/day | PASS (sandbox) |
+| P5 | Compare Rainfall: A, B, A − B in mm/day, "Kolkata wetter" | PASS (sandbox) |
+| P6 | Compare DAW: stereo WAV, A notes RMS ≈ 8800 left / 2900 right, B the reverse (measured from the file) | PASS (sandbox, measured) |
+| P7 | Compare DAW shows "A · Kolkata" then "B · Svalbard" while playing; changing parameter clears the file | PASS (sandbox) |
+| P8 | Browser console: no errors | PASS (sandbox) |
 
 ## C. Real-device listening checks — TO DO
 

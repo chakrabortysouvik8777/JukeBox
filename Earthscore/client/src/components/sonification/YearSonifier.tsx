@@ -1,15 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { temperatureToSound } from "../../audio/temperatureMapping";
-import { T2M_TEMPERATURE_MAPPING } from "../../config/audioMapping";
-import { fetchTemperatureSeries } from "../../services/nasaAPI";
-import { selectYear } from "../../data/selectors";
+import {
+  SOUND_PARAMETERS,
+  SOUND_PARAMETER_IDS,
+  formatValue,
+  type SoundParameterId,
+} from "../../config/parameters";
+import { fetchMonthlySeries } from "../../services/monthlySeries";
 import { useAppState } from "../../state/AppProvider";
 import {
   firstIndexOfYear,
   lastIndexOfYear,
 } from "../../playback/createPlaybackEvents";
-import type { TemperatureSeries } from "../../types/dataset";
+import type { MonthlySeries } from "../../types/dataset";
 import type { Location } from "../../types/location";
 
 import SoundLegend from "./SoundLegend";
@@ -19,6 +23,9 @@ import "./YearSonifier.css";
 interface YearSonifierProps {
   location: Location;
   year: number;
+  // Which parameter is turned into sound (chosen here, owned by App).
+  parameterId: SoundParameterId;
+  onParameterChange: (id: SoundParameterId) => void;
   // Optional: lets the chart change the selected year.
   onYearChange?: (year: number) => void;
 }
@@ -31,33 +38,38 @@ const MONTH_NAMES = [
 type LoadState = "loading" | "ready" | "error";
 
 /**
- * Shows the 12 months of the selected year, the 2016–2025 chart and the
- * sound legend. All sound comes from the shared PlaybackController, so this
- * panel and the Chronological Sonic Scrubber never play at the same time.
+ * Shows the 12 months of the selected year for the chosen parameter, the
+ * 2016–2025 chart and the sound legend. All sound comes from the shared
+ * PlaybackController, so this panel and the Chronological Sonic Scrubber
+ * never play at the same time.
  */
 export default function YearSonifier({
   location,
   year,
+  parameterId,
+  onParameterChange,
   onYearChange,
 }: YearSonifierProps) {
   const { state: playback, dispatch, controller } = useAppState();
+  const parameter = SOUND_PARAMETERS[parameterId];
 
-  const [series, setSeries] = useState<TemperatureSeries | null>(null);
+  const [series, setSeries] = useState<MonthlySeries | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [loadError, setLoadError] = useState("");
   const [previewError, setPreviewError] = useState("");
 
-  // ---------- Data: NASA POWER monthly T2M for the selected location ----------
-  // (Shared cache: the timeline uses the same download.)
+  // ---------- Data (shared cache: the timeline uses the same download) ----------
 
   useEffect(() => {
     const abort = new AbortController();
 
+    setSeries(null);
     setLoadState("loading");
     setLoadError("");
 
-    fetchTemperatureSeries(location.lat, location.lng, abort.signal)
+    fetchMonthlySeries(parameterId, location.lat, location.lng, abort.signal)
       .then((data) => {
+        if (abort.signal.aborted) return;
         setSeries(data);
         setLoadState("ready");
       })
@@ -65,18 +77,22 @@ export default function YearSonifier({
         if (abort.signal.aborted) return;
 
         setLoadError(
-          error instanceof Error ? error.message : "Could not load NASA data.",
+          error instanceof Error ? error.message : "Could not load the data.",
         );
         setLoadState("error");
       });
 
     return () => abort.abort();
-  }, [location.lat, location.lng]);
+  }, [parameterId, location.lat, location.lng]);
 
-  // The monthly observations of the selected year (validated:
-  // month 13 removed, missing values are null).
+  // The monthly observations of the selected year.
   const months = useMemo(
-    () => (series ? selectYear(series.observations, year) : []),
+    () =>
+      series
+        ? series.observations
+            .filter((o) => o.year === year)
+            .sort((a, b) => a.month - b.month)
+        : [],
     [series, year],
   );
 
@@ -97,13 +113,10 @@ export default function YearSonifier({
 
   const activeSound =
     activeIndex >= 0
-      ? temperatureToSound(
-          months[activeIndex].temperatureC,
-          T2M_TEMPERATURE_MAPPING,
-        )
+      ? temperatureToSound(months[activeIndex].value, parameter.mapping)
       : undefined;
 
-  // The shared events belong to this location once their ids match.
+  // The shared events belong to this location and parameter once ids match.
   const eventsReady =
     playback.events.length > 0 &&
     months.length > 0 &&
@@ -134,7 +147,7 @@ export default function YearSonifier({
     });
   }
 
-  async function handlePreview(temperatureC: number) {
+  async function handlePreview(value: number) {
     if (!controller) return;
 
     // Pause the timeline before previewing a reference tone.
@@ -142,7 +155,7 @@ export default function YearSonifier({
     setPreviewError("");
 
     try {
-      await controller.preview(temperatureC, playback, T2M_TEMPERATURE_MAPPING);
+      await controller.preview(value, playback, parameter.mapping);
     } catch (error) {
       setPreviewError(
         error instanceof Error ? error.message : "Audio could not start.",
@@ -155,17 +168,16 @@ export default function YearSonifier({
   // ---------- Render ----------
 
   return (
-    <section className="year-sonifier" aria-label="Temperature sonification">
+    <section className="year-sonifier" aria-label="Sonification">
       <div className="ys-header">
         <div>
-          <p className="ys-eyebrow">TEMPERATURE SONIFICATION</p>
+          <p className="ys-eyebrow">{parameter.label.toUpperCase()} SONIFICATION</p>
           <h2>
             {location.name} · {year}
           </h2>
           <p className="ys-subtitle">
-            Each note is one month of NASA POWER T2M: monthly mean air
-            temperature 2 metres above the ground at this point (historical,
-            2016–2025). Higher pitch means warmer.
+            Each note is one month. {parameter.description} Higher pitch
+            means {parameter.highWord}.
           </p>
         </div>
 
@@ -194,6 +206,32 @@ export default function YearSonifier({
         </div>
       </div>
 
+      {/* Which data becomes sound */}
+      <div className="ys-parameters" role="group" aria-label="Sound source">
+        <span>SOUND SOURCE</span>
+        {SOUND_PARAMETER_IDS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            className={id === parameterId ? "active" : ""}
+            aria-pressed={id === parameterId}
+            onClick={() => onParameterChange(id)}
+            title={SOUND_PARAMETERS[id].source}
+          >
+            {SOUND_PARAMETERS[id].label}
+            {SOUND_PARAMETERS[id].scope === "global" ? " (global)" : ""}
+          </button>
+        ))}
+      </div>
+
+      {parameter.scope === "global" && (
+        <p className="ys-status ys-global">
+          {parameter.label} is a global monthly average from NOAA: it is the
+          same for every location and shows the worldwide trend, not the
+          selected place.
+        </p>
+      )}
+
       {series?.origin === "snapshot" && (
         <p className="ys-status ys-offline">
           NASA POWER is not responding, so saved NASA data is shown
@@ -205,7 +243,7 @@ export default function YearSonifier({
       )}
 
       {loadState === "loading" && (
-        <p className="ys-status">Loading NASA POWER data…</p>
+        <p className="ys-status">Loading {parameter.source}…</p>
       )}
 
       {loadState === "error" && (
@@ -221,26 +259,24 @@ export default function YearSonifier({
       {months.length > 0 && (
         <ol className="ys-months">
           {months.map((month, index) => {
-            const sound = temperatureToSound(
-              month.temperatureC,
-              T2M_TEMPERATURE_MAPPING,
-            );
+            const sound = temperatureToSound(month.value, parameter.mapping);
 
             return (
               <li
                 key={month.id}
                 className={`ys-month ${index === activeIndex ? "active" : ""} ${
-                  month.temperatureC === null ? "missing" : ""
+                  month.value === null ? "missing" : ""
                 }`}
               >
                 <span className="ys-month-name">
                   {MONTH_NAMES[month.month - 1]}
                 </span>
                 <strong>
-                  {month.temperatureC === null
+                  {month.value === null
                     ? "—"
-                    : `${month.temperatureC.toFixed(1)}°C`}
+                    : `${month.value.toFixed(parameter.decimals)}`}
                 </strong>
+                <span className="ys-unit">{month.value === null ? "" : parameter.unit}</span>
                 <span className="ys-hz">
                   {sound.frequencyHz === null
                     ? "no tone"
@@ -256,6 +292,7 @@ export default function YearSonifier({
       {series && loadState === "ready" && (
         <TemperatureChart
           observations={series.observations}
+          parameter={parameter}
           selectedYear={year}
           activeObservationId={activeObservationId}
           onYearSelect={onYearChange}
@@ -264,16 +301,18 @@ export default function YearSonifier({
 
       <SoundLegend
         className="ys-legend"
-        mapping={T2M_TEMPERATURE_MAPPING}
+        parameter={parameter}
         currentSound={activeSound}
         onPreview={handlePreview}
         onStopPreview={() => controller?.stopAll()}
       />
 
       <p className="ys-source">
-        Source: NASA POWER (T2M, monthly)
+        Source: {parameter.source}
         {series?.origin === "snapshot" ? ", saved copy" : ""}. Mapping:{" "}
-        {T2M_TEMPERATURE_MAPPING.id}.
+        {parameter.mapping.id} ({formatValue(parameter.mapping.minTemperatureC, parameter)} →{" "}
+        {parameter.mapping.minFrequencyHz} Hz, {formatValue(parameter.mapping.maxTemperatureC, parameter)} →{" "}
+        {parameter.mapping.minFrequencyHz * 2 ** parameter.mapping.octaves} Hz).
         * = outside the sound range, pitch limited to the nearest endpoint.
       </p>
     </section>

@@ -16,9 +16,16 @@ import "./Pages.css";
 import "./RegionalCompare.css";
 
 import { useAppState } from "../state/AppProvider";
-import { fetchTemperatureSeries } from "../services/nasaAPI";
-import { T2M_TEMPERATURE_MAPPING } from "../config/audioMapping";
+import { fetchMonthlySeries } from "../services/monthlySeries";
+import {
+  POINT_PARAMETER_IDS,
+  SOUND_PARAMETERS,
+  formatValue,
+  type SoundParameter,
+  type SoundParameterId,
+} from "../config/parameters";
 import { temperatureToSound } from "../audio/temperatureMapping";
+import DAWEngine from "../components/DigitalAudio/DAWEngine";
 import {
   alignSeries,
   createCompareEvents,
@@ -29,13 +36,13 @@ import {
 import { PRESET_LOCATIONS, presetByName } from "../utils/presets";
 import { searchLocation } from "../utils/searchLocation";
 import type { Location } from "../types/location";
-import type { TemperatureSeries } from "../types/dataset";
+import type { MonthlySeries } from "../types/dataset";
 
 type Slot = "A" | "B";
 
 interface LoadState {
   status: "loading" | "ready" | "error";
-  series: TemperatureSeries | null;
+  series: MonthlySeries | null;
   error: string;
 }
 
@@ -54,15 +61,11 @@ const MONTH_NAMES = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-const COLORS: Record<Slot, string> = { A: "#427b9c", B: "#b7502d" };
+const COLORS: Record<Slot, string> = { A: "#42d9e8", B: "#ff9f6e" };
 
-function formatC(value: number | null): string {
-  return value === null ? "missing" : `${value.toFixed(1)} °C`;
-}
-
-function formatHz(value: number | null): string {
+function formatHz(value: number | null, parameter: SoundParameter): string {
   if (value === null) return "no tone";
-  return `${Math.round(temperatureToSound(value, T2M_TEMPERATURE_MAPPING).frequencyHz ?? 0)} Hz`;
+  return `${Math.round(temperatureToSound(value, parameter.mapping).frequencyHz ?? 0)} Hz`;
 }
 
 function monthLabel(row: CompareRow | undefined): string {
@@ -211,6 +214,13 @@ export default function RegionalComparePage() {
   const [loadA, setLoadA] = useState<LoadState>(LOADING);
   const [loadB, setLoadB] = useState<LoadState>(LOADING);
 
+  // Compared parameter: only values measured at each point
+  // (temperature, rainfall). CO₂ / CH₄ are global, so A and B would be equal.
+  const [parameterId, setParameterId] = useState<SoundParameterId>("temperature");
+  const parameter = SOUND_PARAMETERS[parameterId];
+  const fmt = (value: number | null) =>
+    value === null ? "missing" : formatValue(value, parameter);
+
   // Load both locations. Changing either one stops the sound, clears the
   // old sequence and cancels requests that are still running.
   useEffect(() => {
@@ -222,7 +232,7 @@ export default function RegionalComparePage() {
     setLoadB(LOADING);
 
     const load = (loc: Location, set: (s: LoadState) => void) =>
-      fetchTemperatureSeries(loc.lat, loc.lng, abort.signal).then(
+      fetchMonthlySeries(parameterId, loc.lat, loc.lng, abort.signal).then(
         (series) => {
           if (!abort.signal.aborted) set({ status: "ready", series, error: "" });
           return series;
@@ -245,14 +255,16 @@ export default function RegionalComparePage() {
       const rows = alignSeries(a, b);
       dispatch({
         type: "SET_EVENTS",
-        payload: { events: createCompareEvents(rows, a, b, T2M_TEMPERATURE_MAPPING) },
+        payload: {
+          events: createCompareEvents(rows, a, b, parameter.mapping, parameter),
+        },
       });
     });
 
     return () => abort.abort();
     // controller is stable for the app's lifetime.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locA.lat, locA.lng, locB.lat, locB.lng, dispatch]);
+  }, [locA.lat, locA.lng, locB.lat, locB.lng, parameterId, dispatch]);
 
   const rows = useMemo(
     () => (loadA.series && loadB.series ? alignSeries(loadA.series, loadB.series) : []),
@@ -310,11 +322,26 @@ export default function RegionalComparePage() {
         <p className="page-eyebrow">REGIONAL COMPARE</p>
         <h1>Compare two places by ear</h1>
         <p>
-          NASA POWER monthly air temperature at 2 m (T2M), 2016–2025, for two
-          locations. Each month plays A then B with the same
-          temperature-to-pitch mapping — higher pitch is warmer. With
+          {parameter.source}, 2016–2025, for two locations. Each
+          month plays A then B with the same{" "}
+          {`${parameter.label.toLowerCase()}-to-pitch`} mapping — higher pitch means {parameter.highWord}. With
           headphones, A is on the left and B on the right.
         </p>
+        <div className="compare-matchups" role="group" aria-label="Compared parameter">
+          <span>PARAMETER:</span>
+          {POINT_PARAMETER_IDS.map((id) => (
+            <button
+              key={id}
+              type="button"
+              className={id === parameterId ? "selected" : ""}
+              aria-pressed={id === parameterId}
+              onClick={() => setParameterId(id)}
+              title={SOUND_PARAMETERS[id].source}
+            >
+              {SOUND_PARAMETERS[id].label}
+            </button>
+          ))}
+        </div>
         <div className="compare-matchups" role="group" aria-label="Quick matchups">
           <span>MATCHUPS:</span>
           {MATCHUPS.map(([a, b]) => (
@@ -360,28 +387,28 @@ export default function RegionalComparePage() {
         <div className="compare-values">
           <div className={`compare-value slot-a ${activeSlot === "A" ? "is-active" : ""}`}>
             <span>A · {locA.name}</span>
-            <strong>{formatC(row?.a ?? null)}</strong>
-            <small>{formatHz(row?.a ?? null)}</small>
+            <strong>{fmt(row?.a ?? null)}</strong>
+            <small>{formatHz(row?.a ?? null, parameter)}</small>
           </div>
           <div className={`compare-value slot-b ${activeSlot === "B" ? "is-active" : ""}`}>
             <span>B · {locB.name}</span>
-            <strong>{formatC(row?.b ?? null)}</strong>
-            <small>{formatHz(row?.b ?? null)}</small>
+            <strong>{fmt(row?.b ?? null)}</strong>
+            <small>{formatHz(row?.b ?? null, parameter)}</small>
           </div>
           <div className="compare-value compare-diff">
             <span>DIFFERENCE A − B</span>
             <strong>
               {row?.difference == null
                 ? "N/A"
-                : `${row.difference >= 0 ? "+" : "−"}${Math.abs(row.difference).toFixed(1)} °C`}
+                : `${row.difference >= 0 ? "+" : "−"}${fmt(Math.abs(row.difference))}`}
             </strong>
             <small>
               {row?.difference == null
                 ? "needs both values"
                 : row.difference > 0
-                  ? `${locA.name} warmer`
+                  ? `${locA.name} ${parameter.highWord}`
                   : row.difference < 0
-                    ? `${locB.name} warmer`
+                    ? `${locB.name} ${parameter.highWord}`
                     : "equal"}
             </small>
           </div>
@@ -393,7 +420,9 @@ export default function RegionalComparePage() {
         <div className="compare-legend">
           <span style={{ color: COLORS.A }}>━ A · {locA.name}</span>
           <span style={{ color: COLORS.B }}>━ B · {locB.name}</span>
-          <small>Same °C scale for both · gaps = missing months · click to choose a month</small>
+          <small>
+            Same {parameter.unit} scale for both · gaps = missing months · click to choose a month
+          </small>
         </div>
 
         {rows.length > 0 ? (
@@ -409,31 +438,31 @@ export default function RegionalComparePage() {
               }}
               style={{ cursor: "pointer" }}
             >
-              <CartesianGrid stroke="rgba(49,77,94,0.12)" vertical={false} />
+              <CartesianGrid stroke="rgba(143,165,189,0.12)" vertical={false} />
               <XAxis
                 dataKey="date"
                 ticks={yearTicks}
                 tickFormatter={(d: string) => d.slice(0, 4)}
-                tick={{ fill: "#71818a", fontSize: 12 }}
-                stroke="rgba(49,77,94,0.25)"
+                tick={{ fill: "#8fa5bd", fontSize: 11 }}
+                stroke="rgba(143,165,189,0.3)"
               />
               <YAxis
-                unit="°C"
-                width={56}
-                tick={{ fill: "#71818a", fontSize: 12 }}
-                stroke="rgba(49,77,94,0.25)"
+                unit={` ${parameter.unit}`}
+                width={parameter.unit.length > 3 ? 72 : 56}
+                tick={{ fill: "#8fa5bd", fontSize: 11 }}
+                stroke="rgba(143,165,189,0.3)"
                 domain={["auto", "auto"]}
               />
               <Tooltip
                 contentStyle={{
-                  background: "#ffffff",
-                  border: "1px solid rgba(67,117,143,0.25)",
+                  background: "#0b1726",
+                  border: "1px solid rgba(66,217,232,0.4)",
                   borderRadius: 8,
-                  color: "#294250",
+                  color: "#e8f1ff",
                 }}
-                labelStyle={{ color: "#61737d" }}
+                labelStyle={{ color: "#8fa5bd" }}
                 formatter={(value, name) => [
-                  typeof value === "number" ? `${value.toFixed(1)} °C` : "missing",
+                  typeof value === "number" ? fmt(value) : "missing",
                   name === "a" ? `A · ${locA.name}` : `B · ${locB.name}`,
                 ]}
               />
@@ -455,7 +484,7 @@ export default function RegionalComparePage() {
                 connectNulls={false}
                 isAnimationActive={false}
               />
-              {row && <ReferenceLine x={row.date} stroke="rgba(49,77,94,0.35)" />}
+              {row && <ReferenceLine x={row.date} stroke="rgba(232,241,255,0.35)" />}
               {row?.a != null && (
                 <ReferenceDot
                   x={row.date}
@@ -576,13 +605,21 @@ export default function RegionalComparePage() {
         {playback.error && <p className="compare-msg compare-error">Audio: {playback.error}</p>}
 
         <p className="compare-note">
-          Source: NASA POWER T2M (monthly mean air temperature at 2 m, a
-          value of NASA's gridded product at each point). Pitch mapping{" "}
-          {T2M_TEMPERATURE_MAPPING.id}, identical for A and B. The difference
-          is a simple A − B for the same month, not a climate anomaly.{" "}
+          Source: {parameter.source} ({parameter.description} A value of
+          NASA's gridded product at each point.) Pitch mapping{" "}
+          {parameter.mapping.id}, identical for A and B. The difference is a
+          simple A − B for the same month, not a climate anomaly.{" "}
           <a className="page-link" href="#/methodology">How it works</a>
         </p>
       </section>
+
+      {/* The same A/B notes as a stereo WAV file (A left, B right) */}
+      <DAWEngine
+        locationName={`${locA.name} vs ${locB.name}`}
+        selectedYear={row?.year ?? 2016}
+        parameterId={parameterId}
+        slotNames={{ A: locA.name, B: locB.name }}
+      />
     </main>
   );
 }

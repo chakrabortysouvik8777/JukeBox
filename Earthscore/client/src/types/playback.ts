@@ -12,6 +12,11 @@ export interface ObservationEvent {
   temperatureCelsius: number | null;
   audioFrequencyHz: number | null;
   frameUrl?: string;
+  // Any sonified parameter: its value and unit (temperature, rainfall, …).
+  // temperatureCelsius is only filled for temperature.
+  parameterId?: string;
+  value?: number | null;
+  unit?: string;
 }
 
 export interface PlaybackState {

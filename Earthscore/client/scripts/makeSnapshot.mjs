@@ -1,4 +1,5 @@
-// Saves NASA POWER T2M data for the preset locations into
+// Saves NASA POWER T2M (temperature) and PRECTOTCORR (rainfall) data for
+// the preset locations into
 // public/data/power-t2m-snapshot.json, so the demo still works
 // if NASA is slow or offline.
 //
@@ -23,10 +24,14 @@ const PRESETS = [
 
 const OUTPUT = new URL("../public/data/power-t2m-snapshot.json", import.meta.url);
 
-// Must match buildTemperatureUrl() in src/services/nasaAPI.ts.
+// Same request as the app (src/services/nasaAPI.ts and monthlySeries.ts),
+// with both parameters in one call.
+const PARAMETERS = ["T2M", "PRECTOTCORR"];
+const DEFAULT_UNITS = { T2M: "C", PRECTOTCORR: "mm/day" };
+
 function buildUrl(lat, lng) {
   const params = new URLSearchParams({
-    parameters: "T2M",
+    parameters: PARAMETERS.join(","),
     community: "SB",
     longitude: lng.toFixed(4),
     latitude: lat.toFixed(4),
@@ -57,17 +62,31 @@ for (const preset of PRESETS) {
     if (!t2m || typeof t2m !== "object") throw new Error("no T2M values");
 
     // Keep only what the app needs, to keep the file small.
+    const values = {};
+    const units = {};
+    for (const name of PARAMETERS) {
+      const series = json?.properties?.parameter?.[name];
+      if (!series || typeof series !== "object") {
+        console.warn(`WARN  ${preset.name}: no ${name} values (not saved)`);
+        continue;
+      }
+      values[name] = series;
+      units[name] = { units: json?.parameters?.[name]?.units ?? DEFAULT_UNITS[name] };
+    }
+
     entries[locationKey(preset.lat, preset.lng)] = {
       name: preset.name,
       url,
       response: {
         header: { fill_value: json?.header?.fill_value ?? -999 },
-        parameters: { T2M: { units: json?.parameters?.T2M?.units ?? "C" } },
-        properties: { parameter: { T2M: t2m } },
+        parameters: units,
+        properties: { parameter: values },
       },
     };
 
-    console.log(`OK    ${preset.name} (${Object.keys(t2m).length} values)`);
+    console.log(
+      `OK    ${preset.name} (${Object.keys(values).join(" + ")}, ${Object.keys(t2m).length} values each)`,
+    );
   } catch (error) {
     failures += 1;
     console.error(`FAIL  ${preset.name}: ${error.message}`);
@@ -86,7 +105,7 @@ await writeFile(
   JSON.stringify(
     {
       createdAt: new Date().toISOString(),
-      note: "Saved NASA POWER responses (T2M, monthly). Real data, used only when the live API fails.",
+      note: "Saved NASA POWER responses (T2M and PRECTOTCORR, monthly). Real data, used only when the live API fails.",
       entries,
     },
     null,

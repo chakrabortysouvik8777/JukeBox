@@ -1,20 +1,20 @@
-import { DEFAULT_TEMPERATURE_MAPPING } from "../../config/audioMapping";
 import { temperatureToSound } from "../../audio/temperatureMapping";
+import {
+  SOUND_PARAMETERS,
+  type SoundParameter,
+} from "../../config/parameters";
 
-import type {
-  TemperatureMappingConfig,
-  TemperatureSound,
-} from "../../types/audio";
+import type { TemperatureSound } from "../../types/audio";
 
 interface SoundLegendProps {
-  // Use the same configuration as the audio engine.
-  mapping?: TemperatureMappingConfig;
+  // Which parameter is being sonified (default: temperature).
+  parameter?: SoundParameter;
 
   // Optional result for the currently selected observation.
   currentSound?: TemperatureSound;
 
   // The parent owns audio initialization and error handling.
-  onPreview?: (temperatureC: number) => void;
+  onPreview?: (value: number) => void;
   onStopPreview?: () => void;
 
   // Disable preview controls while audio is initializing.
@@ -30,54 +30,56 @@ function formatNumber(value: number): string {
   });
 }
 
+/**
+ * Explains the value-to-pitch mapping of the selected parameter and lets
+ * the listener hear its lowest, middle and highest reference tones.
+ */
 export default function SoundLegend({
-  mapping = DEFAULT_TEMPERATURE_MAPPING,
+  parameter = SOUND_PARAMETERS.temperature,
   currentSound,
   onPreview,
   onStopPreview,
   previewDisabled = false,
   className,
 }: SoundLegendProps) {
-  const midpoint =
-    mapping.minTemperatureC +
-    (mapping.maxTemperatureC - mapping.minTemperatureC) / 2;
+  const mapping = parameter.mapping;
+  const unit = parameter.unit;
+
+  const low = mapping.minTemperatureC;
+  const high = mapping.maxTemperatureC;
+  const midpoint = low + (high - low) / 2;
 
   const samples = [
-    {
-      label: "Lower mapping limit",
-      temperatureC: mapping.minTemperatureC,
-    },
-    {
-      label: "Mapping midpoint",
-      temperatureC: midpoint,
-    },
-    {
-      label: "Upper mapping limit",
-      temperatureC: mapping.maxTemperatureC,
-    },
+    { label: "Lower mapping limit", value: low },
+    { label: "Mapping midpoint", value: midpoint },
+    { label: "Upper mapping limit", value: high },
   ];
 
   return (
-    <section className={className} aria-label="Temperature sound guide">
+    <section className={className} aria-label={`${parameter.label} sound guide`}>
       <h2>What do the sounds mean?</h2>
 
       <p>
-        Lower temperatures produce lower-pitched tones. Higher
-        temperatures produce higher-pitched tones.
+        {parameter.label}: lower values ({parameter.lowWord}) produce
+        lower-pitched tones; higher values ({parameter.highWord}) produce
+        higher-pitched tones.
       </p>
 
       <p>
-        Temperature controls pitch. The volume control changes listening
+        The value controls pitch. The volume control changes listening
         loudness independently.
       </p>
 
       <table>
-        <caption>Reference temperatures and their sound frequencies</caption>
+        <caption>
+          Reference {parameter.quantity} values and their sound frequencies
+          (mapping {mapping.id})
+        </caption>
 
         <thead>
           <tr>
             <th scope="col">Reference</th>
-            <th scope="col">Temperature</th>
+            <th scope="col">{parameter.label}</th>
             <th scope="col">Frequency</th>
             {onPreview && <th scope="col">Listen</th>}
           </tr>
@@ -85,13 +87,9 @@ export default function SoundLegend({
 
         <tbody>
           {samples.map((sample) => {
-            const sound = temperatureToSound(
-              sample.temperatureC,
-              mapping,
-            );
+            const sound = temperatureToSound(sample.value, mapping);
 
-            const temperatureLabel =
-              `${formatNumber(sample.temperatureC)} °C`;
+            const valueLabel = `${formatNumber(sample.value)} ${unit}`;
 
             const frequencyLabel =
               sound.frequencyHz === null
@@ -101,7 +99,7 @@ export default function SoundLegend({
             return (
               <tr key={sample.label}>
                 <th scope="row">{sample.label}</th>
-                <td>{temperatureLabel}</td>
+                <td>{valueLabel}</td>
                 <td>{frequencyLabel}</td>
 
                 {onPreview && (
@@ -109,10 +107,8 @@ export default function SoundLegend({
                     <button
                       type="button"
                       disabled={previewDisabled}
-                      aria-label={
-                        `Listen to ${temperatureLabel}, ${frequencyLabel}`
-                      }
-                      onClick={() => onPreview(sample.temperatureC)}
+                      aria-label={`Listen to ${valueLabel}, ${frequencyLabel}`}
+                      onClick={() => onPreview(sample.value)}
                     >
                       Listen
                     </button>
@@ -131,9 +127,9 @@ export default function SoundLegend({
       )}
 
       <p>
-        Missing observations produce no tone. Temperatures outside the
-        mapping range use the nearest endpoint pitch; their original
-        values remain available.
+        Missing observations produce no tone. Values outside the mapping
+        range use the nearest endpoint pitch; their original values remain
+        available.
       </p>
 
       <p>
@@ -146,13 +142,13 @@ export default function SoundLegend({
           <h3>Selected observation</h3>
 
           {currentSound.originalTemperatureC === null ? (
-            <p>No temperature observation is available. No tone is played.</p>
+            <p>No observation is available for this month. No tone is played.</p>
           ) : (
             <>
               <dl>
-                <dt>Temperature</dt>
+                <dt>{parameter.label}</dt>
                 <dd>
-                  {formatNumber(currentSound.originalTemperatureC)} °C
+                  {formatNumber(currentSound.originalTemperatureC)} {unit}
                 </dd>
 
                 <dt>Mapped frequency</dt>
@@ -165,7 +161,7 @@ export default function SoundLegend({
 
               {currentSound.clipped && (
                 <p>
-                  This temperature is outside the configured sound range.
+                  This value is outside the configured sound range.
                   The pitch is limited to the nearest endpoint.
                 </p>
               )}

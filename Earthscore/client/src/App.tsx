@@ -21,12 +21,15 @@ import MethodologyPage from "./pages/MethodologyPage";
 
 import type { Location } from "./types/location";
 import { useAppState } from "./state/AppProvider";
-import { fetchTemperatureSeries } from "./services/nasaAPI";
-import { T2M_TEMPERATURE_MAPPING } from "./config/audioMapping";
+import { fetchMonthlySeries } from "./services/monthlySeries";
+import {
+    SOUND_PARAMETERS,
+    type SoundParameterId,
+} from "./config/parameters";
 import {
     createPlaybackEvents,
     firstIndexOfYear,
-    recordsFromSeries,
+    recordsFromMonthly,
 } from "./playback/createPlaybackEvents";
 import { useHashPage } from "./utils/useHashPage";
 
@@ -44,6 +47,11 @@ function App() {
 
     // Selected year for historical data and sonification
     const [selectedYear, setSelectedYear] = useState(2016);
+
+    // Which parameter is turned into sound in the Explorer
+    // (Temperature, Rainfall, CO₂ or CH₄). Temperature is the default.
+    const [soundParameter, setSoundParameter] =
+        useState<SoundParameterId>("temperature");
 
     // Location switch:
     // 1. stop all sound (timeline and any pending legend preview),
@@ -68,7 +76,8 @@ function App() {
 
         const abort = new AbortController();
 
-        fetchTemperatureSeries(
+        fetchMonthlySeries(
+            soundParameter,
             selectedLocation.lat,
             selectedLocation.lng,
             abort.signal
@@ -77,7 +86,7 @@ function App() {
                 if (abort.signal.aborted) return;
 
                 const events = createPlaybackEvents(
-                    recordsFromSeries(series, T2M_TEMPERATURE_MAPPING)
+                    recordsFromMonthly(series, SOUND_PARAMETERS[soundParameter])
                 );
                 const start = firstIndexOfYear(events, selectedYear);
 
@@ -98,6 +107,7 @@ function App() {
         isDashboardOpen,
         selectedLocation?.lat,
         selectedLocation?.lng,
+        soundParameter,
         dispatch,
         page,
     ]);
@@ -223,6 +233,11 @@ function App() {
                 muted={isMuted}
                 onLocationSelect={setSelectedLocation}
                 onMuteToggle={handleMuteToggle}
+                soundLabel={
+                    page === "explorer"
+                        ? SOUND_PARAMETERS[soundParameter].source
+                        : undefined
+                }
             />
 
             {page === "explorer" && (
@@ -292,17 +307,21 @@ function App() {
                             <TimelineScrubber
                                 selectedYear={selectedYear}
                                 onYearChange={handleYearChange}
+                                sourceLabel={SOUND_PARAMETERS[soundParameter].source}
                             />
 
                             <YearSonifier
                                 location={selectedLocation}
                                 year={selectedYear}
+                                parameterId={soundParameter}
+                                onParameterChange={setSoundParameter}
                                 onYearChange={handleYearChange}
                             />
 
                             <DAWEngine
                                 locationName={selectedLocation.name}
                                 selectedYear={selectedYear}
+                                parameterId={soundParameter}
                             />
                         </>
                     )}

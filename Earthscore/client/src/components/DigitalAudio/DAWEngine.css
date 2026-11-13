@@ -312,3 +312,8 @@
 .daw-error {
   color: #ff8a8a;
 }
+
+/* Regional Compare file: location B bars (right ear) */
+.wave-bar.slot-b {
+  background: linear-gradient(to top, #a8572f, #ff9f6e);
+}

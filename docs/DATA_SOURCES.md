@@ -23,7 +23,36 @@ pipeline (the unused `data-pipeline/` folder was removed).
 | Timeout | 15 s, then the saved snapshot (preset locations only) |
 | Code | `services/nasaAPI.ts`, validated by `data/validateDataset.ts` |
 
-## Shown in panels (not used for sound)
+### NASA POWER — PRECTOTCORR (monthly rainfall)
+
+| Item | Value |
+|---|---|
+| Endpoint | same as T2M, `parameters=PRECTOTCORR` |
+| Parameter | `PRECTOTCORR` — bias-corrected precipitation, monthly mean |
+| Units | mm/day (response units checked; other units rejected) |
+| Valid range | 0 … 200 mm/day; outside → missing. A real 0 (dry month) stays 0 |
+| Missing value, month 13, absent months | same rules as T2M |
+| Timeout / backup | 15 s, then the saved snapshot if it contains PRECTOTCORR |
+| Code | `services/monthlySeries.ts`, `parsePowerMonthly()` in `data/validateDataset.ts` |
+
+### NOAA GML — global monthly CO₂ and CH₄ (not NASA)
+
+| Item | Value |
+|---|---|
+| Files | `co2_mm_gl.csv` (ppm), `ch4_mm_gl.csv` (ppb) from `gml.noaa.gov/webdata/ccgg/trends/` |
+| Meaning | Global monthly mean of the atmosphere — the same for every location |
+| Period | 2016-01 to the latest month NOAA has published (≤ 2025-12); months before the first value or between values are missing |
+| Code | `services/greenhouseGasAPI.ts`, `gasSeries()` in `services/monthlySeries.ts` |
+
+### Not sonified (yet)
+
+| Data | Reason |
+|---|---|
+| Air quality | Panel shows a current model value, not a monthly series. NASA POWER aerosol optical depth is a candidate, not yet verified. |
+| Vegetation (NDVI) | About 23 MODIS requests per location for 10 years — too slow live. |
+| Population | One value per year, not monthly. |
+
+## Shown in panels
 
 | Panel | Source | Endpoint | Checks in the app |
 |---|---|---|---|
@@ -37,7 +66,8 @@ pipeline (the unused `data-pipeline/` folder was removed).
 ## Offline backup
 
 `client/public/data/power-t2m-snapshot.json` holds saved NASA POWER T2M
-responses for the six preset locations. It is created by `npm run snapshot`
+and PRECTOTCORR responses for the six preset locations (re-run
+`npm run snapshot` once so the file also contains rainfall). It is created by `npm run snapshot`
 (script: `client/scripts/makeSnapshot.mjs`) and used only when the live API
 fails. The app says when saved data is shown and when it was downloaded.
 Re-run the script if the presets change. Do not edit the file by hand.

@@ -9,6 +9,8 @@ const SPEEDS = [0.5, 1, 2] as const;
 interface TimelineScrubberProps {
   selectedYear: number;
   onYearChange: (year: number) => void;
+  // Data source of the sound, shown in the footer.
+  sourceLabel?: string;
 }
 
 const START_YEAR = 2016;
@@ -22,6 +24,7 @@ const MONTH_NAMES = [
 function TimelineScrubber({
   selectedYear,
   onYearChange,
+  sourceLabel = "NASA POWER T2M",
 }: TimelineScrubberProps) {
   // Shared playback (M4 state + audio-clock controller).
   // This component has no timer of its own.
@@ -230,7 +233,7 @@ function TimelineScrubber({
         <span>
           {state.error
             ? `AUDIO ERROR: ${state.error}`
-            : "10-YEAR ENVIRONMENTAL WINDOW · NASA POWER T2M"}
+            : `10-YEAR ENVIRONMENTAL WINDOW · ${sourceLabel.toUpperCase()}`}
         </span>
       </div>
     </section>

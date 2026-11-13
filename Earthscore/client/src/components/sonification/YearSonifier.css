@@ -210,3 +210,51 @@
   color: #6f849b;
   font-size: 12px;
 }
+/* Sound source selector (Temperature / Rainfall / CO₂ / CH₄) */
+.ys-parameters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: #8fa5bd;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.ys-parameters button {
+  padding: 6px 12px;
+  border: 1px solid rgba(66, 217, 232, 0.35);
+  border-radius: 6px;
+  color: #c9d7e8;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.ys-parameters button.active {
+  color: #04121c;
+  background: #42d9e8;
+  border-color: #42d9e8;
+}
+
+.ys-parameters button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.ys-global {
+  padding: 8px 12px;
+  color: #c9d7e8;
+  background: rgba(66, 217, 232, 0.06);
+  border: 1px solid rgba(66, 217, 232, 0.25);
+  border-radius: 8px;
+}
+
+.ys-unit {
+  color: #8fa5bd;
+  font-size: 10px;
+}

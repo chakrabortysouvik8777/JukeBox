@@ -41,3 +41,23 @@ export interface TemperatureSeries {
   // When origin is "snapshot": when the snapshot was downloaded (ISO date).
   readonly snapshotCreatedAt?: string;
 }
+// ---------- Any sonified parameter (temperature, rainfall, CO₂, CH₄) ----------
+
+// One monthly value of a parameter, in that parameter's unit.
+export interface MonthlyObservation {
+  // "<parameter>|<lat>,<lng>:<YYYY-MM>" (or "<parameter>|global:<YYYY-MM>")
+  readonly id: string;
+  readonly date: string; // "YYYY-MM"
+  readonly year: number;
+  readonly month: number; // 1–12
+  readonly value: number | null; // null = missing, never 0
+}
+
+export interface MonthlySeries {
+  readonly parameterId: string; // SoundParameterId
+  readonly regionKey: string; // "<lat>,<lng>" or "global"
+  readonly observations: readonly MonthlyObservation[]; // sorted, no gaps
+  readonly missingCount: number;
+  readonly origin: DataOrigin;
+  readonly snapshotCreatedAt?: string;
+}

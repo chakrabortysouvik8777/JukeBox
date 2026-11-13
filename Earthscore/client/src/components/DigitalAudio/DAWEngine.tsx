@@ -13,12 +13,22 @@ import {
   fileNamePart,
   renderNotes,
 } from "../../audio/renderSonification";
-import { T2M_TEMPERATURE_MAPPING } from "../../config/audioMapping";
+import { COMPARE_PAN } from "../../playback/PlaybackController";
+import {
+  SOUND_PARAMETERS,
+  type SoundParameterId,
+} from "../../config/parameters";
 import type { ObservationEvent } from "../../types/playback";
 
 interface DAWEngineProps {
+  // Explorer: the selected location. Compare: shown as "A vs B".
   locationName: string;
   selectedYear: number;
+  // Parameter that is sonified (default: temperature).
+  parameterId?: SoundParameterId;
+  // Regional Compare: names of location A (left ear) and B (right ear).
+  // When set, the file is stereo with the same panning as live playback.
+  slotNames?: { A: string; B: string };
 }
 
 // A rendered WAV file and what it contains.
@@ -26,8 +36,9 @@ interface RenderedTrack {
   url: string; // blob: URL, revoked when replaced
   fileName: string;
   label: string; // e.g. "2016–2025" or "2019"
-  regionId: string;
-  events: ObservationEvent[]; // the months in the file, in order
+  sourceKey: string; // which data the file was made from
+  stereo: boolean;
+  events: ObservationEvent[]; // the notes in the file, in order
   stepSeconds: number;
   contour: number[]; // 0–1 pitch height per bar; -1 = missing month
   sizeBytes: number;
@@ -41,14 +52,14 @@ const BAR_COUNT = 64;
  * Pitch of the file over time, one value per bar. All notes have the same
  * loudness, so pitch is what changes and what the bars show.
  * Scaled from the lowest (0) to the highest (1) note in this file, so small
- * temperature changes are visible. Missing months give -1.
+ * value changes are visible. Missing months give -1.
  */
 function pitchContour(events: readonly ObservationEvent[], bars: number): number[] {
   // Pitch in octaves above the mapping's lowest note (log scale = how we hear).
   const pitches = events.map((event) =>
     event.audioFrequencyHz === null
       ? null
-      : Math.log2(event.audioFrequencyHz / T2M_TEMPERATURE_MAPPING.minFrequencyHz),
+      : Math.log2(event.audioFrequencyHz),
   );
 
   const known = pitches.filter((p): p is number => p !== null);
@@ -68,7 +79,14 @@ const MONTH_NAMES = [
   "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
 ];
 
-function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
+function DAWEngine({
+  locationName,
+  selectedYear,
+  parameterId = "temperature",
+  slotNames,
+}: DAWEngineProps) {
+  const parameter = SOUND_PARAMETERS[parameterId];
+
   // Same events, timing and mute as the live timeline.
   const { state: playback, dispatch } = useAppState();
 
@@ -84,7 +102,12 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
   const [volume, setVolume] = useState(0.7);
 
   const events = playback.events;
-  const regionId = events[0]?.regionId ?? null;
+  const isCompare = events.some((event) => event.slot === "B");
+  // Identifies the data in the shared timeline (location(s) + parameter).
+  const sourceKey =
+    events.length > 0
+      ? `${events[0].id}|${events[1]?.id ?? ""}|${events.length}`
+      : null;
   const firstYear = events[0]?.date.slice(0, 4);
   const lastYear = events[events.length - 1]?.date.slice(0, 4);
 
@@ -98,15 +121,15 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
     };
   }, [track?.url]);
 
-  // A file belongs to one location: clear it as soon as the location
-  // changes (also while the new location is still loading).
+  // A file belongs to one data source: clear it as soon as the location(s)
+  // or the parameter change (also while the new data is still loading).
   useEffect(() => {
-    if (track && track.regionId !== regionId) {
+    if (track && track.sourceKey !== sourceKey) {
       setTrack(null);
       setCurrentTime(0);
       setDuration(0);
     }
-  }, [regionId, track]);
+  }, [sourceKey, track]);
 
   // Never play the file and the live timeline at the same time.
   useEffect(() => {
@@ -121,7 +144,7 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
   // ---------- Rendering ----------
 
   async function render(range: "all" | "year") {
-    if (events.length === 0 || regionId === null) return;
+    if (events.length === 0 || sourceKey === null) return;
 
     const start = range === "all" ? 0 : firstIndexOfYear(events, selectedYear);
     const end =
@@ -138,23 +161,34 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
     setRenderError("");
 
     try {
+      // Compare: A on the left, B on the right (same as live playback).
       const buffer = await renderNotes(
-        slice.map((event) => ({ frequencyHz: event.audioFrequencyHz })),
+        slice.map((event) => ({
+          frequencyHz: event.audioFrequencyHz,
+          pan: isCompare ? (event.slot === "A" ? -COMPARE_PAN : COMPARE_PAN) : 0,
+        })),
         {
           stepSeconds,
           noteSeconds: Math.max(0.05, stepSeconds * PLAYBACK_DEFAULTS.noteFraction),
         },
       );
 
-      const samples = buffer.getChannelData(0);
-      const wav = encodeWav(samples, buffer.sampleRate);
+      const channels = Array.from({ length: buffer.numberOfChannels }, (_, c) =>
+        buffer.getChannelData(c),
+      );
+      const wav = encodeWav(channels, buffer.sampleRate);
       const blob = new Blob([wav], { type: "audio/wav" });
+
+      const place = slotNames
+        ? `compare-${fileNamePart(slotNames.A)}-vs-${fileNamePart(slotNames.B)}`
+        : fileNamePart(locationName);
 
       setTrack({
         url: URL.createObjectURL(blob),
-        fileName: `earthscore-${fileNamePart(locationName)}-${label.replace("–", "-")}.wav`,
+        fileName: `earthscore-${place}-${parameterId}-${label.replace("–", "-")}.wav`,
         label,
-        regionId,
+        sourceKey,
+        stereo: buffer.numberOfChannels === 2,
         events: slice,
         stepSeconds,
         contour: pitchContour(slice, Math.max(BAR_COUNT, slice.length)),
@@ -238,7 +272,7 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
   const progress =
     duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Which month of the file is heard at the current position.
+  // Which note of the file is heard at the current position.
   const monthIndex = track
     ? Math.min(track.events.length - 1, Math.floor(currentTime / track.stepSeconds))
     : -1;
@@ -246,10 +280,22 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
   const monthLabel = monthEvent
     ? `${MONTH_NAMES[Number(monthEvent.date.slice(5, 7)) - 1]} ${monthEvent.date.slice(0, 4)}`
     : null;
+  const eventValue = monthEvent
+    ? (monthEvent.value ?? monthEvent.temperatureCelsius ?? null)
+    : null;
   const monthValue =
-    monthEvent?.temperatureCelsius === null || monthEvent === undefined
+    eventValue === null
       ? "no data"
-      : `${monthEvent.temperatureCelsius.toFixed(1)}°C`;
+      : `${eventValue.toFixed(parameter.decimals)} ${parameter.unit}`;
+  const monthPlace =
+    monthEvent && slotNames && isCompare
+      ? `${monthEvent.slot} · ${slotNames[monthEvent.slot]} · `
+      : "";
+  const monthCount = track
+    ? isCompare
+      ? `${track.events.length / 2} months × 2 places · stereo`
+      : `${track.events.length} months`
+    : "";
 
   const canRender = events.length > 0 && !isRendering;
   const yearAvailable = firstIndexOfYear(events, selectedYear) >= 0;
@@ -279,8 +325,9 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
           <p className="daw-eyebrow">AUDIO SYNTHESIS MODULE</p>
           <h2>DAW Engine</h2>
           <p className="daw-subtitle">
-            Render the sonification as a WAV file: listen, scrub through
-            the months and download it.
+            {slotNames
+              ? `Render the A → B comparison as a stereo WAV file (A left, B right): listen, scrub through the months and download it.`
+              : "Render the sonification as a WAV file: listen, scrub through the months and download it."}
           </p>
         </div>
 
@@ -327,17 +374,17 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
 
         <div className="track-info">
           <strong>
-            Earth Sonification · {locationName}
+            {parameter.label} · {slotNames ? `${slotNames.A} vs ${slotNames.B}` : locationName}
             {track ? ` · ${track.label}` : ""}
           </strong>
           <span>
             {track
-              ? `NASA POWER T2M · ${track.events.length} months · WAV ${(track.sizeBytes / 1_000_000).toFixed(1)} MB`
+              ? `${parameter.source} · ${monthCount} · WAV ${(track.sizeBytes / 1_000_000).toFixed(1)} MB`
               : "No audio rendered yet"}
           </span>
           {track && monthLabel && (
             <span aria-live="off">
-              Now: {monthLabel} · {monthValue}
+              Now: {monthLabel} · {monthPlace}{monthValue}
             </span>
           )}
         </div>
@@ -347,12 +394,16 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
         </div>
       </div>
 
-      {/* Pitch bars: height = pitch (temperature) of the months in the file.
-          Before rendering they are a decorative placeholder. */}
+      {/* Pitch bars: height = pitch of the notes in the file (compare: A and
+          B in two colours). Before rendering they are a decorative placeholder. */}
       <div
         className={`daw-waveform ${isPlaying ? "playing" : ""}`}
         aria-hidden="true"
-        title={track ? "Bar height = pitch of each month (higher = warmer)" : undefined}
+        title={
+          track
+            ? `Bar height = pitch of each note (higher = ${parameter.highWord})`
+            : undefined
+        }
       >
         {Array.from({ length: track ? track.contour.length : BAR_COUNT }, (_, index) => {
           const value = track ? track.contour[index] : 0;
@@ -365,10 +416,14 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
           const played =
             track !== null && (index + 0.5) / track.contour.length <= progress / 100;
 
+          const barEvent = track
+            ? track.events[Math.floor((index / track.contour.length) * track.events.length)]
+            : undefined;
+
           return (
             <span
               key={index}
-              className="wave-bar"
+              className={`wave-bar ${track?.stereo && barEvent?.slot === "B" ? "slot-b" : ""}`}
               style={{
                 height: `${height}%`,
                 opacity: track ? (played ? 1 : 0.4) : undefined,
@@ -463,8 +518,8 @@ function DAWEngine({ locationName, selectedYear }: DAWEngineProps) {
       {!track && !isRendering && (
         <p className="daw-placeholder">
           {events.length === 0
-            ? "Waiting for NASA data…"
-            : "Choose a render button above. The file uses the same notes as the timeline (higher pitch = warmer)."}
+            ? "Waiting for data…"
+            : `Choose a render button above. The file uses the same notes as the live playback (higher pitch = ${parameter.highWord}).`}
         </p>
       )}
     </section>

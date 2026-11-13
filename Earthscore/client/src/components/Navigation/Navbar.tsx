@@ -14,6 +14,8 @@ interface NavbarProps {
     muted: boolean;
     onLocationSelect: (location: Location) => void;
     onMuteToggle: () => void;
+    // Data source of the sound on the current page (default: all sources).
+    soundLabel?: string;
 }
 
 const Navbar = ({
@@ -22,6 +24,7 @@ const Navbar = ({
     muted,
     onLocationSelect,
     onMuteToggle,
+    soundLabel = "NASA POWER T2M / PRECTOTCORR · NOAA CO₂ / CH₄",
 }: NavbarProps) => {
 
     const [query, setQuery] = useState("");
@@ -228,7 +231,7 @@ const Navbar = ({
                 <div className="telemetry-divider"></div>
 
                 <div className="data-sources">
-                    SOUND: NASA POWER T2M (monthly air temperature at 2 m)
+                    SOUND: {soundLabel}
                 </div>
 
                 <div className="mission-status">

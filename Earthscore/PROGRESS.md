@@ -1,6 +1,6 @@
 # PROGRESS — Earth Information Jukebox
 
-Last updated: 12 November 2026 (Regional Compare added). See `docs/VALIDATION.md` for evidence.
+Last updated: 13 November 2026 (four sound sources, Compare DAW). See `docs/VALIDATION.md` for evidence.
 
 ## Working (verified with automated tests and sandbox browser runs)
 
@@ -21,6 +21,15 @@ Last updated: 12 November 2026 (Regional Compare added). See `docs/VALIDATION.md
 - Pages: Planetary Explorer, Regional Compare, Data Sources & Methodology.
   Any page change stops the sound.
 
+**Sound sources (mentor request)**
+- Explorer "Sound source": Temperature (NASA POWER T2M), Rainfall (NASA
+  POWER PRECTOTCORR), CO₂ and CH₄ (NOAA global monthly, labelled global).
+- Each has a fixed mapping (`t2m-pitch-v1`, `rain-pitch-v1`, `co2-pitch-v1`,
+  `ch4-pitch-v1`); month cards, chart, legend, timeline, DAW and navbar
+  follow the chosen parameter.
+- Not sonified yet: air quality, vegetation, population (reasons in
+  Methodology 5b and docs/DATA_SOURCES.md).
+
 **Regional Compare**
 - Location A and B: presets, search, quick matchups; loading, error and
   saved-data notices for each.
@@ -30,6 +39,9 @@ Last updated: 12 November 2026 (Regional Compare added). See `docs/VALIDATION.md
 - Active location and month highlighted with the sound.
 - Play, pause, resume, stop, month seek (slider, buttons, chart click),
   speed, volume, mute; changing a location stops sound and cancels requests.
+- Parameter: Temperature or Rainfall (same mapping for A and B).
+- DAW Engine: renders the comparison as a stereo WAV (A left, B right),
+  shows which place is heard, download.
 
 ## Not yet verified
 
@@ -38,7 +50,9 @@ Last updated: 12 November 2026 (Regional Compare added). See `docs/VALIDATION.md
 ## Next
 
 - Real-device listening checks for both pages (docs/VALIDATION.md, C).
-- Optional: comparison audio export (stereo WAV).
+- Re-run `npm run snapshot` so the backup also holds rainfall.
+- Check whether NASA POWER AOD_55 (aerosols) and a saved MODIS NDVI series
+  can be added as sound sources.
 - Deploy as a static site and check on the demo device.
 
 ## Team

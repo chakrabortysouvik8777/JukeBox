@@ -16,6 +16,8 @@ function fakeContextFactory() {
     frequency: [] as Array<[number, number]>,
     gainSet: [] as Array<[number, number]>,
     gainRamp: [] as Array<[number, number]>,
+    pan: [] as Array<[number, number]>,
+    pannerCreated: 0,
     created: null as null | { channels: number; length: number; sampleRate: number },
     start: vi.fn(),
     stop: vi.fn(),
@@ -47,6 +49,13 @@ function fakeContextFactory() {
       sampleRate,
       createOscillator: () => oscillator as unknown as OscillatorNode,
       createGain: () => gain as unknown as GainNode,
+      createStereoPanner: () => {
+        calls.pannerCreated += 1;
+        return {
+          pan: { setValueAtTime: (v: number, t: number) => calls.pan.push([v, t]) },
+          connect: (node: unknown) => node,
+        } as unknown as StereoPannerNode;
+      },
       startRendering: async () => ({ duration: length / sampleRate }) as AudioBuffer,
     };
   };
@@ -92,6 +101,40 @@ describe("renderNotes", () => {
     expect(calls.stop).toHaveBeenCalledWith(seconds);
   });
 
+  it("renders mono without a panner when no note is panned", async () => {
+    const { factory, calls } = fakeContextFactory();
+    await renderNotes([{ frequencyHz: 220 }, { frequencyHz: 440 }], options, factory);
+    expect(calls.created?.channels).toBe(1);
+    expect(calls.pannerCreated).toBe(0);
+  });
+
+  it("renders stereo and pans each note (A left, B right)", async () => {
+    const { factory, calls } = fakeContextFactory();
+    await renderNotes(
+      [
+        { frequencyHz: 220, pan: -0.6 },
+        { frequencyHz: 440, pan: 0.6 },
+        { frequencyHz: null, pan: -0.6 }, // missing: no note, no pan change
+      ],
+      options,
+      factory,
+    );
+    expect(calls.created?.channels).toBe(2);
+    expect(calls.pannerCreated).toBe(1);
+    expect(calls.pan).toEqual([
+      [0, 0],
+      [-0.6, 0],
+      [0.6, 0.5],
+    ]);
+  });
+
+  it("rejects an invalid pan", async () => {
+    const { factory } = fakeContextFactory();
+    await expect(
+      renderNotes([{ frequencyHz: 220, pan: 3 }], options, factory),
+    ).rejects.toThrow("Pan");
+  });
+
   it.each([
     [{ stepSeconds: 0, noteSeconds: 0.4 }],
     [{ stepSeconds: 0.5, noteSeconds: 0.6 }],
@@ -122,6 +165,25 @@ describe("encodeWav", () => {
     expect(view.getInt16(46, true)).toBe(32767);
     expect(view.getInt16(48, true)).toBe(-32768);
     expect(view.getInt16(50, true)).toBe(16383);
+  });
+
+  it("writes interleaved stereo (L, R, L, R)", () => {
+    const left = new Float32Array([1, 0]);
+    const right = new Float32Array([0, -1]);
+    const wav = encodeWav([left, right], 22050);
+    const view = new DataView(wav);
+
+    expect(wav.byteLength).toBe(44 + 2 * 2 * 2);
+    expect(view.getUint16(22, true)).toBe(2); // channels
+    expect(view.getUint32(28, true)).toBe(22050 * 4); // byte rate
+    expect(view.getUint16(32, true)).toBe(4); // block align
+    expect([44, 46, 48, 50].map((o) => view.getInt16(o, true))).toEqual([
+      32767, 0, 0, -32768,
+    ]);
+  });
+
+  it("rejects channels of different length", () => {
+    expect(() => encodeWav([new Float32Array(2), new Float32Array(3)], 8000)).toThrow();
   });
 
   it("clips values outside −1…1", () => {

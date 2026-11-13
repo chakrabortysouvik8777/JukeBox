@@ -75,6 +75,20 @@ Preserve and display the original temperature and clipped flag.
 - -40 °C → 220 Hz, 45 °C → 880 Hz (two octaves).
 - Use this mapping for the app's T2M data; sst-pitch-v1 is kept for sea-surface data.
 
+### Other sonified parameters (`client/src/config/parameters.ts`)
+
+The same formula with the parameter's own unit in place of °C
+(`minTemperatureC` / `maxTemperatureC` hold values in that unit):
+
+| Mapping | Parameter | Range → 220–880 Hz |
+|---|---|---|
+| rain-pitch-v1 | NASA POWER PRECTOTCORR | 0 … 15 mm/day |
+| co2-pitch-v1 | NOAA global CO₂ | 400 … 430 ppm |
+| ch4-pitch-v1 | NOAA global CH₄ | 1830 … 1950 ppb |
+
+Regional Compare and its stereo WAV use the same pan as live playback
+(A −0.6, B +0.6).
+
 ## 5. Public engine methods
 
 ### start(): Promise<void>

@@ -9,6 +9,9 @@
 export interface RenderNote {
   // Frequency of the note, or null for a missing observation (silence).
   frequencyHz: number | null;
+  // Stereo position −1 (left) … 1 (right). If any note has a pan other
+  // than 0, the file is rendered in stereo (Regional Compare: A left, B right).
+  pan?: number;
 }
 
 export interface RenderOptions {
@@ -25,6 +28,7 @@ export interface OfflineContextLike {
   readonly sampleRate: number;
   createOscillator(): OscillatorNode;
   createGain(): GainNode;
+  createStereoPanner(): StereoPannerNode;
   startRendering(): Promise<AudioBuffer>;
 }
 
@@ -65,18 +69,33 @@ export async function renderNotes(
     throw new Error("Amplitude must be between 0 and 1.");
   }
 
+  for (const note of notes) {
+    const pan = note.pan ?? 0;
+    if (!Number.isFinite(pan) || pan < -1 || pan > 1) {
+      throw new Error("Pan must be between -1 (left) and 1 (right).");
+    }
+  }
+
+  const stereo = notes.some((note) => (note.pan ?? 0) !== 0);
   const duration = renderDurationSeconds(notes.length, options);
   const length = Math.ceil(duration * sampleRate);
-  const context = createContext(1, length, sampleRate);
+  const context = createContext(stereo ? 2 : 1, length, sampleRate);
 
   const oscillator = context.createOscillator();
   const envelope = context.createGain();
+  const panner = stereo ? context.createStereoPanner() : null;
 
   oscillator.type = "sine";
   envelope.gain.setValueAtTime(0, 0);
 
   oscillator.connect(envelope);
-  envelope.connect(context.destination);
+  if (panner) {
+    panner.pan.setValueAtTime(0, 0);
+    envelope.connect(panner);
+    panner.connect(context.destination);
+  } else {
+    envelope.connect(context.destination);
+  }
 
   notes.forEach((note, index) => {
     if (note.frequencyHz === null) return;
@@ -87,6 +106,7 @@ export async function renderNotes(
     // Same envelope as the live AudioEngine: silent start, 20 ms fade in,
     // hold, 20 ms fade out to zero, so there are no clicks between notes.
     oscillator.frequency.setValueAtTime(note.frequencyHz, start);
+    panner?.pan.setValueAtTime(note.pan ?? 0, start);
     envelope.gain.setValueAtTime(0, start);
     envelope.gain.linearRampToValueAtTime(amplitude, start + FADE_SECONDS);
     envelope.gain.setValueAtTime(amplitude, end - FADE_SECONDS);
@@ -99,10 +119,25 @@ export async function renderNotes(
   return context.startRendering();
 }
 
-/** Encode mono samples (−1…1) as a 16-bit PCM WAV file. */
-export function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
+/**
+ * Encode samples (−1…1) as a 16-bit PCM WAV file.
+ * Pass one Float32Array for mono, or an array of channels (e.g. [left, right]).
+ */
+export function encodeWav(
+  input: Float32Array | readonly Float32Array[],
+  sampleRate: number,
+): ArrayBuffer {
+  const channels = input instanceof Float32Array ? [input] : [...input];
+  if (channels.length === 0) throw new Error("No audio channels to encode.");
+
+  const frames = channels[0].length;
+  if (channels.some((ch) => ch.length !== frames)) {
+    throw new Error("All audio channels must have the same length.");
+  }
+
+  const channelCount = channels.length;
   const bytesPerSample = 2;
-  const dataSize = samples.length * bytesPerSample;
+  const dataSize = frames * channelCount * bytesPerSample;
   const buffer = new ArrayBuffer(44 + dataSize);
   const view = new DataView(buffer);
 
@@ -116,19 +151,22 @@ export function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffe
   writeText(12, "fmt ");
   view.setUint32(16, 16, true); // fmt chunk size
   view.setUint16(20, 1, true); // PCM
-  view.setUint16(22, 1, true); // mono
+  view.setUint16(22, channelCount, true); // 1 = mono, 2 = stereo
   view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * bytesPerSample, true); // byte rate
-  view.setUint16(32, bytesPerSample, true); // block align
+  view.setUint32(28, sampleRate * bytesPerSample * channelCount, true); // byte rate
+  view.setUint16(32, bytesPerSample * channelCount, true); // block align
   view.setUint16(34, 16, true); // bits per sample
   writeText(36, "data");
   view.setUint32(40, dataSize, true);
 
+  // Samples are interleaved: L, R, L, R, …
   let offset = 44;
-  for (let i = 0; i < samples.length; i++) {
-    const s = Math.max(-1, Math.min(1, samples[i]));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-    offset += bytesPerSample;
+  for (let i = 0; i < frames; i++) {
+    for (let ch = 0; ch < channelCount; ch++) {
+      const s = Math.max(-1, Math.min(1, channels[ch][i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      offset += bytesPerSample;
+    }
   }
 
   return buffer;

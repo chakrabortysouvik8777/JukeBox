@@ -1,5 +1,6 @@
 import { ObservationEvent } from '../types/playback';
-import type { TemperatureSeries } from '../types/dataset';
+import type { MonthlySeries, TemperatureSeries } from '../types/dataset';
+import type { SoundParameter } from '../config/parameters';
 import type { TemperatureMappingConfig } from '../types/audio';
 import { temperatureToSound } from '../audio/temperatureMapping';
 import { locationKey } from '../data/validateDataset';
@@ -12,6 +13,9 @@ export interface RawRecord {
   temperatureCelsius: number | null;
   audioFrequencyHz: number | null;
   frameUrl?: string;
+  parameterId?: string;
+  value?: number | null;
+  unit?: string;
 }
 
 /**
@@ -75,6 +79,31 @@ export function recordsFromSeries(
       audioFrequencyHz: sound.frequencyHz,
     };
   });
+}
+
+/**
+ * Playback records for any parameter (temperature, rainfall, CO₂, CH₄),
+ * using that parameter's fixed pitch mapping. Missing values stay silent.
+ */
+export function recordsFromMonthly(
+  series: MonthlySeries,
+  parameter: SoundParameter,
+  idPrefix = ''
+): RawRecord[] {
+  const isTemperature = parameter.id === 'temperature';
+
+  return series.observations.map((observation) => ({
+    id: `${idPrefix}${observation.id}`,
+    date: observation.date,
+    regionId: series.regionKey,
+    parameterId: parameter.id,
+    value: observation.value,
+    unit: parameter.unit,
+    temperatureCelsius: isTemperature ? observation.value : null,
+    temperatureKelvin:
+      isTemperature && observation.value !== null ? observation.value + 273.15 : null,
+    audioFrequencyHz: temperatureToSound(observation.value, parameter.mapping).frequencyHz,
+  }));
 }
 
 /** Index of the first event of a year ("YYYY-01"), or -1. */
