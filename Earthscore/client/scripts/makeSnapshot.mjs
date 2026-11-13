@@ -1,4 +1,5 @@
-// Saves NASA POWER T2M (temperature) and PRECTOTCORR (rainfall) data for
+// Saves NASA POWER T2M (temperature), PRECTOTCORR (rainfall) and AOD_55
+// (aerosols) data for
 // the preset locations into
 // public/data/power-t2m-snapshot.json, so the demo still works
 // if NASA is slow or offline.
@@ -26,13 +27,16 @@ const OUTPUT = new URL("../public/data/power-t2m-snapshot.json", import.meta.url
 
 // Same request as the app (src/services/nasaAPI.ts and monthlySeries.ts),
 // with both parameters in one call.
+// T2M and PRECTOTCORR in one request (community SB), AOD_55 in a second
+// request with community RE (as the app does).
 const PARAMETERS = ["T2M", "PRECTOTCORR"];
-const DEFAULT_UNITS = { T2M: "C", PRECTOTCORR: "mm/day" };
+const EXTRA = [{ name: "AOD_55", community: "RE" }];
+const DEFAULT_UNITS = { T2M: "C", PRECTOTCORR: "mm/day", AOD_55: "dimensionless" };
 
-function buildUrl(lat, lng) {
+function buildUrl(lat, lng, parameters = PARAMETERS.join(","), community = "SB") {
   const params = new URLSearchParams({
-    parameters: PARAMETERS.join(","),
-    community: "SB",
+    parameters,
+    community,
     longitude: lng.toFixed(4),
     latitude: lat.toFixed(4),
     start: "2016",
@@ -74,6 +78,21 @@ for (const preset of PRESETS) {
       units[name] = { units: json?.parameters?.[name]?.units ?? DEFAULT_UNITS[name] };
     }
 
+    // Extra parameters: a failure here only skips that parameter.
+    for (const extra of EXTRA) {
+      try {
+        const r = await fetch(buildUrl(preset.lat, preset.lng, extra.name, extra.community));
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const j = await r.json();
+        const series = j?.properties?.parameter?.[extra.name];
+        if (!series || typeof series !== "object") throw new Error("no values");
+        values[extra.name] = series;
+        units[extra.name] = { units: j?.parameters?.[extra.name]?.units ?? DEFAULT_UNITS[extra.name] };
+      } catch (error) {
+        console.warn(`WARN  ${preset.name}: ${extra.name} not saved (${error.message})`);
+      }
+    }
+
     entries[locationKey(preset.lat, preset.lng)] = {
       name: preset.name,
       url,
@@ -105,7 +124,7 @@ await writeFile(
   JSON.stringify(
     {
       createdAt: new Date().toISOString(),
-      note: "Saved NASA POWER responses (T2M and PRECTOTCORR, monthly). Real data, used only when the live API fails.",
+      note: "Saved NASA POWER responses (T2M, PRECTOTCORR and AOD_55, monthly). Real data, used only when the live API fails.",
       entries,
     },
     null,

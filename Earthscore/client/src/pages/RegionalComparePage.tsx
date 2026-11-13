@@ -61,7 +61,7 @@ const MONTH_NAMES = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-const COLORS: Record<Slot, string> = { A: "#42d9e8", B: "#ff9f6e" };
+const COLORS: Record<Slot, string> = { A: "#427b9c", B: "#b7502d" };
 
 function formatHz(value: number | null, parameter: SoundParameter): string {
   if (value === null) return "no tone";
@@ -438,29 +438,29 @@ export default function RegionalComparePage() {
               }}
               style={{ cursor: "pointer" }}
             >
-              <CartesianGrid stroke="rgba(143,165,189,0.12)" vertical={false} />
+              <CartesianGrid stroke="rgba(49,77,94,0.12)" vertical={false} />
               <XAxis
                 dataKey="date"
                 ticks={yearTicks}
                 tickFormatter={(d: string) => d.slice(0, 4)}
-                tick={{ fill: "#8fa5bd", fontSize: 11 }}
-                stroke="rgba(143,165,189,0.3)"
+                tick={{ fill: "#71818a", fontSize: 12 }}
+                stroke="rgba(49,77,94,0.25)"
               />
               <YAxis
                 unit={` ${parameter.unit}`}
-                width={parameter.unit.length > 3 ? 72 : 56}
-                tick={{ fill: "#8fa5bd", fontSize: 11 }}
-                stroke="rgba(143,165,189,0.3)"
+                width={parameter.unit.length > 3 || parameter.decimals > 1 ? 80 : 56}
+                tick={{ fill: "#71818a", fontSize: 12 }}
+                stroke="rgba(49,77,94,0.25)"
                 domain={["auto", "auto"]}
               />
               <Tooltip
                 contentStyle={{
-                  background: "#0b1726",
-                  border: "1px solid rgba(66,217,232,0.4)",
+                  background: "#ffffff",
+                  border: "1px solid rgba(67,117,143,0.25)",
                   borderRadius: 8,
-                  color: "#e8f1ff",
+                  color: "#294250",
                 }}
-                labelStyle={{ color: "#8fa5bd" }}
+                labelStyle={{ color: "#61737d" }}
                 formatter={(value, name) => [
                   typeof value === "number" ? fmt(value) : "missing",
                   name === "a" ? `A · ${locA.name}` : `B · ${locB.name}`,
@@ -484,7 +484,7 @@ export default function RegionalComparePage() {
                 connectNulls={false}
                 isAnimationActive={false}
               />
-              {row && <ReferenceLine x={row.date} stroke="rgba(232,241,255,0.35)" />}
+              {row && <ReferenceLine x={row.date} stroke="rgba(49,77,94,0.35)" />}
               {row?.a != null && (
                 <ReferenceDot
                   x={row.date}

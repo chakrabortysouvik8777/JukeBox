@@ -24,7 +24,7 @@ const Navbar = ({
     muted,
     onLocationSelect,
     onMuteToggle,
-    soundLabel = "NASA POWER T2M / PRECTOTCORR · NOAA CO₂ / CH₄",
+    soundLabel = "NASA POWER T2M / PRECTOTCORR / AOD_55 · NOAA CO₂ / CH₄",
 }: NavbarProps) => {
 
     const [query, setQuery] = useState("");

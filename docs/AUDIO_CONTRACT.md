@@ -83,6 +83,7 @@ The same formula with the parameter's own unit in place of °C
 | Mapping | Parameter | Range → 220–880 Hz |
 |---|---|---|
 | rain-pitch-v1 | NASA POWER PRECTOTCORR | 0 … 15 mm/day |
+| aod-pitch-v1 | NASA POWER AOD_55 | 0 … 1.5 (no unit) |
 | co2-pitch-v1 | NOAA global CO₂ | 400 … 430 ppm |
 | ch4-pitch-v1 | NOAA global CH₄ | 1830 … 1950 ppb |
 

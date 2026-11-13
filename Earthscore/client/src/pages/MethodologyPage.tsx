@@ -19,9 +19,9 @@ export default function MethodologyPage() {
         <h1>How the Earth Information Jukebox works</h1>
         <p>
           The prototype turns monthly Earth data into sound: each month
-          becomes one note, and a higher value sounds higher. Four parameters
-          can be heard — air temperature and rainfall at any point on Earth
-          (NASA POWER), and global CO₂ and methane (NOAA). The same values
+          becomes one note, and a higher value sounds higher. Five parameters
+          can be heard — air temperature, rainfall and aerosols (haze) at any
+          point on Earth (NASA POWER), and global CO₂ and methane (NOAA). The same values
           drive the chart, the month cards and the audio, so what you see and
           what you hear always match.
         </p>
@@ -38,6 +38,7 @@ export default function MethodologyPage() {
           <ul>
             <li><strong>Temperature</strong> — NASA POWER T2M: mean air temperature at 2 m, °C.</li>
             <li><strong>Rainfall</strong> — NASA POWER PRECTOTCORR: bias-corrected precipitation, mm/day (monthly mean).</li>
+            <li><strong>Air quality (aerosols)</strong> — NASA POWER AOD_55: aerosol optical depth at 550 nm, no unit. How much dust, smoke and haze dims sunlight; a proxy for particle pollution, not a ground air-quality index.</li>
             <li><strong>CO₂ / CH₄</strong> — NOAA GML global monthly means (ppm / ppb). Not NASA, and the same for every location.</li>
             <li>NASA POWER values are the gridded product at the selected point, not a weather-station reading and not a city-wide average.</li>
             <li>Fetched live in the browser; no API key is used. If NASA POWER does not respond within 15 seconds, saved NASA data for the six preset locations is used, and the app says so with the download date.</li>
@@ -49,7 +50,7 @@ export default function MethodologyPage() {
           <ul>
             <li>NASA's month 13 (the annual mean) is removed.</li>
             <li>The fill value −999 becomes <em>missing</em>, never 0 °C.</li>
-            <li>Values below −90 °C or above 60 °C, and rainfall below 0 or above 200 mm/day, are treated as missing.</li>
+            <li>Values below −90 °C or above 60 °C, rainfall below 0 or above 200 mm/day, and AOD below 0 or above 10 are treated as missing.</li>
             <li>Months absent from a response are inserted as missing, so timing stays even.</li>
             <li>A response in the wrong units is rejected.</li>
           </ul>
@@ -173,8 +174,11 @@ frequency = ${m.minFrequencyHz} Hz × 2^(${m.octaves} × u)`}
 
         <section className="page-card page-wide">
           <h2>5b. Not sonified (yet) and why</h2>
+          <p>
+            The Air quality side panel shows current pollutant values from a
+            model; the sound uses NASA aerosol optical depth (see 1).
+          </p>
           <ul>
-            <li><strong>Air quality</strong> — the panel shows a current model estimate, not a 2016–2025 monthly series. A NASA monthly aerosol series (aerosol optical depth) is a candidate, but is not yet verified.</li>
             <li><strong>Vegetation (NDVI)</strong> — available from NASA MODIS, but ten years need about 23 separate requests per location, too slow for a live demo. A saved series is a possible next step.</li>
             <li><strong>Population</strong> — one modelled value per year, not a monthly series, so there is nothing to play month by month.</li>
           </ul>
@@ -195,7 +199,7 @@ frequency = ${m.minFrequencyHz} Hz × 2^(${m.octaves} × u)`}
           <h2>7. Regional Compare</h2>
           <ul>
             <li>Two locations are aligned by calendar month; a month missing at one location stays missing (silent) there.</li>
-            <li>Temperature or rainfall can be compared (CO₂ and CH₄ are global, so A and B would be identical).</li>
+            <li>Temperature, rainfall or aerosols can be compared (CO₂ and CH₄ are global, so A and B would be identical).</li>
             <li>Both use the same pitch mapping, so the same value always gives the same note.</li>
             <li>Each month plays A then B. With headphones A is on the left and B on the right (partly panned, so speakers still play both).</li>
             <li>The difference is <strong>A − B</strong> for the same month in the parameter's unit, not a climate anomaly.</li>

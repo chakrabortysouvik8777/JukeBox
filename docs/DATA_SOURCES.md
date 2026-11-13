@@ -35,6 +35,16 @@ pipeline (the unused `data-pipeline/` folder was removed).
 | Timeout / backup | 15 s, then the saved snapshot if it contains PRECTOTCORR |
 | Code | `services/monthlySeries.ts`, `parsePowerMonthly()` in `data/validateDataset.ts` |
 
+### NASA POWER — AOD_55 (monthly aerosols, "Air quality")
+
+| Item | Value |
+|---|---|
+| Endpoint | same as T2M, `parameters=AOD_55`, `community=RE` (checked in the Codespace on 2026-11-13: real monthly values for Kolkata) |
+| Parameter | `AOD_55` — aerosol optical depth at 550 nm, monthly mean (no unit) |
+| Meaning | How much dust, smoke and haze dims sunlight. A proxy for particle pollution, **not** a ground air-quality index (AQI) |
+| Valid range | 0 … 10; outside → missing. Month 13, −999 and absent months as for T2M |
+| Code | `services/monthlySeries.ts` (AEROSOL_SPEC) |
+
 ### NOAA GML — global monthly CO₂ and CH₄ (not NASA)
 
 | Item | Value |
@@ -48,8 +58,7 @@ pipeline (the unused `data-pipeline/` folder was removed).
 
 | Data | Reason |
 |---|---|
-| Air quality | Panel shows a current model value, not a monthly series. NASA POWER aerosol optical depth is a candidate, not yet verified. |
-| Vegetation (NDVI) | About 23 MODIS requests per location for 10 years — too slow live. |
+| Vegetation (NDVI) | About 23 MODIS requests per location for 10 years — too slow live (a request for 11 composites returned HTTP 400 in the Codespace check). |
 | Population | One value per year, not monthly. |
 
 ## Shown in panels
@@ -65,9 +74,9 @@ pipeline (the unused `data-pipeline/` folder was removed).
 
 ## Offline backup
 
-`client/public/data/power-t2m-snapshot.json` holds saved NASA POWER T2M
-and PRECTOTCORR responses for the six preset locations (re-run
-`npm run snapshot` once so the file also contains rainfall). It is created by `npm run snapshot`
+`client/public/data/power-t2m-snapshot.json` holds saved NASA POWER T2M,
+PRECTOTCORR and AOD_55 responses for the six preset locations (re-run
+`npm run snapshot` once so the file also contains rainfall and aerosols). It is created by `npm run snapshot`
 (script: `client/scripts/makeSnapshot.mjs`) and used only when the live API
 fails. The app says when saved data is shown and when it was downloaded.
 Re-run the script if the presets change. Do not edit the file by hand.

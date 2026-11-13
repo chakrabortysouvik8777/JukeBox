@@ -31,8 +31,8 @@ function powerJson(values: Record<string, unknown>, units = "mm/day") {
 
 describe("parameter registry", () => {
   it("has four sonified parameters, two of them measured per point", () => {
-    expect(SOUND_PARAMETER_IDS).toEqual(["temperature", "rainfall", "co2", "ch4"]);
-    expect(POINT_PARAMETER_IDS).toEqual(["temperature", "rainfall"]);
+    expect(SOUND_PARAMETER_IDS).toEqual(["temperature", "rainfall", "aerosol", "co2", "ch4"]);
+    expect(POINT_PARAMETER_IDS).toEqual(["temperature", "rainfall", "aerosol"]);
     expect(SOUND_PARAMETERS.co2.scope).toBe("global");
   });
 
@@ -92,6 +92,33 @@ describe("parsePowerMonthly (rainfall)", () => {
     expect(url).toContain("parameters=PRECTOTCORR");
     expect(url).toContain("start=2016");
     expect(url).toContain("end=2025");
+  });
+});
+
+describe("parsePowerMonthly (aerosols, AOD_55)", () => {
+  const AOD: PowerParameterSpec = {
+    parameter: "AOD_55",
+    parameterId: "aerosol",
+    allowedUnits: [],
+    min: 0,
+    max: 10,
+  };
+  // Shape of the real NASA POWER response checked in the Codespace (Kolkata).
+  const json = {
+    properties: { parameter: { AOD_55: { "201601": 1.12, "201602": 1.24, "201613": 0.79, "201603": -999 } } },
+    parameters: { AOD_55: { units: "dimensionless" } },
+  };
+
+  it("reads AOD values, drops month 13, -999 is missing", () => {
+    const s = parsePowerMonthly(json, 22.5726, 88.3639, AOD);
+    expect(s.observations.map((o) => o.value)).toEqual([1.12, 1.24, null]);
+    expect(s.observations[0].id).toBe("aerosol|22.5726,88.3639:2016-01");
+  });
+
+  it("maps AOD 0 → 220 Hz and 1.5 → 880 Hz", () => {
+    const m = SOUND_PARAMETERS.aerosol.mapping;
+    expect(temperatureToSound(0, m).frequencyHz).toBeCloseTo(220);
+    expect(temperatureToSound(1.5, m).frequencyHz).toBeCloseTo(880);
   });
 });
 

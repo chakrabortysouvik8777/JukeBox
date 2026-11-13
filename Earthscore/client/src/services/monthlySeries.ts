@@ -1,6 +1,6 @@
 /**
  * One entry point for every sonified parameter:
- *   fetchMonthlySeries("temperature" | "rainfall" | "co2" | "ch4", lat, lng)
+ *   fetchMonthlySeries("temperature" | "rainfall" | "aerosol" | "co2" | "ch4", lat, lng)
  * returns a validated MonthlySeries for 2016–2025 (missing months = null).
  */
 import type { MonthlySeries } from "../types/dataset";
@@ -29,6 +29,15 @@ const RAINFALL_SPEC: PowerParameterSpec = {
   allowedUnits: ["mm/day", "mm day-1"],
   min: 0,
   max: 200, // mm/day as a monthly mean; above this is not plausible
+};
+
+const AEROSOL_SPEC: PowerParameterSpec = {
+  parameter: "AOD_55",
+  parameterId: "aerosol",
+  community: "RE", // the request verified in the Codespace used RE
+  allowedUnits: [], // AOD has no unit; NASA's unit label is not checked
+  min: 0,
+  max: 10, // AOD above this is not plausible as a monthly mean
 };
 
 // ---------- Shared session cache (failed requests are not cached) ----------
@@ -70,10 +79,15 @@ export function clearMonthlySeriesCache(): void {
 
 // ---------- NASA POWER (any monthly parameter) ----------
 
-export function buildPowerUrl(latitude: number, longitude: number, parameter: string): string {
+export function buildPowerUrl(
+  latitude: number,
+  longitude: number,
+  parameter: string,
+  community = "SB",
+): string {
   const params = new URLSearchParams({
     parameters: parameter,
-    community: "SB",
+    community,
     longitude: longitude.toFixed(4),
     latitude: latitude.toFixed(4),
     start: String(POWER_START_YEAR),
@@ -111,7 +125,7 @@ async function downloadPower(
   longitude: number,
   spec: PowerParameterSpec,
 ): Promise<MonthlySeries> {
-  const url = buildPowerUrl(latitude, longitude, spec.parameter);
+  const url = buildPowerUrl(latitude, longitude, spec.parameter, spec.community);
   const abort = new AbortController();
   const timer = setTimeout(() => abort.abort(), LIVE_TIMEOUT_MS);
 
@@ -206,6 +220,13 @@ export function fetchMonthlySeries(
       return shared(
         `rainfall|${locationKey(latitude, longitude)}`,
         () => downloadPower(latitude, longitude, RAINFALL_SPEC),
+        signal,
+      );
+
+    case "aerosol":
+      return shared(
+        `aerosol|${locationKey(latitude, longitude)}`,
+        () => downloadPower(latitude, longitude, AEROSOL_SPEC),
         signal,
       );
 

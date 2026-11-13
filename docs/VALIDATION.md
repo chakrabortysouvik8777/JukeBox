@@ -22,7 +22,7 @@ Run from `Earthscore/client`.
 
 | Check | Command | Result |
 |---|---|---|
-| All unit tests | `npm test` | PASS — 181 tests in 11 files |
+| All unit tests | `npm test` | PASS — 183 tests in 11 files |
 | Type check | `npx tsc --noEmit` | PASS — no errors |
 | Production build | `npm run build` | PASS |
 
@@ -85,6 +85,7 @@ series padding, mappings, compare with rainfall) and stereo WAV encoding.
 | P6 | Compare DAW: stereo WAV, A notes RMS ≈ 8800 left / 2900 right, B the reverse (measured from the file) | PASS (sandbox, measured) |
 | P7 | Compare DAW shows "A · Kolkata" then "B · Svalbard" while playing; changing parameter clears the file | PASS (sandbox) |
 | P8 | Browser console: no errors | PASS (sandbox) |
+| P9 | NASA POWER AOD_55 returns real monthly values (Kolkata, Jan 2016 = 1.12) | PASS (Codespace, real API) |
 
 ## C. Real-device listening checks — TO DO
 

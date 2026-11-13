@@ -183,6 +183,7 @@ export interface PowerParameterSpec {
   allowedUnits: readonly string[]; // e.g. ["mm/day"]
   min: number; // plausible range; outside → missing
   max: number;
+  community?: string; // NASA POWER community, default "SB"
 }
 
 /**
@@ -212,7 +213,12 @@ export function parsePowerMonthly(
   const info = isRecord(parameters) ? parameters[spec.parameter] : undefined;
   const units = isRecord(info) ? info.units : undefined;
 
-  if (typeof units === "string" && !spec.allowedUnits.includes(units)) {
+  // An empty allowedUnits list accepts any unit label (e.g. AOD has none).
+  if (
+    typeof units === "string" &&
+    spec.allowedUnits.length > 0 &&
+    !spec.allowedUnits.includes(units)
+  ) {
     throw new DatasetError(
       `Unexpected ${spec.parameter} units "${units}"; expected ${spec.allowedUnits.join(" or ")}.`,
     );

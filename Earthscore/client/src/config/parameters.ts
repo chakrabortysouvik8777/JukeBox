@@ -4,12 +4,12 @@
  * Every parameter has ONE fixed value-to-pitch mapping, the same for every
  * place and year (a project design choice, not a NASA standard). The mapping
  * reuses TemperatureMappingConfig: its min/max fields are in the
- * parameter's own unit (°C, mm/day, ppm, ppb).
+ * parameter's own unit (°C, mm/day, AOD, ppm, ppb).
  */
 import type { TemperatureMappingConfig } from "../types/audio";
 import { T2M_TEMPERATURE_MAPPING } from "./audioMapping";
 
-export type SoundParameterId = "temperature" | "rainfall" | "co2" | "ch4";
+export type SoundParameterId = "temperature" | "rainfall" | "aerosol" | "co2" | "ch4";
 
 export interface SoundParameter {
   id: SoundParameterId;
@@ -61,6 +61,26 @@ export const SOUND_PARAMETERS: Record<SoundParameterId, SoundParameter> = {
       octaves: 2,
     }),
   },
+  aerosol: {
+    id: "aerosol",
+    label: "Air quality (aerosols)",
+    quantity: "aerosol optical depth",
+    unit: "AOD",
+    decimals: 2,
+    scope: "point",
+    source: "NASA POWER AOD_55 (monthly)",
+    description:
+      "Monthly mean aerosol optical depth at 550 nm at this point: how much dust, smoke and haze in the air dims sunlight (no unit). A proxy for particle pollution, not a ground air-quality index.",
+    lowWord: "clearer air",
+    highWord: "hazier air",
+    mapping: Object.freeze({
+      id: "aod-pitch-v1",
+      minTemperatureC: 0, // AOD (no unit)
+      maxTemperatureC: 1.5, // AOD
+      minFrequencyHz: 220,
+      octaves: 2,
+    }),
+  },
   co2: {
     id: "co2",
     label: "CO₂",
@@ -106,6 +126,7 @@ export const SOUND_PARAMETERS: Record<SoundParameterId, SoundParameter> = {
 export const SOUND_PARAMETER_IDS: readonly SoundParameterId[] = [
   "temperature",
   "rainfall",
+  "aerosol",
   "co2",
   "ch4",
 ];
