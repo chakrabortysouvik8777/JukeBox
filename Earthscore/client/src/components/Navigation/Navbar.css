@@ -42,20 +42,20 @@
 
 .brand-label {
   color: #a9c2ff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
   letter-spacing: 1px;
 }
 
 .brand-info h2 {
-  font-size: 17px;
+  font-size: 18px;
   margin: 3px 0 0;
   color: #e1e5ef;
   white-space: nowrap;
 }
 
 .connection-status {
-  font-size: 10px;
+  font-size: 11px;
   color: #b5caff;
   border: 1px solid #29354d;
   padding: 7px;
@@ -135,12 +135,13 @@
   background: transparent;
   border: none;
   outline: none;
-  color: white;
-  font-size: 11px;
+  color: #263b49;
+  caret-color: #b7502d;
+  font-size: 12px;
 }
 
 .search-box input::placeholder {
-  color: #b6bdcc;
+  color: #72838d;
 }
 
 .search-submit {
@@ -162,11 +163,21 @@
   z-index: 2;
   top: calc(100% + 6px);
   right: 0;
+  margin: 0;
   width: max-content;
   max-width: min(320px, 80vw);
-  color: #d5d9e6;
-  font-size: 12px;
+  padding: 8px 10px;
+  color: #294250;
+  background: #ffffff;
+  border: 1px solid rgba(49, 77, 94, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(43, 69, 82, 0.12);
+  font-size: 13px;
   white-space: normal;
+}
+
+.search-submit {
+  color: #55717f;
 }
 
 .audio-button {
@@ -194,7 +205,7 @@
   background: #0a0d14;
   border-top: 1px solid #1c2330;
   font-family: Georgia, serif;
-  font-size: 11px;
+  font-size: 12px;
   color: #bfc4d1;
   white-space: nowrap;
 }
@@ -221,7 +232,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .mission-status strong {
@@ -254,7 +265,7 @@
 
   .nav-links a {
     padding: 0 10px;
-    font-size: 12px;
+    font-size: 13px;
   }
 }
 
@@ -284,7 +295,7 @@
 
 @media (max-width: 500px) {
   .brand-info h2 {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .search-box {

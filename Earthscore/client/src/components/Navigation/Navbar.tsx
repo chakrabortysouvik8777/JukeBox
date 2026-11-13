@@ -10,7 +10,7 @@ import "./Navbar.css";
 
 interface NavbarProps {
     currentPage: PageId;
-    selectedLocation: Location;
+    selectedLocation: Location | null;
     muted: boolean;
     onLocationSelect: (location: Location) => void;
     onMuteToggle: () => void;
@@ -45,7 +45,7 @@ const Navbar = ({
             searchController.current.abort();
             setIsSearching(false);
         }
-    }, [selectedLocation.lat, selectedLocation.lng]);
+    }, [selectedLocation?.lat, selectedLocation?.lng]);
 
     // Search for a location or coordinates.
     const handleSearch = async (
@@ -181,18 +181,16 @@ const Navbar = ({
                             {isSearching ? "…" : "↵"}
                         </button>
 
+                        {searchStatus && (
+                            <p
+                                className="search-status"
+                                role="status"
+                                aria-live="polite"
+                            >
+                                {searchStatus}
+                            </p>
+                        )}
                     </form>
-
-                    {/* Search Status */}
-                    {searchStatus && (
-                        <p
-                            className="search-status"
-                            role="status"
-                            aria-live="polite"
-                        >
-                            {searchStatus}
-                        </p>
-                    )}
 
                     {/* Audio Mute Button */}
                     <button
@@ -222,11 +220,9 @@ const Navbar = ({
             <div className="telemetry-bar">
 
                 <div className="target-info">
-                    SELECTED POINT: {selectedLocation.lat.toFixed(4)}°,
-                    {" "}
-                    {selectedLocation.lng.toFixed(4)}°
-                    {" "}
-                    ({selectedLocation.name})
+                    {selectedLocation
+                        ? `TARGET: ${selectedLocation.lat.toFixed(4)}°, ${selectedLocation.lng.toFixed(4)}° (${selectedLocation.name})`
+                        : "TARGET: NONE SELECTED"}
                 </div>
 
                 <div className="telemetry-divider"></div>

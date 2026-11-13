@@ -32,7 +32,7 @@
 .toolbar-label {
   color: #a8adbc;
   font-family: Georgia, serif;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
   margin-right: 5px;
 }
@@ -43,7 +43,7 @@
   border: 1px solid transparent;
   color: #c4c9d6;
   padding: 7px 10px;
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
   transition: 0.2s;
 }
@@ -59,6 +59,20 @@
   background: #376bd5;
   color: white;
   border-color: #5788ed;
+}
+
+.tool-btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.polygon-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #aeb7c9;
+  font-size: 12px;
 }
 
 /* Globe Area */
@@ -83,7 +97,7 @@
   position: relative;
   width: 100%;
   max-width: 620px;
-  height: 440px;
+  height: clamp(360px, 40vw, 540px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +135,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 5px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: bold;
   color: #a9c2ff;
 }
@@ -130,18 +144,18 @@
   padding: 3px 5px;
   background: #d93622;
   color: white;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .location-hud h3 {
   margin-top: 9px;
-  font-size: 16px;
+  font-size: 17px;
   color: #e2e5ed;
 }
 
 .hud-coordinates {
   margin-top: 5px;
-  font-size: 10px;
+  font-size: 11px;
   color: #b3b9c8;
 }
 
@@ -161,13 +175,13 @@
 }
 
 .hud-stats span {
-  font-size: 9px;
+  font-size: 10px;
   color: #a0a7b7;
 }
 
 .hud-stats strong {
   color: #a9c2ff;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* Coordinates */
@@ -180,7 +194,7 @@
   padding: 10px;
   margin-top: 5px;
   background: #10151e;
-  font-size: 10px;
+  font-size: 11px;
   color: #aeb7c9;
 }
 
@@ -210,7 +224,7 @@
   flex-wrap: wrap;
   gap: 8px;
   font-family: Georgia, serif;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
   color: #b4bbcd;
   margin-bottom: 9px;
@@ -250,12 +264,12 @@
 }
 
 .sensor-card strong {
-  font-size: 10px;
+  font-size: 11px;
   overflow-wrap: anywhere;
 }
 
 .sensor-card small {
-  font-size: 9px;
+  font-size: 10px;
   color: #c5ccda;
 }
 
@@ -278,7 +292,7 @@
   }
 
   .globe-frame {
-    height: 350px;
+    height: 360px;
   }
 
   .location-hud {
@@ -289,7 +303,7 @@
   }
 
   .location-hud h3 {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .sensor-grid {
@@ -297,6 +311,6 @@
   }
 
   .sensor-heading {
-    font-size: 9px;
+    font-size: 10px;
   }
 }

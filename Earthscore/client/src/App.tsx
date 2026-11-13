@@ -1,4 +1,13 @@
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import {
+    ArrowRight,
+    AudioLines,
+    Globe2,
+    MapPin,
+    Orbit,
+    Play,
+} from "lucide-react";
 import "./App.css";
 
 import Navbar from "./components/Navigation/Navbar";
@@ -22,6 +31,8 @@ import {
 import { useHashPage } from "./utils/useHashPage";
 
 function App() {
+    const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+
     // Shared playback state (M4): one timeline for sound and visuals.
     const { state: playback, dispatch, controller } = useAppState();
 
@@ -29,13 +40,7 @@ function App() {
     const page = useHashPage();
 
     // Currently selected location
-    const [selectedLocation, setSelectedLocation] =
-        useState<Location>({
-            name: "Kolkata",
-            country: "India",
-            lat: 22.5726,
-            lng: 88.3639,
-        });
+    const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 
     // Selected year for historical data and sonification
     const [selectedYear, setSelectedYear] = useState(2016);
@@ -49,12 +54,19 @@ function App() {
     // Runs again when returning to the Explorer from another page, because
     // Regional Compare puts its own A/B events into the shared timeline.
     useEffect(() => {
-        if (page !== "explorer") return;
-
-        const abort = new AbortController();
+        if (page !== "explorer" || !isDashboardOpen) return;
 
         controller?.stopAll();
-        dispatch({ type: "SET_EVENTS", payload: { events: [] } });
+        dispatch({
+            type: "SET_EVENTS",
+            payload: { events: [], startIndex: 0 },
+        });
+
+        if (!selectedLocation) {
+            return;
+        }
+
+        const abort = new AbortController();
 
         fetchTemperatureSeries(
             selectedLocation.lat,
@@ -82,7 +94,13 @@ function App() {
         // selectedYear is read once per location on purpose;
         // controller is stable for the app's lifetime.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedLocation.lat, selectedLocation.lng, dispatch, page]);
+    }, [
+        isDashboardOpen,
+        selectedLocation?.lat,
+        selectedLocation?.lng,
+        dispatch,
+        page,
+    ]);
 
     // Any page change stops the sound, so Explorer and Compare audio can
     // never play at the same time.
@@ -118,6 +136,83 @@ function App() {
     // Global mute lives in the shared state so the controller applies it.
     const isMuted = !playback.soundEnabled;
     const handleMuteToggle = () => dispatch({ type: "TOGGLE_SOUND" });
+    const handleLocationReset = () => {
+        setSelectedLocation(null);
+        setSelectedYear(2016);
+    };
+
+    if (page === "explorer" && !isDashboardOpen) {
+        return (
+            <main className="landing-page">
+                <header className="landing-header">
+                    <a className="landing-brand" href="#home" aria-label="EarthScore home">
+                        <span className="landing-brand-mark"><Orbit size={21} /></span>
+                        <span>
+                            <strong>EARTHSCORE</strong>
+                            <small>THE EARTH INFORMATION JUKEBOX</small>
+                        </span>
+                    </a>
+                </header>
+
+                <section className="landing-hero" id="home">
+                    <div className="landing-copy">
+                        <div className="landing-eyebrow">
+                            <span className="landing-live-dot" />
+                            A NEW WAY TO EXPERIENCE OUR PLANET
+                        </div>
+                        <h1>Listen to the<br /><em>living Earth.</em></h1>
+                        <p className="landing-description">
+                            What if a changing planet had a sound? Explore Earth’s
+                            environmental story through data you can see, hear, and
+                            discover for yourself.
+                        </p>
+                        <div className="landing-actions">
+                            <button
+                                className="landing-primary-cta"
+                                type="button"
+                                onClick={() => setIsDashboardOpen(true)}
+                            >
+                                <Play size={16} fill="currentColor" />
+                                Enter the experience
+                                <ArrowRight size={17} />
+                            </button>
+                        </div>
+                        <div className="landing-proof">
+                            <span><AudioLines size={16} /> Data, transformed into sound</span>
+                            <span><Globe2 size={16} /> Explore place by place</span>
+                        </div>
+                    </div>
+
+                    <div className="landing-visual" aria-label="Illustration of Earth in space">
+                        <div className="landing-orbit landing-orbit-one" />
+                        <div className="landing-orbit landing-orbit-two" />
+                        <div className="landing-earth">
+                            <div className="landing-earth-shade" />
+                        </div>
+                        <div className="landing-coordinate landing-coordinate-top">
+                            <span className="landing-live-dot" /> PLANETARY SIGNAL
+                            <strong>ACTIVE</strong>
+                        </div>
+                        <div className="landing-coordinate landing-coordinate-bottom">
+                            <span>01 / 06</span>
+                            <strong>Earth, in a different key.</strong>
+                            <div className="landing-waveform" aria-hidden="true">
+                                {Array.from({ length: 28 }, (_, index) => (
+                                    <i
+                                        key={index}
+                                        style={{ "--bar-index": index } as CSSProperties}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <span className="landing-star landing-star-one" />
+                        <span className="landing-star landing-star-two" />
+                        <span className="landing-star landing-star-three" />
+                    </div>
+                </section>
+            </main>
+        );
+    }
 
     return (
         <>
@@ -132,47 +227,85 @@ function App() {
 
             {page === "explorer" && (
                 <main className="dashboard-workspace">
+                    <header className="dashboard-overview">
+                        <div className="dashboard-overview-copy">
+                            <div className="dashboard-overview-kicker">
+                                <span className="dashboard-live-dot" />
+                                EARTH DATA WORKSPACE <span>/ 01</span>
+                            </div>
+                            <h1>Planetary <em>Explorer</em></h1>
+                            <p>Explore environmental signals across time and place.</p>
+                        </div>
+                        <div className="dashboard-overview-context">
+                            <span className="dashboard-context-icon">
+                                <Globe2 size={20} />
+                            </span>
+                            <span className="dashboard-context-copy">
+                                <small>
+                                    {selectedLocation ? "ACTIVE REGION" : "NO REGION SELECTED"}
+                                </small>
+                                <strong>
+                                    {selectedLocation
+                                        ? `${selectedLocation.name}, ${selectedLocation.country}`
+                                        : "Choose a location"}
+                                </strong>
+                                <span>
+                                    {selectedLocation
+                                        ? `${selectedYear} · ${selectedLocation.lat.toFixed(2)}°, ${selectedLocation.lng.toFixed(2)}°`
+                                        : "Select a point or draw a polygon to begin."}
+                                </span>
+                            </span>
+                        </div>
+                    </header>
 
-                    {/* MAIN DASHBOARD */}
                     <div className="dashboard-layout">
-
-                        {/* LEFT PANEL - INTERACTIVE GLOBE */}
                         <div className="left-panel">
                             <GlobePanel
                                 selectedLocation={selectedLocation}
                                 onLocationSelect={setSelectedLocation}
+                                onLocationReset={handleLocationReset}
                                 selectedYear={selectedYear}
                             />
                         </div>
 
-                        {/* RIGHT PANEL - ENVIRONMENTAL DATA */}
                         <div className="right-panel">
-                            <DiagnosticPanel
-                                selectedLocation={selectedLocation}
-                            />
+                            {selectedLocation ? (
+                                <DiagnosticPanel selectedLocation={selectedLocation} />
+                            ) : (
+                                <section className="dashboard-location-empty">
+                                    <span><MapPin size={20} /></span>
+                                    <div>
+                                        <h2>Select a place to explore</h2>
+                                        <p>
+                                            Choose Point or Polygon on the globe, use a preset,
+                                            or search for a place above. Environmental data and
+                                            sonification will load after a location is selected.
+                                        </p>
+                                    </div>
+                                </section>
+                            )}
                         </div>
-
                     </div>
 
-                    {/* CHRONOLOGICAL SONIC SCRUBBER */}
-                    <TimelineScrubber
-                        selectedYear={selectedYear}
-                        onYearChange={handleYearChange}
-                    />
+                    {selectedLocation && (
+                        <>
+                            <TimelineScrubber
+                                selectedYear={selectedYear}
+                                onYearChange={handleYearChange}
+                            />
 
-                    {/* YEAR-WISE TEMPERATURE SONIFICATION */}
-                    <YearSonifier
-                        location={selectedLocation}
-                        year={selectedYear}
-                        onYearChange={handleYearChange}
-                    />
+                            <YearSonifier
+                                location={selectedLocation}
+                                year={selectedYear}
+                                onYearChange={handleYearChange}
+                            />
 
-                    {/* DIGITAL AUDIO WORKSTATION */}
-                    <DAWEngine
-                        locationName={selectedLocation.name}
-                        selectedYear={selectedYear}
-                    />
-
+                            <DAWEngine
+                                locationName={selectedLocation.name}
+                                selectedYear={selectedYear}
+                            />
+                        </>
+                    )}
                 </main>
             )}
 

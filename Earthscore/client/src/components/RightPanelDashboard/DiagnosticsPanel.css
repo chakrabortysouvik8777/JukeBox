@@ -22,7 +22,7 @@
   justify-content: space-between;
   gap: 8px;
   color: #a9c2ff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
   font-family: Georgia, serif;
 }
@@ -34,7 +34,7 @@
 }
 
 .diagnostic-header h1 {
-  font-size: clamp(19px, 2vw, 25px);
+  font-size: clamp(20px, 2.1vw, 26px);
   line-height: 1.35;
   margin-top: 12px;
   color: #e0e3ec;
@@ -43,14 +43,14 @@
 .diagnostic-description {
   margin-top: 8px;
   color: #b8bfce;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
 }
 
 .location-coordinates {
   margin-top: 12px;
   font-family: monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: #a9c2ff;
 }
 
@@ -89,13 +89,13 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
   min-width: 0;
 }
 
 .metric-change {
-  font-size: 9px;
+  font-size: 10px;
   padding: 3px 4px;
   background: #303440;
   color: #e1a59a;
@@ -103,7 +103,7 @@
 }
 
 .metric-card h2 {
-  font-size: clamp(17px, 1.7vw, 21px);
+  font-size: clamp(18px, 1.8vw, 22px);
   font-family: Georgia, serif;
   color: #e0e3ec;
   overflow-wrap: anywhere;
@@ -112,7 +112,7 @@
 .metric-card p {
   margin-top: 4px;
   color: #afb5c3;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.4;
 }
 
@@ -136,13 +136,13 @@
 
 .chart-header h3 {
   color: #a9afbd;
-  font-size: 10px;
+  font-size: 11px;
   font-family: Georgia, serif;
 }
 
 .chart-header span {
   color: #a9c2ff;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .chart-legend {
@@ -150,7 +150,7 @@
   flex-wrap: wrap;
   gap: 13px;
   margin-bottom: 10px;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .temp-legend {
@@ -175,7 +175,7 @@
 .data-disclaimer {
   margin-top: 12px;
   color: #929bad;
-  font-size: 9px;
+  font-size: 10px;
   line-height: 1.5;
 }
 
@@ -193,11 +193,11 @@
   }
 
   .diagnostic-header h1 {
-    font-size: 19px;
+    font-size: 20px;
   }
 
   .metric-card h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
 }
 
@@ -222,19 +222,19 @@
 
 .data-explorer-header h2 {
   color: #eaf2ff;
-  font-size: 19px;
+  font-size: 20px;
   margin: 0;
   letter-spacing: 1px;
 }
 
 .data-explorer-header p {
   color: #8da3ba;
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 7px;
 }
 
 .data-count {
-  font-size: 10px;
+  font-size: 11px;
   color: #65b9d8;
   border: 1px solid #36566b;
   padding: 7px 10px;
@@ -260,7 +260,7 @@
   align-items: center;
   justify-content: center;
   gap: 9px;
-  font-size: 12px;
+  font-size: 13px;
   transition: all 0.2s ease;
 }
 
@@ -295,7 +295,7 @@
 
 .coming-soon p {
   color: #8da3ba;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 @keyframes dataFadeIn {

@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Globe from "react-globe.gl";
 import "./GlobePanel.css";
 
@@ -11,8 +11,9 @@ import { fetchTemperatureSeries } from "../../services/nasaAPI";
 import { yearDifferenceFromAverage } from "../../data/selectors";
 
 interface GlobePanelProps {
-    selectedLocation: Location;
+    selectedLocation: Location | null;
     onLocationSelect: (location: Location) => void;
+    onLocationReset: () => void;
     selectedYear: number;
 }
 
@@ -23,6 +24,34 @@ const BADGE_STYLES = {
 };
 
 type ToolType = "point" | "polygon";
+type GeoPoint = { lat: number; lng: number };
+type PolygonShape = {
+    name: string;
+    geometry: {
+        type: "Polygon";
+        coordinates: Array<Array<[number, number]>>;
+    };
+};
+
+const polygonCentroid = (points: GeoPoint[]): GeoPoint => {
+    const cartesian = points.reduce(
+        (sum, point) => {
+            const latitude = (point.lat * Math.PI) / 180;
+            const longitude = (point.lng * Math.PI) / 180;
+            return {
+                x: sum.x + Math.cos(latitude) * Math.cos(longitude),
+                y: sum.y + Math.cos(latitude) * Math.sin(longitude),
+                z: sum.z + Math.sin(latitude),
+            };
+        },
+        { x: 0, y: 0, z: 0 },
+    );
+
+    return {
+        lat: (Math.atan2(cartesian.z, Math.hypot(cartesian.x, cartesian.y)) * 180) / Math.PI,
+        lng: (Math.atan2(cartesian.y, cartesian.x) * 180) / Math.PI,
+    };
+};
 
 const presetLocations: Location[] = [
     { name: "Kolkata", country: "India", lat: 22.5726, lng: 88.3639 },
@@ -36,6 +65,7 @@ const presetLocations: Location[] = [
 const GlobePanel = ({
     selectedLocation,
     onLocationSelect,
+    onLocationReset,
     selectedYear,
 }: GlobePanelProps) => {
     const globeRef = useRef<any>(null);
@@ -49,8 +79,10 @@ const GlobePanel = ({
     selectedRef.current = selectedLocation;
 
     const [globeWidth, setGlobeWidth] = useState(650);
+    const [globeHeight, setGlobeHeight] = useState(500);
     const [globeReady, setGlobeReady] = useState(false);
     const [activeTool, setActiveTool] = useState<ToolType>("point");
+    const [polygonPoints, setPolygonPoints] = useState<GeoPoint[]>([]);
     const [series, setSeries] = useState<TemperatureSeries | null>(null);
 
     // Move the globe whenever the selected coordinates change.
@@ -58,20 +90,26 @@ const GlobePanel = ({
         if (!globeReady || !globeRef.current) return;
 
         globeRef.current.pointOfView(
-            {
-                lat: selectedLocation.lat,
-                lng: selectedLocation.lng,
-                altitude: 1.8,
-            },
+            selectedLocation
+                ? {
+                      lat: selectedLocation.lat,
+                      lng: selectedLocation.lng,
+                      altitude: 1.35,
+                  }
+                : { lat: 20, lng: 30, altitude: 1.35 },
             1000
         );
-    }, [selectedLocation.lat, selectedLocation.lng, globeReady]);
+    }, [selectedLocation?.lat, selectedLocation?.lng, globeReady]);
 
     // Fetch NASA POWER temperature data for the selected location.
     useEffect(() => {
         const controller = new AbortController();
 
         setSeries(null);
+
+        if (!selectedLocation) {
+            return () => controller.abort();
+        }
 
         fetchTemperatureSeries(
             selectedLocation.lat,
@@ -90,9 +128,9 @@ const GlobePanel = ({
             });
 
         return () => controller.abort();
-    }, [selectedLocation.lat, selectedLocation.lng]);
+    }, [selectedLocation?.lat, selectedLocation?.lng]);
 
-    const yearDifference = series
+    const yearDifference = series && selectedLocation
         ? yearDifferenceFromAverage(series.observations, selectedYear)
         : null;
 
@@ -110,6 +148,20 @@ const GlobePanel = ({
               ? BADGE_STYLES.warmer
               : BADGE_STYLES.cooler;
 
+    const polygonData = useMemo<PolygonShape[]>(() => {
+        if (polygonPoints.length < 3) return [];
+
+        const ring: Array<[number, number]> = polygonPoints.map(
+            ({ lat, lng }) => [lng, lat],
+        );
+        ring.push(ring[0]);
+
+        return [{
+            name: "Selected region",
+            geometry: { type: "Polygon", coordinates: [ring] },
+        }];
+    }, [polygonPoints]);
+
     // Responsive globe width.
     useEffect(() => {
         const container = containerRef.current;
@@ -121,6 +173,7 @@ const GlobePanel = ({
 
             if (width) {
                 setGlobeWidth(Math.max(250, width));
+                setGlobeHeight(Math.max(360, Math.min(540, width * 0.44)));
             }
         });
 
@@ -135,7 +188,8 @@ const GlobePanel = ({
 
         const controls = globeRef.current.controls();
 
-        controls.autoRotate = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.25;
         controls.enableRotate = true;
         controls.enableZoom = true;
         controls.enablePan = false;
@@ -155,17 +209,20 @@ const GlobePanel = ({
     };
 
     const isStillSelected = (lat: number, lng: number) =>
-        selectedRef.current.lat === lat && selectedRef.current.lng === lng;
+        selectedRef.current?.lat === lat && selectedRef.current?.lng === lng;
 
     // Select a location by clicking on the globe.
-    const handleGlobeClick = async (
-        coords: { lat: number; lng: number }
-    ) => {
-        if (activeTool !== "point") return;
-
+    const handleGlobeClick = async (coords: GeoPoint) => {
         const lat = Number(coords.lat.toFixed(4));
         const lng = Number(coords.lng.toFixed(4));
 
+        if (activeTool === "polygon") {
+            geocodeRequestId.current++;
+            setPolygonPoints((points) => [...points, { lat, lng }]);
+            return;
+        }
+
+        setPolygonPoints([]);
         const requestId = ++geocodeRequestId.current;
 
         // Update coordinates immediately.
@@ -212,8 +269,51 @@ const GlobePanel = ({
     const handlePresetClick = (location: Location) => {
         // Invalidate any pending reverse-geocoding request.
         geocodeRequestId.current++;
-
+        setPolygonPoints([]);
+        setActiveTool("point");
         onLocationSelect(location);
+    };
+
+    const handlePolygonComplete = async () => {
+        if (polygonPoints.length < 3) return;
+
+        const center = polygonCentroid(polygonPoints);
+        const lat = Number(center.lat.toFixed(4));
+        const lng = Number(center.lng.toFixed(4));
+        const selectedBeforeRequest = selectedRef.current;
+        const requestId = ++geocodeRequestId.current;
+        const isCurrentRequest = () =>
+            requestId === geocodeRequestId.current &&
+            selectedRef.current === selectedBeforeRequest;
+        const region: Location = {
+            name: "Selected region",
+            country: "Custom area",
+            lat,
+            lng,
+        };
+
+        try {
+            const result = await getPlaceName(lat, lng);
+            if (!isCurrentRequest()) return;
+            onLocationSelect({
+                ...region,
+                name: result?.city || result?.name || region.name,
+                country: result?.country || result?.state || region.country,
+            });
+        } catch (error) {
+            console.error("Region reverse geocoding failed:", error);
+            if (!isCurrentRequest()) return;
+            onLocationSelect(region);
+        }
+
+        setActiveTool("point");
+    };
+
+    const handleReset = () => {
+        geocodeRequestId.current++;
+        setPolygonPoints([]);
+        setActiveTool("point");
+        onLocationReset();
     };
 
     // Format coordinates.
@@ -241,29 +341,61 @@ const GlobePanel = ({
                                 ? "tool-btn selected"
                                 : "tool-btn"
                         }
-                        onClick={() => setActiveTool("point")}
+                        aria-pressed={activeTool === "point"}
+                        onClick={() => {
+                            setActiveTool("point");
+                            setPolygonPoints([]);
+                        }}
                     >
                         ⌖ Point
                     </button>
 
-                    {/* Polygon selection is not implemented yet. */}
                     <button
-                        className="tool-btn"
-                        disabled
-                        aria-disabled="true"
-                        title="Area selection is coming later. Use Point for now."
-                        style={{ opacity: 0.45, cursor: "not-allowed" }}
+                        className={
+                            activeTool === "polygon"
+                                ? "tool-btn selected"
+                                : "tool-btn"
+                        }
+                        aria-pressed={activeTool === "polygon"}
+                        onClick={() => {
+                            setActiveTool("polygon");
+                            setPolygonPoints([]);
+                        }}
                     >
-                        ⬡ Polygon (soon)
+                        ⬡ Polygon
                     </button>
 
                     <button
                         className="tool-btn"
-                        onClick={() => handlePresetClick(presetLocations[0])}
+                        onClick={handleReset}
                     >
                         ↻ Reset
                     </button>
                 </div>
+
+                {activeTool === "polygon" && (
+                    <div className="polygon-controls">
+                        <span>
+                            {polygonPoints.length < 3
+                                ? `Click ${3 - polygonPoints.length} or more points on the globe.`
+                                : `${polygonPoints.length} vertices selected.`}
+                        </span>
+                        <button
+                            className="tool-btn"
+                            onClick={handlePolygonComplete}
+                            disabled={polygonPoints.length < 3}
+                        >
+                            Use this region
+                        </button>
+                        <button
+                            className="tool-btn"
+                            onClick={() => setPolygonPoints([])}
+                            disabled={polygonPoints.length === 0}
+                        >
+                            Clear points
+                        </button>
+                    </div>
+                )}
 
                 {/* Preset locations */}
                 <div className="preset-group">
@@ -273,7 +405,7 @@ const GlobePanel = ({
                         <button
                             key={location.name}
                             className={
-                                selectedLocation.name === location.name
+                                selectedLocation?.name === location.name
                                     ? "preset-btn active-preset"
                                     : "preset-btn"
                             }
@@ -291,91 +423,118 @@ const GlobePanel = ({
                     <Globe
                         ref={globeRef}
                         width={globeWidth}
-                        height={420}
+                        height={globeHeight}
                         globeImageUrl="/textures/earth-blue-marble.jpg"
                         bumpImageUrl="/textures/earth-topology.png"
                         backgroundColor="rgba(0,0,0,0)"
                         showAtmosphere={true}
-                        atmosphereColor="#76baff"
-                        atmosphereAltitude={0.12}
+                        atmosphereColor="#91d5ff"
+                        atmosphereAltitude={0.16}
                         showGraticules={false}
                         rendererConfig={{
                             antialias: true,
                             alpha: true,
                             powerPreference: "high-performance",
                         }}
-                        pointsData={[selectedLocation]}
+                        pointsData={
+                            polygonPoints.length > 0
+                                ? polygonPoints
+                                : selectedLocation
+                                  ? [selectedLocation]
+                                  : []
+                        }
                         pointLat="lat"
                         pointLng="lng"
-                        pointColor={() => "#ff7979"}
+                        pointColor={() =>
+                            activeTool === "polygon" ? "#b7502d" : "#e36642"
+                        }
                         pointAltitude={0.04}
-                        pointRadius={0.55}
-                        ringsData={[selectedLocation]}
+                        pointRadius={0.75}
+                        ringsData={
+                            selectedLocation && polygonPoints.length === 0
+                                ? [selectedLocation]
+                                : []
+                        }
                         ringLat="lat"
                         ringLng="lng"
-                        ringColor={() => "#ff7777"}
-                        ringMaxRadius={4}
-                        ringPropagationSpeed={2}
+                        ringColor={() => "#e68b54"}
+                        ringMaxRadius={3}
+                        ringPropagationSpeed={1.5}
                         ringRepeatPeriod={1200}
+                        polygonsData={polygonData}
+                        polygonGeoJsonGeometry="geometry"
+                        polygonCapColor={() => "rgba(183, 80, 45, 0.24)"}
+                        polygonSideColor={() => "rgba(183, 80, 45, 0.18)"}
+                        polygonStrokeColor={() => "#c75d38"}
+                        polygonAltitude={0.012}
+                        polygonsTransitionDuration={250}
                         onGlobeClick={handleGlobeClick}
                         onGlobeReady={handleGlobeReady}
                     />
 
                     {/* Location HUD */}
-                    <div className="location-hud">
-                        <div className="hud-top">
-                            <span>SELECTED POINT</span>
+                    {selectedLocation && (
+                        <div className="location-hud">
+                            <div className="hud-top">
+                                <span>HUD RETICLE LOCK</span>
 
-                            <span
-                                className="anomaly-badge"
-                                style={badgeStyle}
-                                title="Mean NASA POWER T2M of the selected year minus the mean of all complete years 2016–2025 at this point. Not an official climate anomaly."
-                            >
-                                {badgeText}
-                            </span>
-                        </div>
-
-                        <h3>{selectedLocation.name}</h3>
-
-                        <p className="hud-coordinates">
-                            {formatCoordinate(
-                                selectedLocation.lat,
-                                "N",
-                                "S"
-                            )}
-                            {", "}
-                            {formatCoordinate(
-                                selectedLocation.lng,
-                                "E",
-                                "W"
-                            )}
-                        </p>
-
-                        <div className="hud-stats">
-                            <div>
-                                <span>LOCATION</span>
-                                <strong>{selectedLocation.country}</strong>
+                                <span
+                                    className="anomaly-badge"
+                                    style={badgeStyle}
+                                    title="Mean NASA POWER T2M of the selected year minus the mean of all complete years 2016–2025 at this point. Not an official climate anomaly."
+                                >
+                                    {badgeText}
+                                </span>
                             </div>
 
-                            <div>
-                                <span>DATA</span>
-                                <strong>NASA POWER T2M</strong>
+                            <h3>{selectedLocation.name}</h3>
+
+                            <p className="hud-coordinates">
+                                {formatCoordinate(
+                                    selectedLocation.lat,
+                                    "N",
+                                    "S"
+                                )}
+                                {", "}
+                                {formatCoordinate(
+                                    selectedLocation.lng,
+                                    "E",
+                                    "W"
+                                )}
+                            </p>
+
+                            <div className="hud-stats">
+                                <div>
+                                    <span>LOCATION</span>
+                                    <strong>{selectedLocation.country}</strong>
+                                </div>
+
+                                <div>
+                                    <span>DATA</span>
+                                    <strong>NASA POWER T2M</strong>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
             {/* Coordinate Display */}
             <div className="coordinate-display">
                 <span className="coordinate-indicator"></span>
-                <span>SELECTED TARGET</span>
+                <span>
+                    {selectedLocation ? "SELECTED TARGET" : "NO TARGET SELECTED"}
+                </span>
 
-                <strong>
-                    {selectedLocation.lat.toFixed(4)}°,
-                    {" "}
-                    {selectedLocation.lng.toFixed(4)}°
-                </strong>
+                {selectedLocation ? (
+                    <strong>
+                        {selectedLocation.lat.toFixed(4)}°,
+                        {" "}
+                        {selectedLocation.lng.toFixed(4)}°
+                    </strong>
+                ) : (
+                    <strong>Choose a point, polygon, or preset</strong>
+                )}
             </div>
 
             {/* Sensor Overlays */}
@@ -385,7 +544,11 @@ const GlobePanel = ({
                         DATA FEEDS IN THIS PROTOTYPE
                     </span>
 
-                    <span>SONIFIED: 1 / 6 FEEDS</span>
+                    <span>
+                        {selectedLocation
+                            ? "SONIFIED: 1 / 6 FEEDS"
+                            : "NO LOCATION DATA LOADED"}
+                    </span>
                 </div>
 
                 <div className="sensor-grid">
