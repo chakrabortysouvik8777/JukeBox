@@ -1,8 +1,8 @@
-/* Regional Compare page. A = cyan (left ear), B = orange (right ear). */
+/* Regional Compare page. A is blue (left ear); B is rust (right ear). */
 
 .compare-page {
-  --slot-a: #42d9e8;
-  --slot-b: #ff9f6e;
+  --slot-a: #427b9c;
+  --slot-b: #b7502d;
 }
 
 .compare-matchups {
@@ -11,8 +11,8 @@
   align-items: center;
   gap: 8px;
   margin-top: 16px;
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #687b86;
+  font-size: 12px;
   letter-spacing: 1px;
 }
 
@@ -20,35 +20,36 @@
 .compare-presets button,
 .compare-speed button {
   padding: 5px 10px;
-  border: 1px solid rgba(143, 165, 189, 0.3);
+  border: 1px solid rgba(49, 77, 94, 0.18);
   border-radius: 6px;
-  color: #c9d7e8;
-  background: rgba(28, 48, 69, 0.6);
-  font-size: 12px;
+  color: #526974;
+  background: #f0f4f6;
+  font-size: 13px;
   cursor: pointer;
 }
 
 .compare-matchups button.selected,
 .compare-speed button.selected {
-  color: #04121c;
-  background: #42d9e8;
-  border-color: #42d9e8;
+  color: #fff;
+  background: #b7502d;
+  border-color: #b7502d;
   font-weight: 700;
 }
 
 .compare-pickers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   margin-top: 16px;
 }
 
 .compare-card {
   padding: 18px;
-  background: rgba(16, 28, 44, 0.85);
-  border: 1px solid rgba(143, 165, 189, 0.15);
+  background: linear-gradient(145deg, #fff, #f3f7f8);
+  border: 1px solid rgba(67, 117, 143, 0.17);
   border-top: 3px solid var(--slot-color);
-  border-radius: 12px;
+  border-radius: 19px;
+  box-shadow: 0 8px 24px rgba(43, 69, 82, 0.06);
   transition: box-shadow 0.15s, border-color 0.15s;
 }
 
@@ -64,7 +65,7 @@
 
 .compare-card.is-active {
   border-color: var(--slot-color);
-  box-shadow: 0 0 0 1px var(--slot-color), 0 0 22px rgba(66, 217, 232, 0.15);
+  box-shadow: 0 0 0 1px var(--slot-color), 0 8px 24px rgba(43, 69, 82, 0.08);
 }
 
 .compare-card-top {
@@ -75,29 +76,29 @@
 
 .compare-slot-badge {
   color: var(--slot-color);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
 }
 
 .compare-now {
   color: var(--slot-color);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
 }
 
 .compare-card h2 {
   margin: 8px 0 12px;
-  color: #e8f1ff;
-  font-size: 20px;
+  color: #203b49;
+  font-size: 22px;
 }
 
 .compare-card h2 small {
   display: block;
   margin-top: 2px;
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #6b7f89;
+  font-size: 13px;
   font-weight: 400;
 }
 
@@ -108,7 +109,7 @@
 }
 
 .compare-presets button.selected {
-  color: #04121c;
+  color: #fff;
   background: var(--slot-color);
   border-color: var(--slot-color);
   font-weight: 700;
@@ -124,20 +125,25 @@
   flex: 1;
   min-width: 0;
   padding: 7px 10px;
-  border: 1px solid rgba(143, 165, 189, 0.3);
+  border: 1px solid rgba(49, 77, 94, 0.2);
   border-radius: 6px;
-  color: #e8f1ff;
-  background: rgba(4, 12, 22, 0.7);
-  font-size: 12px;
+  color: #263b49;
+  background: #f8fafb;
+  font-size: 14px;
 }
 
 .compare-search button {
   padding: 7px 12px;
-  border: 1px solid rgba(66, 217, 232, 0.4);
+  border: 1px solid rgba(66, 123, 156, 0.3);
   border-radius: 6px;
-  color: #e8f1ff;
-  background: rgba(66, 217, 232, 0.12);
+  color: #315d75;
+  background: #eaf2f6;
+  font-size: 14px;
   cursor: pointer;
+}
+
+.compare-search input::placeholder {
+  color: #81919a;
 }
 
 .compare-search button:disabled {
@@ -147,16 +153,16 @@
 
 .compare-msg {
   margin: 10px 0 0;
-  color: #8fa5bd;
-  font-size: 12px;
+  color: #60737e;
+  font-size: 13px;
 }
 
 .compare-error {
-  color: #ff8a8a;
+  color: #a53b28;
 }
 
 .compare-offline {
-  color: #ffd27a;
+  color: #80621d;
 }
 
 .compare-month {
@@ -176,14 +182,14 @@
 }
 
 .compare-month-head span {
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #687b86;
+  font-size: 12px;
   letter-spacing: 1px;
 }
 
 .compare-values {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   margin-top: 12px;
 }
@@ -193,31 +199,35 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px;
-  background: rgba(28, 48, 69, 0.6);
-  border: 1px solid rgba(143, 165, 189, 0.12);
-  border-left: 3px solid var(--slot-color, #8fa5bd);
+  background: #f1f5f6;
+  border: 1px solid rgba(49, 77, 94, 0.12);
+  border-left: 3px solid var(--slot-color, #71818a);
   border-radius: 10px;
 }
 
 .compare-value.is-active {
-  background: rgba(66, 217, 232, 0.12);
+  background: #eaf2f6;
   border-color: var(--slot-color);
 }
 
+.compare-value.slot-b.is-active {
+  background: #f9eee8;
+}
+
 .compare-value span {
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #60737e;
+  font-size: 12px;
   letter-spacing: 0.5px;
 }
 
 .compare-value strong {
-  color: #e8f1ff;
-  font-size: 20px;
+  color: #263b49;
+  font-size: 23px;
 }
 
 .compare-value small {
-  color: var(--slot-color, #c9d7e8);
-  font-size: 11px;
+  color: var(--slot-color, #526974);
+  font-size: 12px;
 }
 
 .compare-chart,
@@ -230,12 +240,13 @@
   flex-wrap: wrap;
   gap: 6px 16px;
   margin-bottom: 8px;
-  font-size: 12px;
+  color: #48616e;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .compare-legend small {
-  color: #6f849b;
+  color: #71818a;
   font-weight: 400;
 }
 
@@ -248,20 +259,20 @@
 
 .compare-buttons button {
   padding: 10px 16px;
-  border: 1px solid rgba(143, 165, 189, 0.3);
+  border: 1px solid rgba(49, 77, 94, 0.18);
   border-radius: 8px;
-  color: #c9d7e8;
-  background: rgba(28, 48, 69, 0.6);
-  font-size: 12px;
+  color: #526974;
+  background: #f0f4f6;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
   cursor: pointer;
 }
 
 .compare-buttons .compare-play {
-  color: #04121c;
-  background: #42d9e8;
-  border-color: #42d9e8;
+  color: #fff;
+  background: #b7502d;
+  border-color: #b7502d;
 }
 
 .compare-buttons button:disabled {
@@ -274,14 +285,14 @@
   align-items: center;
   gap: 10px;
   margin-top: 16px;
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #60737e;
+  font-size: 12px;
 }
 
 .compare-seek input {
   flex: 1;
   min-width: 0;
-  accent-color: #42d9e8;
+  accent-color: #b7502d;
 }
 
 .compare-settings {
@@ -298,13 +309,13 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #60737e;
+  font-size: 12px;
   letter-spacing: 1px;
 }
 
 .compare-speed small {
-  color: #6f849b;
+  color: #71818a;
   letter-spacing: 0;
 }
 
@@ -312,25 +323,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #60737e;
+  font-size: 12px;
   letter-spacing: 1px;
 }
 
 .compare-volume input {
   width: 110px;
-  accent-color: #42d9e8;
+  accent-color: #b7502d;
 }
 
 .compare-note {
   margin: 14px 0 0;
-  color: #6f849b;
-  font-size: 11px;
+  color: #71818a;
+  font-size: 12px;
   line-height: 1.5;
 }
 
 .compare-page button:focus-visible,
 .compare-page input:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid #b7502d;
   outline-offset: 2px;
 }

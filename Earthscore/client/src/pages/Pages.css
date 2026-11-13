@@ -1,130 +1,148 @@
-/* Shared styles for the Regional Compare and Methodology pages.
-   Colours follow the existing dashboard panels. */
+/* Shared page chrome for the light EarthScore workspace. */
 
 .page-workspace {
+  --dashboard-accent: #b7502d;
+  --dashboard-border: rgba(49, 77, 94, 0.14);
   box-sizing: border-box;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-  color: #e8f1ff;
+  width: min(calc(100% - 48px), 1680px);
+  margin: 28px auto 48px;
+  padding: clamp(18px, 2.2vw, 32px);
+  overflow: visible;
+  color: #263b49;
+  background:
+    radial-gradient(ellipse at 2% 0%, rgba(112, 168, 192, 0.12), transparent 34%),
+    linear-gradient(145deg, #f8fafb, #eef3f6 58%, #f6f7f5);
+  border: 1px solid rgba(49, 77, 94, 0.13);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(33, 54, 68, 0.12);
 }
 
 .page-hero {
-  padding: 24px;
-  background: linear-gradient(145deg, #101c2c, #091421);
-  border: 1px solid rgba(91, 153, 204, 0.25);
-  border-radius: 16px;
+  margin-bottom: 22px;
+  padding: 3px 4px 22px;
+  border-bottom: 1px solid var(--dashboard-border);
 }
 
 .page-eyebrow {
   margin: 0 0 8px;
-  color: #42d9e8;
-  font-size: 10px;
+  color: var(--dashboard-accent);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 0.17em;
 }
 
 .page-hero h1 {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 600;
+  margin: 11px 0 5px;
+  color: #1d3442;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(28px, 3.2vw, 42px);
+  font-weight: 400;
+  letter-spacing: -0.045em;
 }
 
 .page-hero p {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   max-width: 760px;
-  color: #a9bbd0;
-  font-size: 14px;
-  line-height: 1.6;
+  color: #687b86;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
 .page-status {
   display: inline-block;
   margin-top: 14px;
   padding: 5px 10px;
-  border: 1px solid rgba(255, 196, 77, 0.35);
+  border: 1px solid rgba(183, 80, 45, 0.25);
   border-radius: 6px;
-  color: #ffd27a;
-  background: rgba(255, 196, 77, 0.08);
-  font-size: 11px;
+  color: #8a472f;
+  background: #f9eee8;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
 }
 
 .page-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   margin-top: 16px;
 }
 
 .page-card {
-  padding: 20px;
-  background: rgba(16, 28, 44, 0.85);
-  border: 1px solid rgba(143, 165, 189, 0.15);
-  border-radius: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: clamp(18px, 2vw, 28px);
+  color: #2b4350;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.99), rgba(242, 247, 249, 0.99));
+  border: 1px solid rgba(67, 117, 143, 0.17);
+  border-radius: 19px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 12px 30px rgba(43, 69, 82, 0.08);
 }
 
 .page-card h2 {
   margin: 0 0 10px;
-  color: #e8f1ff;
-  font-size: 16px;
+  color: #203b49;
+  font-size: 19px;
   font-weight: 600;
 }
 
 .page-card p,
 .page-card li {
-  color: #b9c8da;
-  font-size: 13px;
-  line-height: 1.6;
+  color: #5d727d;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .page-card p {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 }
 
 .page-card ul,
 .page-card ol {
-  margin: 0;
-  padding-left: 18px;
+  margin: 10px 0 0;
+  padding-left: 22px;
 }
 
 .page-card code,
 .page-formula {
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 12px;
-  color: #42d9e8;
+  font-size: 13px;
+  color: #a4482c;
 }
 
 .page-formula {
   display: block;
   margin: 8px 0;
   padding: 10px 12px;
-  background: rgba(4, 12, 22, 0.7);
-  border-radius: 8px;
+  color: #365364;
+  background: #edf3f5;
+  border: 1px solid rgba(49, 77, 94, 0.11);
+  border-radius: 10px;
   white-space: pre-wrap;
 }
 
 .page-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .page-table th,
 .page-table td {
   padding: 8px 10px;
-  border-bottom: 1px solid rgba(143, 165, 189, 0.12);
+  border-bottom: 1px solid rgba(49, 77, 94, 0.12);
   text-align: left;
   vertical-align: top;
-  color: #c9d7e8;
+  color: #536974;
 }
 
 .page-table th {
-  color: #8fa5bd;
-  font-size: 11px;
+  color: #427b9c;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
 }
 
 .page-table-wrap {
@@ -136,20 +154,53 @@
 }
 
 .page-link {
-  color: #42d9e8;
+  color: #a4482c;
+  font-weight: 600;
 }
 
 .page-link:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid #b7502d;
   outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .page-workspace {
+    width: calc(100% - 32px);
+    margin: 16px auto 32px;
+    padding: 18px;
+    border-radius: 20px;
+  }
 }
 
 @media (max-width: 600px) {
   .page-workspace {
-    padding: 12px;
+    width: calc(100% - 16px);
+    margin: 8px auto 20px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .page-hero {
+    padding: 3px 2px 18px;
   }
 
   .page-hero h1 {
-    font-size: 21px;
+    font-size: clamp(25px, 7vw, 32px);
+  }
+
+  .page-hero p {
+    font-size: 14px;
+  }
+
+  .page-card {
+    padding: 17px;
+  }
+
+  .page-card h2 {
+    font-size: 18px;
+  }
+
+  .page-table {
+    min-width: 620px;
   }
 }
