@@ -105,22 +105,10 @@ npm run snapshot       # refresh the saved NASA data for the presets (needs inte
 
 Results are recorded in `docs/VALIDATION.md`.
 
-## Team
-
-**Team Name:** SARTHAK
-
-| Role | Member | Area |
-|---|---|---|
-| M1 | Sweta | UI, navigation, globe, design |
-| M2 | Roumik → handled by Souvik | Data validation and data documentation |
-| M3 | Souvik | Sonification, audio engine, data layer |
-| M4 | Sannoy | Shared state and playback controller |
-
 ## Current status
 
-Planetary Explorer and Regional Compare are working and tested (see
-`Earthscore/PROGRESS.md` and `docs/VALIDATION.md`). Real-device listening
-checks on the demo device are next.
+Earthscore is now live 
+Check it : https://earthscore-brown.vercel.app/
 
 ## Notes
 
